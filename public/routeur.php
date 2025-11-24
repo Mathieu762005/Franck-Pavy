@@ -1,6 +1,7 @@
 <?php
 // Appelle t'es controlleurs
 use App\Controllers\HomeController;
+use App\Controllers\UserController;
 
 // Appelle t'as logique de connexion a la base de donnés
 use App\Models\Database;
@@ -18,6 +19,11 @@ switch ($page) {
     case 'home': /* le nom de t'as page */
         $objController = new HomeController(); /* appelle ton bon controlleur */
         $objController->index();  /* appelle la method de ton controlleur */
+        break;
+
+    case 'login': /* le nom de t'as page */
+        $objController = new UserController(); /* appelle ton bon controlleur */
+        $objController->login();  /* appelle la method de ton controlleur */
         break;
 
     default:
