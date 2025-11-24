@@ -2,7 +2,7 @@
 // Appelle t'es controlleurs
 use App\Controllers\HomeController;
 
-// Appelle t'as ogique de connexion a la base de donnés
+// Appelle t'as logique de connexion a la base de donnés
 use App\Models\Database;
 
 // si le param url est présent on prend sa valeur, sinon on donne la valeur home
