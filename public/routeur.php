@@ -25,6 +25,14 @@ switch ($page) {
         $objController = new UserController(); /* appelle ton bon controlleur */
         $objController->login();  /* appelle la method de ton controlleur */
         break;
+    case 'register-success': /* le nom de t'as page */
+        require_once __DIR__ . "/../src/Views/register_success.php";
+        break;
+
+    case 'register': /* le nom de t'as page */
+        $objController = new UserController(); /* appelle ton bon controlleur */
+        $objController->register();  /* appelle la method de ton controlleur */
+        break;
 
     default:
         // aucun cas reconnu = on charge la 404

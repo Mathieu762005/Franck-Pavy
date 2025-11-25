@@ -23,14 +23,14 @@ class Database
         // Variables communes
         $db_host = $_ENV['DB_HOST'];
         $db_user = $_ENV['DB_USER'];
-        $db_password = $_ENV['DB_PASS'];
+        $db_password = $_ENV['DB_PASSWORD'];
 
         // On choisit la base selon APP_ENV
         $db_name = $_ENV['APP_ENV'] === 'test'
             ? $_ENV['DB_NAME_TEST']
             : $_ENV['DB_NAME_DEV'];
 
-        try {
+        try { 
             // j'utilise les variables plus haut
             $pdo = new PDO('mysql:host=' . $db_host . ';dbname=' . $db_name . ';charset=utf8', $db_user, $db_password);
             // A Activer seulement en developpement pour gagner en visibilité sur les erreurs SQL
