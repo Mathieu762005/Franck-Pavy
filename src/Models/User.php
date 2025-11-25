@@ -108,16 +108,16 @@ class User
 
             // On récupère les données sous forme d'objet
             $user = $stmt->fetch(PDO::FETCH_OBJ);
-
+            
             // On hydrate notre objet User avec les données récupérées
-            $this->id = $user->id;
-            $this->role = $user->role;
-            $this->username = $user->username;
-            $this->firstname = $user->firstname;
-            $this->email = $user->email;
-            $this->password = $user->password;
-            $this->total_spent = $user->total_spent ?? 0;
-            $this->orders_count = $user->orders_count ?? 0;
+            $this->id = $user->user_id;
+            $this->role = $user->user_role;
+            $this->username = $user->user_name;
+            $this->firstname = $user->user_first_name;
+            $this->email = $user->user_email;
+            $this->password = $user->user_password;
+            $this->total_spent = $user->user_total_spent ?? 0;
+            $this->orders_count = $user->user_orders_count ?? 0;
 
             return true;
         } catch (PDOException $e) {

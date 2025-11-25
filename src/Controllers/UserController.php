@@ -123,9 +123,10 @@ class UserController
                         $_SESSION["user"]["username"] = $userInfos->username;
                         $_SESSION["user"]["firstname"] = $userInfos->firstname;
                         $_SESSION["user"]["email"] = $userInfos->email;
+                        $_SESSION["user"]["orders_count"] = $userInfos->orders_count;
 
                         // Redirection vers la page profil
-                        header("Location: index.php?url=profil");
+                        header("Location: index.php?url=06_profil");
                     } else {
                         $errors['connexion'] = 'Mail ou Mot de passe incorrect';
                     }

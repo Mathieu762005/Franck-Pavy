@@ -11,10 +11,6 @@
 </head>
 
 <body>
-    <?php
-    $path = __DIR__ . "/../src/Views/register.php";
-    var_dump($path);
-    ?>
     <header>
         <div class="text-center py-4">
             <img src="assets/image/Logo/Logo.png" alt="">
@@ -65,7 +61,7 @@
             </form>
         </div>
         <div class="formulaire mx-auto mt-4 border py-2 rounded-5 text-center">
-            <a class="text-black" href="index.php?url=register">Se connecter à A Tout Heure</a>
+            <a class="text-black" href="index.php?url=login">Se connecter à A Tout Heure</a>
         </div>
     </main>
 </body>
