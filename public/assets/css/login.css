@@ -1,0 +1,17 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.formulaire {
+    width: 30rem;
+}
+
+img {
+    max-width: 100%;
+    width: 15rem;
+}
