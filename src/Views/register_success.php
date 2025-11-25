@@ -12,10 +12,6 @@
 </head>
 
 <body class="d-flex flex-column vh-100">
-    <?php
-    $path = __DIR__ . "/../src/Views/register_success";
-    var_dump($path);
-    ?>
 
 
     <main class="container py-4">
