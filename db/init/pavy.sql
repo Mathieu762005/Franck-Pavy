@@ -45,7 +45,8 @@ CREATE TABLE `cart_items` (
 
 CREATE TABLE `categories` (
   `category_id` int NOT NULL,
-  `category_name` varchar(50) NOT NULL
+  `category_name` varchar(50) NOT NULL,
+  `category_description` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --

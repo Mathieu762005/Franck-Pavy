@@ -2,6 +2,7 @@
 // Appelle t'es controlleurs
 use App\Controllers\HomeController;
 use App\Controllers\UserController;
+use App\Controllers\CategoryProductController;
 
 // Appelle t'as logique de connexion a la base de donnés
 use App\Models\Database;
@@ -38,6 +39,12 @@ switch ($page) {
     case 'register': /* le nom de t'as page */
         $objController = new UserController(); /* appelle ton bon controlleur */
         $objController->register();  /* appelle la method de ton controlleur */
+        break;
+
+    case '02_produits': /* le nom de t'as page */
+        $objController = new CategoryProductController();
+        $id = $_GET['id'] ?? null;
+        $objController->showCategoryWithProducts((int) $id);
         break;
 
     default:
