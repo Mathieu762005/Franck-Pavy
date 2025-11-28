@@ -18,7 +18,7 @@ $arrayUrl = explode('/', $url);
 $page = $arrayUrl[0];
 
 switch ($page) {
-    case 'home': /* le nom de t'as page */
+    case '01_home': /* le nom de t'as page */
         $objController = new HomeController(); /* appelle ton bon controlleur */
         $objController->index();  /* appelle la method de ton controlleur */
         break;
@@ -55,12 +55,18 @@ switch ($page) {
         require_once __DIR__ . "/../src/Views/04_click_and_collect.php";
         break;
 
+    case 'logout': /* le nom de t'as page */
+        $objController = new UserController(); /* appelle ton bon controlleur */
+        $objController->logout();  /* appelle la method de ton controlleur */
+        break;
+
     case '05_contact': /* le nom de t'as page */
         require_once __DIR__ . "/../src/Views/05_contact.php";
         break;
 
     case '06_profil': /* le nom de t'as page */
-        require_once __DIR__ . "/../src/Views/06_profil.php";
+        $objController = new UserController(); /* appelle ton bon controlleur */
+        $objController->profil();  /* appelle la method de ton controlleur */
         break;
 
     case '02_produits': /* le nom de t'as page */

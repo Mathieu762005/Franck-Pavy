@@ -16,12 +16,13 @@ class ContactController
     // Action pour envoyer un message depuis le formulaire de contact
     public function send()
     {
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $errors = [];
 
             // On récupère l'ID de l'utilisateur connecté depuis la session
-            $userId = $_SESSION['user_id'] ?? null;
+            $userId = $_SESSION['user']['id'] ?? null;
 
             if (!is_numeric($userId)) {
                 $errors['auth'] = "Utilisateur non connecté.";
@@ -55,7 +56,6 @@ class ContactController
                 }
             }
         }
-
         require __DIR__ . "/../Views/05_contact.php";
     }
 }
