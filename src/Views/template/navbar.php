@@ -11,7 +11,7 @@
                     <a class="nav-link" href="http://localhost:8000/index.php?url=01_home">Home</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                         Link
                     </a>
@@ -32,7 +32,7 @@
                     <a class="nav-link" href="http://localhost:8000/index.php?url=04_click_and_collect">Click And Collect</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                         Link
                     </a>
