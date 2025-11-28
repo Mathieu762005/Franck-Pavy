@@ -1,5 +1,6 @@
 <?php
 // Appelle t'es controlleurs
+use App\Controllers\ContactController;
 use App\Controllers\HomeController;
 use App\Controllers\UserController;
 use App\Controllers\CategoryProductController;
@@ -39,6 +40,27 @@ switch ($page) {
     case 'register': /* le nom de t'as page */
         $objController = new UserController(); /* appelle ton bon controlleur */
         $objController->register();  /* appelle la method de ton controlleur */
+        break;
+
+    case '05_contact': /* le nom de t'as page */
+        $objController = new ContactController(); /* appelle ton bon controlleur */
+        $objController->send();  /* appelle la method de ton controlleur */
+        break;
+
+    case '03_a_propos': /* le nom de t'as page */
+        require_once __DIR__ . "/../src/Views/03_a_propos.php";
+        break;
+
+    case '04_click_and_collect': /* le nom de t'as page */
+        require_once __DIR__ . "/../src/Views/04_click_and_collect.php";
+        break;
+
+    case '05_contact': /* le nom de t'as page */
+        require_once __DIR__ . "/../src/Views/05_contact.php";
+        break;
+
+    case '06_profil': /* le nom de t'as page */
+        require_once __DIR__ . "/../src/Views/06_profil.php";
         break;
 
     case '02_produits': /* le nom de t'as page */
