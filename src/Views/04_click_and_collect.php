@@ -16,6 +16,9 @@
     <main>
         <h1>click_and_collect</h1>
     </main>
+    <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
+        <?php include_once "template/footer.php" ?>
+    </footer>
 
 </body>
 
