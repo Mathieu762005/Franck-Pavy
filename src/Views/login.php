@@ -12,9 +12,9 @@
 
 <body>
     <header>
-        <header>
+        <div>
             <?php include_once "template/navbar.php" ?>
-        </header>
+        </div>
         <div class="text-center py-4">
             <img src="assets/image/Logo/Logo.png" alt="">
         </div>

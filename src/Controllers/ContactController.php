@@ -16,19 +16,18 @@ class ContactController
     // Action pour envoyer un message depuis le formulaire de contact
     public function send()
     {
+        $errors = [];
+        $messageSent = false; // pour la vue
+
+        // On récupère l'ID de l'utilisateur connecté depuis la session
+        $userId = $_SESSION['user']['id'] ?? null;
+        if (!is_numeric($userId)) {
+            $errors['auth'] = "Utilisateur non connecté.";
+        } else {
+            $userId = (int) $userId;
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            $errors = [];
-
-            // On récupère l'ID de l'utilisateur connecté depuis la session
-            $userId = $_SESSION['user']['id'] ?? null;
-
-            if (!is_numeric($userId)) {
-                $errors['auth'] = "Utilisateur non connecté.";
-            } else {
-                $userId = (int) $userId;
-            }
 
             // Vérification du champ "subject"
             if (empty($_POST["subject"])) {
@@ -49,8 +48,7 @@ class ContactController
                 );
 
                 if ($success) {
-                    header('Location: index.php?url=01_home');
-                    exit;
+                    $messageSent = true;
                 } else {
                     $errors['server'] = "Une erreur s'est produite, veuillez réessayer ultérieurement.";
                 }

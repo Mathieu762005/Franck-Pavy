@@ -43,6 +43,63 @@
     <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
         <?php include_once "template/footer.php" ?>
     </footer>
+
+    <?php if (!empty($errors['auth'])): ?>
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Retour a l'accueil</h5>
+                        <a href="index.php?url=01_home" class="btn-close" aria-label="Close"></a>
+                    </div>
+                    <div class="modal-body">
+                        Vous devez être connecté pour envoyer un message.
+                    </div>
+                    <div class="modal-footer">
+                        <a href="index.php?url=login" class="btn btn-primary">Se connecter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var myModal = new bootstrap.Modal(document.getElementById('loginModal'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                myModal.show();
+            });
+        </script>
+    <?php endif; ?>
+
+    <?php if (!empty($messageSent)): ?>
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="successModalLabel">Message envoyé</h5>
+                    </div>
+                    <div class="modal-body">
+                        Votre message a bien été envoyé. Merci de nous avoir contactés !
+                    </div>
+                    <div class="modal-footer">
+                        <a href="index.php?url=01_home" class="btn btn-primary">Retour à l’accueil</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var myModal = new bootstrap.Modal(document.getElementById('successModal'));
+                myModal.show();
+            });
+        </script>
+    <?php endif; ?>
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
