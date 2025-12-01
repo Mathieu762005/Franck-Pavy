@@ -3,6 +3,8 @@ namespace App\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\CartItem;
+use Illuminate\Http\Request;
 
 class CategoryProductController
 {
@@ -43,7 +45,7 @@ class CategoryProductController
         require __DIR__ . "/../Views/02_produits.php";
     }
 
-    public function showClickAndCollect()
+    public function showClickAndCollect(): void
     {
         $productModel = new Product();
 
@@ -68,4 +70,5 @@ class CategoryProductController
 
         require __DIR__ . '/../Views/04_click_and_collect.php';
     }
+
 }

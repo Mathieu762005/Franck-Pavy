@@ -69,6 +69,14 @@
                         </ul>
                     </li>
                 <?php endif; ?>
+                <?php if (isset($_GET['url']) && $_GET['url'] === '04_click_and_collect'): ?>
+                    <li>
+                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                            Panier
+                        </button>
+                    </li>
+                <?php endif; ?>
 
             </ul>
         </div>
