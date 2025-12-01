@@ -1,18 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Click And Collect</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
     <header>
         <?php include_once "template/navbar.php" ?>
+
+        <!-- Offcanvas placé juste après la navbar -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">Panier de commande</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+            </div>
+        </div>
     </header>
+
     <main>
         <?php foreach ($categories as $categoryName => $categoryData): ?>
             <h2><?= htmlspecialchars($categoryName) ?></h2>
@@ -30,11 +40,16 @@
                                     <h5 class="card-title"><?= htmlspecialchars($product->product_name) ?></h5>
                                     <p class="card-text"><?= htmlspecialchars($product->product_description) ?></p>
                                     <?php if (property_exists($product, 'product_price')): ?>
-                                        <p class="card-text"><strong><?= number_format($product->product_price, 2) ?> €</strong>
-                                        </p>
+                                        <p class="card-text"><strong><?= number_format($product->product_price, 2) ?> €</strong></p>
                                     <?php endif; ?>
-                                    <a href="index.php?url=add_to_cart&id=<?= $product->product_id ?>"
-                                        class="btn btn-primary">Ajouter au panier</a>
+                                    <!-- Formulaire qui envoie vers ton contrôleur -->
+                                    <form method="post" action="index.php?url=cart/add">
+                                        <input type="hidden" name="product_id" value="<?= $product->product_id ?>">
+                                        <input type="hidden" name="product_name" value="<?= $product->product_name ?>">
+                                        <input type="hidden" name="unit_price" value="<?= $product->product_price ?>">
+                                        <input type="number" name="quantity" value="1" min="1" class="form-control mb-2">
+                                        <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -45,12 +60,12 @@
             </div>
         <?php endforeach; ?>
     </main>
+
     <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
         <?php include_once "template/footer.php" ?>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -1,12 +1,13 @@
 <?php
-// Appelle t'es controlleurs
+// Appelle tes contrôleurs
 use App\Controllers\AdminController;
 use App\Controllers\ContactController;
 use App\Controllers\HomeController;
 use App\Controllers\UserController;
 use App\Controllers\CategoryProductController;
+use App\Controllers\CartItemController;
 
-// Appelle t'as logique de connexion a la base de donnés
+// Appelle ta logique de connexion à la base de données
 use App\Models\Database;
 
 // si le param url est présent on prend sa valeur, sinon on donne la valeur home
@@ -19,76 +20,75 @@ $arrayUrl = explode('/', $url);
 $page = $arrayUrl[0];
 
 switch ($page) {
-    case '01_home': /* le nom de t'as page */
-        $objController = new HomeController(); /* appelle ton bon controlleur */
-        $objController->index();  /* appelle la method de ton controlleur */
+    case '01_home':
+        $objController = new HomeController();
+        $objController->index();
         break;
 
-    case 'login': /* le nom de t'as page */
-        $objController = new UserController(); /* appelle ton bon controlleur */
-        $objController->login();  /* appelle la method de ton controlleur */
-        break;
-
-    case '06_profil': /* le nom de t'as page */
-        $objController = new UserController(); /* appelle ton bon controlleur */
-        $objController->profil();  /* appelle la method de ton controlleur */
-        break;
-
-    case 'register_success': /* le nom de t'as page */
-        require_once __DIR__ . "/../src/Views/register_success.php";
-        break;
-
-    case 'register': /* le nom de t'as page */
-        $objController = new UserController(); /* appelle ton bon controlleur */
-        $objController->register();  /* appelle la method de ton controlleur */
-        break;
-
-    case '05_contact': /* le nom de t'as page */
-        $objController = new ContactController(); /* appelle ton bon controlleur */
-        $objController->send();  /* appelle la method de ton controlleur */
-        break;
-
-    case '03_a_propos': /* le nom de t'as page */
-        require_once __DIR__ . "/../src/Views/03_a_propos.php";
-        break;
-
-    case '04_click_and_collect': /* le nom de t'as page */
-        $objController = new CategoryProductController(); /* appelle ton bon controlleur */
-        $objController->showClickAndCollect();  /* appelle la method de ton controlleur */
-        break;
-
-    case 'logout': /* le nom de t'as page */
-        $objController = new UserController(); /* appelle ton bon controlleur */
-        $objController->logout();  /* appelle la method de ton controlleur */
-        break;
-        
-    case 'adminCommandes': /* le nom de t'as page */
-        $objController = new AdminController(); /* appelle ton bon controlleur */
-        $objController->commandes();  /* appelle la method de ton controlleur */
-        break;
-
-    case 'adminUsers': /* le nom de t'as page */
-        $objController = new AdminController(); /* appelle ton bon controlleur */
-        $objController->users();  /* appelle la method de ton controlleur */
-        break;
-
-    case 'adminProducts': /* le nom de t'as page */
-        $objController = new AdminController(); /* appelle ton bon controlleur */
-        $objController->produits();  /* appelle la method de ton controlleur */
-        break;
-
-    case 'adminMessages': /* le nom de t'as page */
-        $objController = new AdminController(); /* appelle ton bon controlleur */
-        $objController->messages();  /* appelle la method de ton controlleur */
-        break;
-
-    case '02_produits': /* le nom de t'as page */
+    case '02_produits':
         $objController = new CategoryProductController();
         $id = $_GET['id'] ?? null;
         $objController->showCategoryWithProducts((int) $id);
         break;
 
+    case '03_a_propos':
+        require_once __DIR__ . "/../src/Views/03_a_propos.php";
+        break;
+
+    case '05_contact':
+        $objController = new ContactController();
+        $objController->send();
+        break;
+
+    case '04_click_and_collect':
+        $objController = new CategoryProductController();
+        $objController->showClickAndCollect();
+        break;
+
+    case '06_profil':
+        $objController = new UserController();
+        $objController->profil();
+        break;
+
+    case 'login':
+        $objController = new UserController();
+        $objController->login();
+        break;
+
+    case 'register':
+        $objController = new UserController();
+        $objController->register();
+        break;
+
+    case 'register_success':
+        require_once __DIR__ . "/../src/Views/register_success.php";
+        break;
+
+    case 'logout':
+        $objController = new UserController();
+        $objController->logout();
+        break;
+
+    case 'adminCommandes':
+        $objController = new AdminController();
+        $objController->commandes();
+        break;
+
+    case 'adminUsers':
+        $objController = new AdminController();
+        $objController->users();
+        break;
+
+    case 'adminProducts':
+        $objController = new AdminController();
+        $objController->produits();
+        break;
+
+    case 'adminMessages':
+        $objController = new AdminController();
+        $objController->messages();
+        break;
+
     default:
-        // aucun cas reconnu = on charge la 404
         require_once __DIR__ . "/../src/Views/page404.php";
 }
