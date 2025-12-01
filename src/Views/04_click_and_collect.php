@@ -14,7 +14,36 @@
         <?php include_once "template/navbar.php" ?>
     </header>
     <main>
-        <h1>click_and_collect</h1>
+        <?php foreach ($categories as $categoryName => $categoryData): ?>
+            <h2><?= htmlspecialchars($categoryName) ?></h2>
+            <img src="<?= htmlspecialchars($categoryData['image']) ?>" alt="<?= htmlspecialchars($categoryName) ?>"
+                class="img-fluid mb-3">
+
+            <div class="row">
+                <?php if (!empty($categoryData['products'])): ?>
+                    <?php foreach ($categoryData['products'] as $product): ?>
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100">
+                                <img src="/assets/image/<?= htmlspecialchars($product->product_image) ?>" class="card-img-top"
+                                    alt="<?= htmlspecialchars($product->product_name) ?>">
+                                <div class="card-body">
+                                    <h5 class="card-title"><?= htmlspecialchars($product->product_name) ?></h5>
+                                    <p class="card-text"><?= htmlspecialchars($product->product_description) ?></p>
+                                    <?php if (property_exists($product, 'product_price')): ?>
+                                        <p class="card-text"><strong><?= number_format($product->product_price, 2) ?> €</strong>
+                                        </p>
+                                    <?php endif; ?>
+                                    <a href="index.php?url=add_to_cart&id=<?= $product->product_id ?>"
+                                        class="btn btn-primary">Ajouter au panier</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>Aucun produit disponible pour cette catégorie.</p>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
     </main>
     <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
         <?php include_once "template/footer.php" ?>

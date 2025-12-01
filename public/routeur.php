@@ -53,7 +53,8 @@ switch ($page) {
         break;
 
     case '04_click_and_collect': /* le nom de t'as page */
-        require_once __DIR__ . "/../src/Views/04_click_and_collect.php";
+        $objController = new CategoryProductController(); /* appelle ton bon controlleur */
+        $objController->showClickAndCollect();  /* appelle la method de ton controlleur */
         break;
 
     case 'logout': /* le nom de t'as page */
