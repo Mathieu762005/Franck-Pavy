@@ -26,7 +26,7 @@ class User
     /**
      * Méthode pour créer un nouvel utilisateur dans la base
      */
-    public function createUser(string $username, string $firstname,string $email, string $password): bool
+    public function createUser(string $username, string $firstname, string $email, string $password): bool
     {
         try {
             // Connexion à la base via notre classe Database
@@ -108,7 +108,7 @@ class User
 
             // On récupère les données sous forme d'objet
             $user = $stmt->fetch(PDO::FETCH_OBJ);
-            
+
             // On hydrate notre objet User avec les données récupérées
             $this->id = $user->user_id;
             $this->role = $user->user_role;
@@ -120,6 +120,30 @@ class User
             $this->orders_count = $user->user_orders_count ?? 0;
 
             return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function incrementStats(float $amount): bool
+    {
+        try {
+            $pdo = Database::createInstancePDO();
+
+            if (!$pdo) {
+                return false;
+            }
+
+            $sql = "UPDATE `users`
+                SET `user_total_spent` = `user_total_spent` + :amount,
+                    `user_orders_count` = `user_orders_count` + 1
+                WHERE `user_id` = :userId";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':amount', $amount, PDO::PARAM_STR);
+            $stmt->bindValue(':userId', $this->id, PDO::PARAM_INT);
+
+            return $stmt->execute();
         } catch (PDOException $e) {
             return false;
         }

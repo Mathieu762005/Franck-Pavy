@@ -20,6 +20,11 @@ class CategoryProductController
         $category = $this->categoryModel->getCategoryById($id);
         $products = $this->productModel->getProductsByCategory($id);
 
+        if (!$category) {
+            echo "Catégorie introuvable";
+            return;
+        }
+
         // Associer une bannière selon la catégorie
         $bannerImages = [
             1 => "belleImage-pain.jpg",
@@ -45,19 +50,19 @@ class CategoryProductController
         $categories = [
             'Pause Déjeuner' => [
                 'image' => '/assets/image/C&C/baguetteApéro.png',
-                'products' => $productModel->getProductsByCategory(1)
+                'products' => $productModel->getProductsByCategory(3)
             ],
             'Les Pains' => [
                 'image' => '/assets/image/C&C/pain-4.png',
-                'products' => $productModel->getProductsByCategory(2)
+                'products' => $productModel->getProductsByCategory(1)
             ],
             'Les Pâtisseries' => [
                 'image' => '/assets/image/C&C/belleImage.jpg',
-                'products' => $productModel->getProductsByCategory(3)
+                'products' => $productModel->getProductsByCategory(4)
             ],
             'Les Viennoiseries' => [
                 'image' => '/assets/image/C&C/croissant.jpg',
-                'products' => $productModel->getProductsByCategory(4)
+                'products' => $productModel->getProductsByCategory(2)
             ]
         ];
 
