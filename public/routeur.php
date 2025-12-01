@@ -61,16 +61,7 @@ switch ($page) {
         $objController = new UserController(); /* appelle ton bon controlleur */
         $objController->logout();  /* appelle la method de ton controlleur */
         break;
-
-    case '05_contact': /* le nom de t'as page */
-        require_once __DIR__ . "/../src/Views/05_contact.php";
-        break;
-
-    case '06_profil': /* le nom de t'as page */
-        $objController = new UserController(); /* appelle ton bon controlleur */
-        $objController->profil();  /* appelle la method de ton controlleur */
-        break;
-
+        
     case 'adminCommandes': /* le nom de t'as page */
         $objController = new AdminController(); /* appelle ton bon controlleur */
         $objController->commandes();  /* appelle la method de ton controlleur */
