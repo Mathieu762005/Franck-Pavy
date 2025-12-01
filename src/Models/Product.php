@@ -34,7 +34,7 @@ class Product
                 return false;
             }
 
-            $sql = "SELECT product_id, product_name, product_description , product_image
+            $sql = "SELECT product_id, product_name, product_description, product_price, product_image
                     FROM products WHERE category_id = :category_id";
 
             $stmt = $pdo->prepare($sql);
@@ -51,4 +51,5 @@ class Product
             return false;
         }
     }
+
 }

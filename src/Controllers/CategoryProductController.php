@@ -37,4 +37,30 @@ class CategoryProductController
 
         require __DIR__ . "/../Views/02_produits.php";
     }
+
+    public function showClickAndCollect()
+    {
+        $productModel = new Product();
+
+        $categories = [
+            'Pause Déjeuner' => [
+                'image' => '/assets/image/C&C/baguetteApéro.png',
+                'products' => $productModel->getProductsByCategory(1)
+            ],
+            'Les Pains' => [
+                'image' => '/assets/image/C&C/pain-4.png',
+                'products' => $productModel->getProductsByCategory(2)
+            ],
+            'Les Pâtisseries' => [
+                'image' => '/assets/image/C&C/belleImage.jpg',
+                'products' => $productModel->getProductsByCategory(3)
+            ],
+            'Les Viennoiseries' => [
+                'image' => '/assets/image/C&C/croissant.jpg',
+                'products' => $productModel->getProductsByCategory(4)
+            ]
+        ];
+
+        require __DIR__ . '/../Views/04_click_and_collect.php';
+    }
 }
