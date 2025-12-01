@@ -26,7 +26,9 @@ class AdminMessage
     public function findAll()
     {
         try {
-            $sql = "SELECT * FROM messages";
+            $sql = "SELECT messages.message_id, messages.message_subject, messages.message_body, messages.message_sent_at, users.user_name, users.user_first_name, users.user_email
+                    FROM messages
+                    JOIN users ON messages.user_id = users.user_id;";
             $stmt = $this->db->query($sql);
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
