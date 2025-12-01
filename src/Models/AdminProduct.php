@@ -26,7 +26,9 @@ class AdminProduct
     public function findAll()
     {
         try {
-            $sql = "SELECT * FROM products";
+            $sql = "SELECT products.product_id, products.product_name, products.product_available, categories.category_name
+                    FROM products
+                    JOIN categories ON products.category_id = categories.category_id;";
             $stmt = $this->db->query($sql);
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);

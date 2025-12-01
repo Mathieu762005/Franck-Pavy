@@ -13,6 +13,10 @@
     <header>
         <?php include_once __DIR__ . '/../template/navbar.php'; ?>
     </header>
+    <?php
+    var_dump($messages);
+    ?>
+
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
