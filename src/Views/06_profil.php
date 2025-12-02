@@ -17,6 +17,38 @@
     <?php
     var_dump($_SESSION["user"])
         ?>
+    <div class="container mt-5">
+        <h1>Détails de la commande #<?= htmlspecialchars($orderId) ?></h1>
+
+        <?php if (!empty($details['items'])): ?>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Quantité</th>
+                        <th>Prix Unitaire</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $total = 0; ?>
+                    <?php foreach ($details['items'] as $item): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($item['product_name']) ?></td>
+                            <td><?= $item['cart_items_quantity'] ?></td>
+                            <td><?= number_format($item['cart_items_unit_price'], 2) ?> €</td>
+                            <td><?= number_format($item['cart_items_total_price'], 2) ?> €</td>
+                        </tr>
+                        <?php $total += $item['cart_items_total_price']; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <h3>Total de la commande : <?= number_format($total, 2) ?> €</h3>
+        <?php else: ?>
+            <p>Aucun produit dans cette commande.</p>
+        <?php endif; ?>
+    </div>
     <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
         <?php include_once "template/footer.php" ?>
     </footer>
