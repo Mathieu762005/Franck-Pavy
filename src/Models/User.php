@@ -9,6 +9,7 @@ use App\Models\DataBase;
 // On importe les classes PDO pour exécuter des requêtes SQL
 use PDO;
 use PDOException;
+use App\Models\Product;
 
 // Définition de la classe User
 class User

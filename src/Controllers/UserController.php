@@ -9,6 +9,10 @@ use App\Models\User;
 // Définition de la classe UserController
 class UserController
 {
+
+    private User $userModel;
+    private $db;
+
     // Méthode qui gère l'inscription d'un utilisateur
     public function register()
     {
@@ -157,6 +161,18 @@ class UserController
         if (!isset($_SESSION['user']['id'])) {
             header('Location: index.php?url=login');
             exit;
+        }
+
+        $userId = $_SESSION['user']['id'];
+        $userInfo = $this->userModel->getById($userId); // <-- passer l'ID ici
+
+        // Récupérer l'ID de la commande si fourni dans l'URL
+        $orderId = $_GET['id'] ?? null;
+        $orderDetails = [];
+
+        if ($orderId) {
+            $orderController = new OrderController($this->db);
+            $orderDetails = $orderController->getOrderDetails((int) $orderId);
         }
 
         require_once __DIR__ . "/../Views/06_profil.php";

@@ -153,7 +153,7 @@ switch ($page) {
         $orderController = new OrderController($db);
         $orderId = (int) ($_GET['id'] ?? 0);
         $details = $orderController->getOrderDetails($orderId);
-        require_once __DIR__ . "/../src/Views/order_details.php";
+        require_once __DIR__ . "/../src/Views/06_profil.php";
         break;
 
     // ---------- ADMIN ----------
