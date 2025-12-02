@@ -23,33 +23,33 @@ class Category
     public function getCategoryById($id)
     {
         try {
-            // Connexion à la base via notre classe Database
             $pdo = Database::createInstancePDO();
 
-            // Si la connexion échoue, on retourne false
             if (!$pdo) {
                 return false;
             }
 
             $sql = "SELECT category_id, category_name, category_description 
-                FROM categories WHERE category_id = :id";
+                FROM categories 
+                WHERE category_id = :id";
 
             $stmt = $pdo->prepare($sql);
-
-            // On lie les valeurs aux paramètres SQL
-            $stmt->bindValue(':id', $id, PDO::PARAM_INT); // rôle par défaut
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
             $stmt->execute();
 
-            $category = $stmt->fetch(PDO::FETCH_OBJ);
+            // On récupère la ligne en tableau associatif
+            $category = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return $category ?: null;
+            // Si aucun résultat
+            if (!$category) {
+                return false;
+            }
+
+            return $category;
 
         } catch (PDOException $e) {
-            // En cas d'erreur SQL, on affiche le message et on retourne false
-            // echo 'Erreur : ' . $e->getMessage();
             return false;
         }
-
     }
 }

@@ -1,55 +1,60 @@
 <?php
-
-// On indique que cette classe appartient au dossier logique "Models"
 namespace App\Models;
 
-// On importe la classe Database pour se connecter à la base
-use App\Models\DataBase;
-
-// On importe les classes PDO pour exécuter des requêtes SQL
 use PDO;
 use PDOException;
 
-// Définition de la classe Product
 class Product
 {
+    private PDO $db;
 
     public int $id;
     public string $name;
     public string $description;
-    public string $price;
-    public string $available;
+    public float $price;
+    public bool $available;
     public string $image;
-    public string $categoryId;
+    public int $categoryId;
 
+    public function __construct(PDO $db)
+    {
+        $this->db = $db;
+    }
 
-    public function getProductsByCategory(int $categoryId)
+    // Récupérer tous les produits disponibles
+    public function getAll(): array
     {
         try {
-            // Connexion à la base via notre classe Database
-            $pdo = Database::createInstancePDO();
-
-            // Si la connexion échoue, on retourne false
-            if (!$pdo) {
-                return false;
-            }
-
-            $sql = "SELECT product_id, product_name, product_description, product_price, product_image
-                    FROM products WHERE category_id = :category_id";
-
-            $stmt = $pdo->prepare($sql);
-
-            $stmt->bindValue(':category_id', $categoryId, PDO::PARAM_INT);
-
-            $stmt->execute();
-
-            return $stmt->fetchAll(PDO::FETCH_OBJ);
-
+            $stmt = $this->db->query("SELECT * FROM products WHERE product_available = 1");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // En cas d'erreur SQL, on affiche le message et on retourne false
-            // echo 'Erreur : ' . $e->getMessage();
-            return false;
+            return [];
         }
     }
 
+    // Récupérer les produits par catégorie
+    public function getByCategory(int $categoryId): array
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM products WHERE category_id = :category_id");
+            $stmt->bindValue(':category_id', $categoryId, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    // Récupérer un produit par ID
+    public function getById(int $productId): ?array
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM products WHERE product_id = ?");
+            $stmt->execute([$productId]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $data ?: null;
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
 }

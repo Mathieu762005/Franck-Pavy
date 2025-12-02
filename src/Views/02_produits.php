@@ -13,12 +13,15 @@
     <header>
         <?php include_once "template/navbar.php" ?>
     </header>
+    <?php
+    var_dump($category, $products)
+    ?>
 
     <div class="container mt-4">
         <!-- Affichage de la catégorie -->
-        <h1><?= htmlspecialchars($category->category_name) ?></h1>
-        <p><?= htmlspecialchars($category->category_description) ?></p>
-        <img src="/assets/image/Categories/<?= $banner ?>" alt="<?= htmlspecialchars($category->category_name) ?>"
+        <h1><?= htmlspecialchars($category['category_name']) ?></h1>
+        <p><?= htmlspecialchars($category["category_description"]) ?></p>
+        <img src="/assets/image/Categories/<?= $banner ?>" alt="<?= htmlspecialchars($category['category_name']) ?>"
             class="img-fluid w-100">
 
         <!-- Affichage des produits -->
@@ -26,17 +29,14 @@
             <div class="row">
                 <?php foreach ($products as $prod): ?>
                     <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <!-- Image du produit -->
-                            <img src="/assets/image/<?= htmlspecialchars($prod->product_image) ?>" class="card-img-top"
-                                alt="<?= htmlspecialchars($prod->product_name) ?>">
+                        <div class="card mb-4">
+                            <img src="/assets/image/<?= htmlspecialchars($prod['product_image']) ?>" class="card-img-top"
+                                alt="<?= htmlspecialchars($prod['product_name']) ?>">
 
                             <div class="card-body">
-                                <!-- Nom du produit -->
-                                <h5 class="card-title"><?= htmlspecialchars($prod->product_name) ?></h5>
-
-                                <!-- Description -->
-                                <p class="card-text"><?= htmlspecialchars($prod->product_description) ?></p>
+                                <h5><?= htmlspecialchars($prod['product_name']) ?></h5>
+                                <p><?= htmlspecialchars($prod['product_description']) ?></p>
+                                <p><strong><?= htmlspecialchars($prod['product_price']) ?> €</strong></p>
                             </div>
                         </div>
                     </div>

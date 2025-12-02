@@ -28,13 +28,14 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `cart_items` (
-  `cart_item_id` int NOT NULL,
-  `order_id` int NOT NULL,
-  `product_id` int NOT NULL,
-  `product_name` varchar(100) NOT NULL,
-  `cart_items_quantity` int NOT NULL,
-  `cart_items_unit_price` decimal(10,2) NOT NULL,
-  `cart_items_total_price` decimal(10,2) NOT NULL
+    `cart_item_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `order_id` INT DEFAULT NULL,
+    `product_id` INT NOT NULL,
+    `product_name` VARCHAR(255) NOT NULL,
+    `cart_items_quantity` INT NOT NULL,
+    `cart_items_unit_price` DECIMAL(10,2) NOT NULL,
+    `cart_items_total_price` DECIMAL(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -90,6 +91,20 @@ CREATE TABLE `orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
+
+--
+-- Structure de la table `order_items`
+--
+
+CREATE TABLE `order_items` (
+  `order_item_id` int NOT NULL,
+  `order_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `product_name` varchar(100) NOT NULL,
+  `quantity` int NOT NULL,
+  `unit_price` decimal(10,2) NOT NULL,
+  `total_price` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Structure de la table `products`

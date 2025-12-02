@@ -3,8 +3,7 @@ namespace App\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\CartItem;
-use Illuminate\Http\Request;
+use App\Models\Database;
 
 class CategoryProductController
 {
@@ -13,62 +12,69 @@ class CategoryProductController
 
     public function __construct()
     {
+        $db = Database::createInstancePDO(); // récupérer l'instance PDO
         $this->categoryModel = new Category();
-        $this->productModel = new Product();
+        $this->productModel = new Product($db); // passer $db au modèle Product
     }
 
+    /**
+     * Afficher une catégorie avec ses produits
+     */
     public function showCategoryWithProducts(int $id)
     {
         $category = $this->categoryModel->getCategoryById($id);
-        $products = $this->productModel->getProductsByCategory($id);
+        $products = $this->productModel->getByCategory($id);
 
         if (!$category) {
             echo "Catégorie introuvable";
             return;
         }
 
-        // Associer une bannière selon la catégorie
+        // Bannière selon la catégorie
         $bannerImages = [
-            1 => "belleImage-pain.jpg",
-            2 => "croissant.jpg",
-            3 => "burger.png",
-            4 => "presentation.jpg"
+            1 => "/assets/image/C&C/pain-4.png",
+            2 => "/assets/image/C&C/croissant.jpg",
+            3 => "/assets/image/C&C/baguetteApéro.png",
+            4 => "/assets/image/C&C/belleImage.jpg"
         ];
 
-        $banner = $bannerImages[$category->category_id] ?? "default-banner.jpg";
-
-        if (!$category) {
-            echo "Catégorie introuvable";
-            return;
-        }
+        $banner = $bannerImages[$category['category_id']] ?? "/assets/image/C&C/default-banner.jpg";
 
         require __DIR__ . "/../Views/02_produits.php";
     }
 
-    public function showClickAndCollect(): void
+    /**
+     * Afficher la page Click & Collect avec toutes les catégories et leurs produits
+     */
+    public function showClickAndCollect(): array
     {
-        $productModel = new Product();
-
         $categories = [
-            'Pause Déjeuner' => [
-                'image' => '/assets/image/C&C/baguetteApéro.png',
-                'products' => $productModel->getProductsByCategory(3)
-            ],
-            'Les Pains' => [
+            [
+                'category_id' => 1,
+                'category_name' => 'Les Pains',
                 'image' => '/assets/image/C&C/pain-4.png',
-                'products' => $productModel->getProductsByCategory(1)
+                'products' => $this->productModel->getByCategory(1) ?: []
             ],
-            'Les Pâtisseries' => [
-                'image' => '/assets/image/C&C/belleImage.jpg',
-                'products' => $productModel->getProductsByCategory(4)
-            ],
-            'Les Viennoiseries' => [
+            [
+                'category_id' => 2,
+                'category_name' => 'Les Viennoiseries',
                 'image' => '/assets/image/C&C/croissant.jpg',
-                'products' => $productModel->getProductsByCategory(2)
+                'products' => $this->productModel->getByCategory(2) ?: []
+            ],
+            [
+                'category_id' => 3,
+                'category_name' => 'Pause Déjeuner',
+                'image' => '/assets/image/C&C/baguetteApéro.png',
+                'products' => $this->productModel->getByCategory(3) ?: []
+            ],
+            [
+                'category_id' => 4,
+                'category_name' => 'Les Pâtisseries',
+                'image' => '/assets/image/C&C/belleImage.jpg',
+                'products' => $this->productModel->getByCategory(4) ?: []
             ]
         ];
 
-        require __DIR__ . '/../Views/04_click_and_collect.php';
+        return $categories; // <-- ici
     }
-
 }
