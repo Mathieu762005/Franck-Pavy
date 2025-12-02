@@ -116,17 +116,23 @@ switch ($page) {
         header('Location: ?url=04_click_and_collect');
         exit;
 
-    case 'cart_update':
+    // ---------- PANIER - Modification en masse ----------
+    case 'cart_update_all':
         $userId = $_SESSION['user']['id'] ?? null;
-        if (!$userId)
+        if (!$userId) {
             die("Erreur : vous devez être connecté pour modifier le panier.");
+        }
 
         $cartController = new CartController($db);
-        $cartController->updateItem(
-            (int) ($_POST['cart_item_id'] ?? 0),
-            (int) ($_POST['quantity'] ?? 1),
-            (float) ($_POST['unit_price'] ?? 0)
-        );
+
+        $quantities = $_POST['quantities'] ?? [];
+        $unitPrices = $_POST['unit_prices'] ?? [];
+
+        foreach ($quantities as $cartItemId => $quantity) {
+            $unitPrice = (float) ($unitPrices[$cartItemId] ?? 0);
+            $cartController->updateItem((int) $cartItemId, (int) $quantity, $unitPrice);
+        }
+
         header('Location: ?url=04_click_and_collect');
         exit;
 

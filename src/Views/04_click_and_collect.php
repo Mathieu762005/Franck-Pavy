@@ -19,54 +19,44 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                <?php
-                $total = 0;
-                ?>
                 <h1>Mon Panier</h1>
 
                 <?php if (!empty($cartItems)): ?>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Produit</th>
-                                <th>Quantité</th>
-                                <th>Prix Unitaire</th>
-                                <th>Total</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($cartItems as $item):
-                                $total += $item['cart_items_total_price'];
-                                ?>
+                    <form method="POST" action="?url=cart_update_all">
+                        <table class="table">
+                            <thead>
                                 <tr>
-                                    <td><?= htmlspecialchars($item['product_name']) ?></td>
-                                    <td>
-                                        <form method="POST" action="cart_update">
-                                            <input type="hidden" name="cart_item_id" value="<?= $item['cart_item_id'] ?>">
-                                            <input type="number" name="quantity" value="<?= $item['cart_items_quantity'] ?>"
-                                                min="1">
-                                            <input type="hidden" name="unit_price"
-                                                value="<?= $item['cart_items_unit_price'] ?>">
-                                            <button type="submit" class="btn btn-sm btn-primary">Modifier</button>
-                                        </form>
-                                    </td>
-                                    <td><?= number_format($item['cart_items_unit_price'], 2) ?> €</td>
-                                    <td><?= number_format($item['cart_items_total_price'], 2) ?> €</td>
-                                    <td>
-                                        <form method="POST" action="cart_remove">
-                                            <input type="hidden" name="cart_item_id" value="<?= $item['cart_item_id'] ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
-                                        </form>
-                                    </td>
+                                    <th>Produit</th>
+                                    <th>Quantité</th>
+                                    <th>Prix Unitaire</th>
+                                    <th>Total</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php $total = 0; ?>
+                                <?php foreach ($cartItems as $item):
+                                    $total += $item['cart_items_total_price'];
+                                    ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($item['product_name']) ?></td>
+                                        <td>
+                                            <input type="number" name="quantities[<?= $item['cart_item_id'] ?>]"
+                                                class="cart-quantity" data-price="<?= $item['cart_items_unit_price'] ?>"
+                                                value="<?= $item['cart_items_quantity'] ?>" min="1" style="width:50px;">
+                                            <input type="hidden" name="unit_prices[<?= $item['cart_item_id'] ?>]"
+                                                value="<?= $item['cart_items_unit_price'] ?>">
+                                        </td>
+                                        <td><?= number_format($item['cart_items_unit_price'], 2) ?> €</td>
+                                        <td class="cart-total"><?= number_format($item['cart_items_total_price'], 2) ?> €</td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
 
-                    <h3>Total : <?= number_format($total, 2) ?> €</h3>
-                    <a href="checkout" class="btn btn-success">Passer à la commande</a>
-
+                        <h3>Total : <span id="cart-grand-total"><?= number_format($total, 2) ?> €</span></h3>
+                        <button type="submit" class="btn btn-primary">Modifier le panier</button>
+                        <a href="?url=checkout" class="btn btn-success">Passer à la commande</a>
+                    </form>
                 <?php else: ?>
                     <p>Votre panier est vide.</p>
                 <?php endif; ?>
@@ -127,6 +117,24 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.cart-quantity').forEach(input => {
+            input.addEventListener('input', function () {
+                const quantity = parseInt(this.value) || 0;
+                const price = parseFloat(this.dataset.price);
+                const rowTotalCell = this.closest('tr').querySelector('.cart-total');
+                const rowTotal = quantity * price;
+                rowTotalCell.textContent = rowTotal.toFixed(2) + ' €';
+
+                // Recalcul total global
+                let totalGlobal = 0;
+                document.querySelectorAll('.cart-total').forEach(cell => {
+                    totalGlobal += parseFloat(cell.textContent.replace(' €', ''));
+                });
+                document.querySelector('#cart-grand-total').textContent = totalGlobal.toFixed(2) + ' €';
+            });
+        });
+    </script>
 </body>
 
 </html>

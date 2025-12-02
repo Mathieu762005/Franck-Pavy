@@ -7,44 +7,65 @@ use PDO;
 
 class CartController
 {
-    private Cart $cart;
+    private Cart $cart;       // <--- Déclarer la propriété
     private Product $productModel;
 
     public function __construct(PDO $db)
     {
-        $this->cart = new Cart($db);
+        $this->cart = new Cart($db);          // <--- Instancier Cart
         $this->productModel = new Product($db);
     }
 
     public function viewCart(int $userId): array
     {
-        return $this->cart->getUserCart($userId);
+        return $this->cart->getAllItems($userId);  // <--- Maintenant $this->cart est reconnu
     }
 
-    // Ajouter un produit au panier
-    public function addToCart(int $userId, int $productId, int $quantity = 1)
+    /**
+     * Récupérer un item du panier par produit
+     */
+    public function getItemByProductId(int $userId, int $productId): ?array
     {
-        $product = $this->productModel->getById($productId);
+        return $this->cart->getItemByProductId($userId, $productId);
+    }
 
-        if (!$product)
-            return;
+    /**
+     * Ajouter un produit au panier (évite les doublons)
+     */
+    public function addToCart(int $userId, int $productId, int $quantity = 1): bool
+    {
+        // Vérifier si le produit est déjà dans le panier
+        $existingItem = $this->getItemByProductId($userId, $productId);
 
-        // Vérifier si le produit est disponible
-        if ($product['product_available'] == 0) {
-            die("Produit non disponible !");
+        if ($existingItem) {
+            // Mettre à jour la quantité
+            $newQuantity = $existingItem['cart_items_quantity'] + $quantity;
+            $unitPrice = $existingItem['cart_items_unit_price'];
+            return $this->updateItem($existingItem['cart_item_id'], $newQuantity, $unitPrice);
         }
 
-        $productName = $product['product_name'];
+        // Sinon, créer un nouvel item
+        $product = $this->productModel->getById($productId);
+        if (!$product)
+            return false;
+
         $unitPrice = (float) $product['product_price'];
+        $totalPrice = $unitPrice * $quantity;
 
-        $this->cart->addItem($userId, $productId, $productName, $unitPrice, $quantity);
+        return $this->cart->addItem($userId, $productId, $product['product_name'], $unitPrice, $quantity);
     }
 
-    public function removeItem(int $cartItemId): void
+    /**
+     * Supprimer un item du panier
+     */
+    public function removeItem(int $cartItemId): bool
     {
-        $this->cart->removeItem($cartItemId);
+        return $this->cart->removeItem($cartItemId);
     }
 
+    /**
+     * Mettre à jour un item du panier
+     */
     public function updateItem(int $cartItemId, int $quantity, float $unitPrice): bool
     {
         return $this->cart->updateItem($cartItemId, $quantity, $unitPrice);
