@@ -14,7 +14,6 @@
     <header>
         <?php include_once "template/navbar.php" ?>
     </header>
-
     <main>
         <div class="container mt-4">
             <h1>Contactez-nous</h1>

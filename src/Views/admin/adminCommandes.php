@@ -15,42 +15,39 @@
     </header>
     <h1>Gestion des commandes</h1>
 
-    <table class="table table-striped">
+    <?php
+    // $details = ['order' => ..., 'items' => ...]
+    $order = $details['order'];
+    $items = $details['items'];
+    ?>
+
+    <h1>Détails de la commande #<?= $order['order_number'] ?></h1>
+    <p>Statut : <?= $order['order_status'] ?></p>
+    <p>Retrait prévu à : <?= $order['order_pickup_time'] ?></p>
+    <p>Date : <?= $order['order_date'] ?></p>
+
+    <table>
         <thead>
             <tr>
-                <th>#</th>
-                <th>Client</th>
-                <th>Date</th>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th>Prix Unitaire</th>
                 <th>Total</th>
-                <th>Statut</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($orders as $order): ?>
+            <?php foreach ($items as $item): ?>
                 <tr>
-                    <td><?= htmlspecialchars($order['order_number']) ?></td>
-                    <td><?= htmlspecialchars($order['user_id']) ?></td>
-                    <td><?= htmlspecialchars($order['order_date']) ?></td>
-                    <td><?= htmlspecialchars($order['order_total_price']) ?> €</td>
-                    <td><span class="badge bg-info"><?= htmlspecialchars($order['order_status']) ?></span></td>
-                    <td>
-                        <form method="post" action="/orders/updateStatus">
-                            <input type="hidden" name="order_id" value="<?= $order['order_id'] ?>">
-                            <select name="status" class="form-select form-select-sm">
-                                <option value="confirmée">Confirmée</option>
-                                <option value="en préparation">En préparation</option>
-                                <option value="prête">Prête</option>
-                                <option value="terminée">Terminée</option>
-                                <option value="annulée">Annulée</option>
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-primary">Mettre à jour</button>
-                        </form>
-                    </td>
+                    <td><?= htmlspecialchars($item['product_name']) ?></td>
+                    <td><?= $item['quantity'] ?></td>
+                    <td><?= number_format($item['unit_price'], 2) ?> €</td>
+                    <td><?= number_format($item['total_price'], 2) ?> €</td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
+
+    <h3>Total commande : <?= number_format($order['order_total_price'], 2) ?> €</h3>
 
 
 
