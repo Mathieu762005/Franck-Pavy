@@ -17,22 +17,22 @@ class User
 
     private PDO $db;
     // Propriétés du User (correspondent aux colonnes de la table "users")
-    public int $id;
-    public string $role;
-    public string $username;
-    public string $firstname;
-    public string $email;
-    public string $password;
-    public float $totalSpent = 0.0;
-    public int $ordersCount = 0;
+    public ?int $id = null;
+    public string $role = '';
+    public string $username = '';
+    public string $firstname = '';
+    public string $email = '';
+    public string $password = '';
+    public float $user_total_spent = 0.0;
+    public int $user_orders_count = 0;
 
     public function __construct(PDO $db)
     {
         $this->db = $db;
 
         // Initialisation obligatoire pour éviter l'erreur
-        $this->totalSpent = 0.0;
-        $this->ordersCount = 0;
+        $this->user_total_spent = 0.0;
+        $this->user_orders_count = 0;
     }
 
     /**
@@ -161,23 +161,22 @@ class User
 
     public function incrementStats(float $amount): bool
     {
-        if (!isset($this->id))
-            return false;
+        if ($this->id === null)
+            return false; // check après hydratation
 
-        $stmt = $this->db->prepare("
-            UPDATE users
-            SET user_total_spent = user_total_spent + :amount,
-                user_orders_count = user_orders_count + 1
-            WHERE user_id = :id
-        ");
-        $stmt->bindValue(':amount', $amount);
-        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+        $sql = "UPDATE users
+                SET user_total_spent = user_total_spent + :amount,
+                    user_orders_count = user_orders_count + 1
+                WHERE user_id = :userId";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':amount', $amount, PDO::PARAM_STR);
+        $stmt->bindValue(':userId', $this->id, PDO::PARAM_INT);
         $result = $stmt->execute();
 
         if ($result) {
-            // Ces propriétés sont maintenant correctement initialisées
-            $this->totalSpent += $amount;
-            $this->ordersCount += 1;
+            $this->user_total_spent += $amount;
+            $this->user_orders_count += 1;
         }
 
         return $result;
@@ -203,20 +202,19 @@ class User
             return null;
         }
     }
-    public function getUserInfosById(int $userId)
+    // Méthode pour hydrater l'utilisateur
+    public function getUserInfosById(int $userId): ?array
     {
         $pdo = Database::createInstancePDO();
+        if (!$pdo)
+            return null;
 
-        if (!$pdo) {
-            return false;
-        }
-        $sql = ("SELECT * FROM users WHERE user_id = :id");
+        $sql = "SELECT * FROM users WHERE user_id = :id";
         $stmt = $pdo->prepare($sql);
-
         $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $user ?: null;
+        return $user ?: null; // retourne un array ou null
     }
 }

@@ -133,7 +133,7 @@ class UserController
                         $_SESSION["user"]["username"] = $userInfos->username;
                         $_SESSION["user"]["firstname"] = $userInfos->firstname;
                         $_SESSION["user"]["email"] = $userInfos->email;
-                        $_SESSION["user"]["orders_count"] = $userInfos->ordersCount;
+                        $_SESSION["user"]["orders_count"] = $userInfos->user_orders_count;
 
                         // Redirection vers la page profil
                         header("Location: index.php?url=06_profil");

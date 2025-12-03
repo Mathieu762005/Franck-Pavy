@@ -7,14 +7,14 @@ use App\Models\AdminMessage;
 use App\Models\AdminCommande;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\user;
+use App\Models\User;
 use PDO;
 
 class AdminController
 {
     private PDO $db;
 
-    public function __construct($db)
+    public function __construct(PDO $db)
     {
         $this->db = $db;
     }
@@ -47,65 +47,70 @@ class AdminController
         require __DIR__ . '/../Views/admin/adminCommandes.php';
     }
 
+    // Met à jour le statut d'une commande et applique les effets si terminée
     public function updateOrderStatus(int $orderId, string $status): bool
     {
-        // Instanciation des modèles
         $orderModel = new Order($this->db);
         $orderItemModel = new OrderItem($this->db);
 
         // Récupération des informations de la commande
         $order = $orderModel->getById($orderId);
-        if (!$order) {
-            return false; // commande introuvable
-        }
+        if (!$order) return false;
 
         // Mettre à jour le statut
-        $updated = $orderModel->updateStatus($orderId, $status);
-        if (!$updated) {
-            return false;
+        $orderModel->updateStatus($orderId, $status);
+
+        // Si la commande est terminée
+if ($status === 'terminée') {
+    $userId = $order['user_id'] ?? null;
+    if ($userId) {
+        // Calculer le total dépensé via order_items
+        $items = $orderItemModel->getByOrder($orderId);
+        $totalSpent = 0;
+        foreach ($items as $item) {
+            $totalSpent += (float) $item['total_price'];
         }
 
-        // Si la commande est terminée, mettre à jour les stats du user et supprimer la commande
-        if ($status === 'terminée') {
-            $userId = $order['user_id'] ?? null;
-            if ($userId) {
-                // Récupérer les items de la commande pour calculer le total
-                $items = $orderItemModel->getByOrder($orderId);
-                $totalSpent = 0;
-                foreach ($items as $item) {
-                    $totalSpent += $item['total_price'];
-                }
+        // Mettre à jour les stats de l'utilisateur
+        $user = new User($this->db);
 
-                // Mettre à jour les stats de l'utilisateur
-                $userModel = new User($this->db);
-                $userModel->getUserInfosById($userId); // hydrate l'objet User
-                $userModel->incrementStats($totalSpent);
-            }
+        // Hydrater correctement l'objet User avec ses propriétés
+        $userData = $user->getUserInfosById($userId);
+        if ($userData) {
+            $user->id = (int)$userData['user_id'];
+            $user->role = $userData['user_role'];
+            $user->username = $userData['user_name'];
+            $user->firstname = $userData['user_first_name'];
+            $user->email = $userData['user_email'];
+            $user->password = $userData['user_password'];
+            $user->user_total_spent = (float)$userData['user_total_spent'];
+            $user->user_orders_count = (int)$userData['user_orders_count'];
 
-            // Supprimer les éléments de la commande
-            $orderItemModel->deleteByOrder($orderId);
-
-            // Supprimer la commande elle-même
-            $orderModel->delete($orderId);
+            // Incrémenter les stats
+            $user->incrementStats($totalSpent);
         }
+    }
+
+    // Supprimer les éléments et la commande
+    $orderItemModel->deleteByOrder($orderId);
+    $orderModel->delete($orderId);
+}
 
         return true;
     }
 
-    // Méthode pour gérer le POST venant du formulaire de changement de statut
+    // Traite le POST du formulaire dans la vue adminCommandes
     public function handleStatusUpdate()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orderId = (int) ($_POST['order_id'] ?? 0);
-            $status = $_POST['order_status'] ?? '';
+            $status = $_POST['status'] ?? '';
 
             if ($orderId && in_array($status, ['brouillon', 'confirmée', 'en préparation', 'prête', 'terminée', 'annulée'])) {
-                $orderModel = new Order($this->db);
-                $orderModel->updateStatus($orderId, $status);
+                $this->updateOrderStatus($orderId, $status);
             }
         }
 
-        // Redirection vers la page adminCommandes
         header('Location: ?url=adminCommandes');
         exit;
     }
