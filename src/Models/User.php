@@ -149,4 +149,25 @@ class User
             return false;
         }
     }
+
+    // Récupérer un utilisateur par ID — retourne array|null
+    public function getByUserId(int $id)
+    {
+        try {
+
+            $pdo = Database::createInstancePDO();
+
+            if (!$pdo) {
+                return false;
+            }
+            $sql = ("SELECT * FROM users WHERE user_id = ?");
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$id]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $data ?: null;
+        } catch (PDOException $e) {
+            // tu peux logger $e->getMessage()
+            return null;
+        }
+    }
 }

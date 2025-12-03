@@ -1,59 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin/Commandes</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>Admin - Commandes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
     <header>
         <?php include_once __DIR__ . '/../template/navbar.php'; ?>
     </header>
-    <h1>Gestion des commandes</h1>
 
-    <?php
-    // $details = ['order' => ..., 'items' => ...]
-    $order = $details['order'];
-    $items = $details['items'];
-    ?>
+    <main class="container mt-4">
+        <h1>Gestion des commandes</h1>
 
-    <h1>Détails de la commande #<?= $order['order_number'] ?></h1>
-    <p>Statut : <?= $order['order_status'] ?></p>
-    <p>Retrait prévu à : <?= $order['order_pickup_time'] ?></p>
-    <p>Date : <?= $order['order_date'] ?></p>
+        <?php if (!empty($commandes)): ?>
+            <table class="table table-bordered mt-3">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Numéro</th>
+                        <th>Date</th>
+                        <th>Prix total</th>
+                        <th>Heure retrait</th>
+                        <th>Utilisateur</th>
+                        <th>Statut</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $statusOptions = ['brouillon','confirmée','en préparation','prête','terminée','annulée'];
+                    foreach ($commandes as $commande): 
+                    ?>
+                        <tr>
+                            <td><?= $commande['order_id'] ?></td>
+                            <td><?= htmlspecialchars($commande['order_number']) ?></td>
+                            <td><?= $commande['order_date'] ?></td>
+                            <td><?= number_format($commande['order_total_price'], 2) ?> €</td>
+                            <td><?= $commande['order_pickup_time'] ?></td>
+                            <td><?= $commande['user_id'] ?></td>
+                            <td>
+                                <form method="POST" action="?url=adminUpdateStatus">
+                                    <input type="hidden" name="order_id" value="<?= $commande['order_id'] ?>">
+                                    <select name="order_status" class="form-select">
+                                        <?php foreach ($statusOptions as $status): ?>
+                                            <option value="<?= $status ?>" <?= $commande['order_status'] === $status ? 'selected' : '' ?>>
+                                                <?= ucfirst($status) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                            </td>
+                            <td>
+                                    <button type="submit" class="btn btn-sm btn-primary">Mettre à jour</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>Aucune commande trouvée.</p>
+        <?php endif; ?>
+    </main>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Produit</th>
-                <th>Quantité</th>
-                <th>Prix Unitaire</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($items as $item): ?>
-                <tr>
-                    <td><?= htmlspecialchars($item['product_name']) ?></td>
-                    <td><?= $item['quantity'] ?></td>
-                    <td><?= number_format($item['unit_price'], 2) ?> €</td>
-                    <td><?= number_format($item['total_price'], 2) ?> €</td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
+        <?php include_once __DIR__ . '/../template/footer.php'; ?>
+    </footer>
 
-    <h3>Total commande : <?= number_format($order['order_total_price'], 2) ?> €</h3>
-
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

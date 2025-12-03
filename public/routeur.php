@@ -11,8 +11,9 @@ use App\Models\Database;
 
 // Connexion à la BDD
 $db = Database::createInstancePDO();
-if (!$db)
+if (!$db) {
     die("Erreur : impossible de se connecter à la base de données.");
+}
 
 // Récupération de l'URL
 $url = $_GET['url'] ?? '01_home';
@@ -36,7 +37,7 @@ switch ($page) {
 
     case '04_click_and_collect':
         $controller = new CategoryProductController();
-        $categories = $controller->showClickAndCollect(); // maintenant ça fonctionne
+        $categories = $controller->showClickAndCollect();
 
         // Récupérer le panier de l'utilisateur si connecté
         $cartItems = [];
@@ -88,7 +89,6 @@ switch ($page) {
     case 'cart_add':
         $userId = $_SESSION['user']['id'] ?? null;
         if (!$userId) {
-            // Redirige vers la page de login si non connecté
             header('Location: ?url=login');
             exit;
         }
@@ -99,10 +99,8 @@ switch ($page) {
 
         if ($productId > 0) {
             $cartController->addToCart($userId, $productId, $quantity);
-            // NE PAS var_dump ici !
         }
 
-        // Redirection propre vers la page click and collect
         header('Location: ?url=04_click_and_collect');
         exit;
 
@@ -116,15 +114,12 @@ switch ($page) {
         header('Location: ?url=04_click_and_collect');
         exit;
 
-    // ---------- PANIER - Modification en masse ----------
     case 'cart_update_all':
         $userId = $_SESSION['user']['id'] ?? null;
-        if (!$userId) {
+        if (!$userId)
             die("Erreur : vous devez être connecté pour modifier le panier.");
-        }
 
         $cartController = new CartController($db);
-
         $quantities = $_POST['quantities'] ?? [];
         $unitPrices = $_POST['unit_prices'] ?? [];
 
@@ -143,10 +138,14 @@ switch ($page) {
             die("Erreur : vous devez être connecté pour passer commande.");
 
         $orderController = new OrderController($db);
-        $totalPrice = (float) ($_POST['total_price'] ?? 0);
         $pickupTime = $_POST['pickup_time'] ?? date('H:i:s');
-        $orderId = $orderController->checkout($userId, $totalPrice, $pickupTime);
-        header('Location: ?url=order_details&id=' . $orderId);
+        $orderId = $orderController->checkout($userId, $pickupTime);
+
+        if ($orderId) {
+            header('Location: ?url=order_details&id=' . $orderId);
+        } else {
+            die("Erreur : impossible de créer la commande (panier vide).");
+        }
         exit;
 
     case 'order_details':
@@ -158,22 +157,27 @@ switch ($page) {
 
     // ---------- ADMIN ----------
     case 'adminCommandes':
-        $adminController = new AdminController();
+        $adminController = new AdminController($db);
         $adminController->commandes();
         break;
 
+    case 'adminUpdateStatus':
+        $adminController = new AdminController($db);
+        $adminController->handleStatusUpdate();
+        break;
+
     case 'adminUsers':
-        $adminController = new AdminController();
+        $adminController = new AdminController($db);
         $adminController->users();
         break;
 
     case 'adminProducts':
-        $adminController = new AdminController();
+        $adminController = new AdminController($db);
         $adminController->produits();
         break;
 
     case 'adminMessages':
-        $adminController = new AdminController();
+        $adminController = new AdminController($db);
         $adminController->messages();
         break;
 

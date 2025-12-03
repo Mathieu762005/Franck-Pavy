@@ -9,9 +9,13 @@ use App\Models\User;
 // Définition de la classe UserController
 class UserController
 {
-
     private User $userModel;
     private $db;
+
+    public function __construct()
+    {
+        $this->userModel = new User();
+    }
 
     // Méthode qui gère l'inscription d'un utilisateur
     public function register()
@@ -149,6 +153,7 @@ class UserController
     {
         // On supprime les données de session
         unset($_SESSION['user']);
+        unset($_SESSION['cart']);
         session_destroy();
 
         // Redirection vers la page de connexion
@@ -163,19 +168,25 @@ class UserController
             exit;
         }
 
+        // Créer une instance PDO si elle n'existe pas
+        $pdo = \App\Models\Database::createInstancePDO();
+
         $userId = $_SESSION['user']['id'];
-        $userInfo = $this->userModel->getById($userId); // <-- passer l'ID ici
+        $userInfo = $this->userModel->getByUserId($userId);
+
+        // Récupérer toutes les commandes de l'utilisateur
+        $orderController = new \App\Controllers\OrderController($pdo);
+        $userOrders = $orderController->getUserOrders($userId);
 
         // Récupérer l'ID de la commande si fourni dans l'URL
         $orderId = $_GET['id'] ?? null;
         $orderDetails = [];
 
         if ($orderId) {
-            $orderController = new OrderController($this->db);
             $orderDetails = $orderController->getOrderDetails((int) $orderId);
         }
 
         require_once __DIR__ . "/../Views/06_profil.php";
-    }
 
+    }
 }

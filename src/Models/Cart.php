@@ -24,15 +24,11 @@ class Cart
     }
 
     // Récupère **tous les produits** du panier (tous utilisateurs)
-    public function getAllItems($userId): array
+    public function getAllItems(int $userId): array
     {
-        try {
-            $stmt = $this->db->query("SELECT * FROM cart_items");
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            echo "Erreur SQL : " . $e->getMessage();
-            return [];
-        }
+        $stmt = $this->db->prepare("SELECT * FROM cart_items WHERE user_id = ? AND order_id IS NULL");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Récupère un produit spécifique d’un utilisateur via product_id
@@ -95,5 +91,13 @@ class Cart
             echo "Erreur SQL : " . $e->getMessage();
             return false;
         }
+    }
+
+    public function clearUserCart(int $userId): bool
+    {
+        $sql = "DELETE FROM cart_items WHERE user_id = :userId AND order_id IS NULL";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':userId', $userId, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 }
