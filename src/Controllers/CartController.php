@@ -16,9 +16,18 @@ class CartController
         $this->productModel = new Product($db);
     }
 
-    public function viewCart(int $userId): array
+    public function viewCart(): array
     {
-        return $this->cart->getAllItems($userId);  // <--- Maintenant $this->cart est reconnu
+        // Récupérer l'ID de l'utilisateur connecté depuis la session
+        $userId = $_SESSION['user']['id'] ?? null;
+        if (!$userId) {
+            // Si pas connecté, rediriger vers la page de login
+            header('Location: index.php?url=login');
+            exit;
+        }
+
+        // Récupérer tous les items du panier pour cet utilisateur
+        return $this->cart->getAllItems($userId);
     }
 
     /**

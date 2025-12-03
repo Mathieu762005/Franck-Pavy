@@ -23,17 +23,10 @@ class AdminCommande
 
 
     // Récupérer tous les utilisateurs
-    public function findAll()
+    public function findAll(): array
     {
-        try {
-            $sql = "SELECT * FROM orders";
-            $stmt = $this->db->query($sql);
-
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        } catch (PDOException $e) {
-            return [];
-        }
+        $stmt = $this->db->query("SELECT * FROM orders ORDER BY order_date DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
 }

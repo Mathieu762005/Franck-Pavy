@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Click And Collect</title>
+    <title>Click & Collect</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
     <header>
-        <?php include_once "template/navbar.php" ?>
+        <?php include_once "template/navbar.php"; ?>
 
         <!-- Offcanvas du panier -->
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
@@ -19,7 +19,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                <h1>Mon Panier</h1>
+                <h2>Mon Panier</h2>
 
                 <?php if (!empty($cartItems)): ?>
                     <form method="POST" action="?url=cart_update_all">
@@ -30,6 +30,7 @@
                                     <th>Quantité</th>
                                     <th>Prix Unitaire</th>
                                     <th>Total</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -48,6 +49,12 @@
                                         </td>
                                         <td><?= number_format($item['cart_items_unit_price'], 2) ?> €</td>
                                         <td class="cart-total"><?= number_format($item['cart_items_total_price'], 2) ?> €</td>
+                                        <td>
+                                            <form method="POST" action="?url=cart_remove" style="display:inline;">
+                                                <input type="hidden" name="cart_item_id" value="<?= $item['cart_item_id'] ?>">
+                                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -71,8 +78,10 @@
             <?php foreach ($categories as $category): ?>
                 <section class="my-5">
                     <div class="category-banner mb-3">
-                        <img src="<?= htmlspecialchars($category['image']) ?>"
-                            alt="<?= htmlspecialchars($category['category_name']) ?>" class="img-fluid">
+                        <?php if (!empty($category['image'])): ?>
+                            <img src="<?= htmlspecialchars($category['image']) ?>"
+                                alt="<?= htmlspecialchars($category['category_name']) ?>" class="img-fluid">
+                        <?php endif; ?>
                         <h2 class="mt-2"><?= htmlspecialchars($category['category_name']) ?></h2>
                     </div>
 
@@ -81,22 +90,28 @@
                             <?php foreach ($category['products'] as $product): ?>
                                 <div class="col-md-3 mb-4">
                                     <div class="card h-100">
-                                        <img src="/assets/image/<?= htmlspecialchars($product['product_image']) ?>" class="card-img-top"
-                                            alt="<?= htmlspecialchars($product['product_name']) ?>"
-                                            style="height:200px; object-fit:cover;">
+                                        <?php if (!empty($product['product_image'])): ?>
+                                            <img src="/assets/image/<?= htmlspecialchars($product['product_image']) ?>" class="card-img-top"
+                                                alt="<?= htmlspecialchars($product['product_name']) ?>"
+                                                style="height:200px; object-fit:cover;">
+                                        <?php endif; ?>
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><?= htmlspecialchars($product['product_name']) ?></h5>
                                             <p class="card-text"><?= htmlspecialchars($product['product_description']) ?></p>
                                             <p class="card-text"><strong><?= number_format($product['product_price'], 2) ?> €</strong>
                                             </p>
-                                            <form method="POST" action="?url=cart_add">
-                                                <input type="hidden" name="product_id"
-                                                    value="<?= htmlspecialchars($product['product_id']) ?>">
-                                                <label for="quantity_<?= $product['product_id'] ?>">Quantité :</label>
-                                                <input type="number" id="quantity_<?= $product['product_id'] ?>" name="quantity"
-                                                    value="1" min="1" style="width:50px;">
-                                                <button type="submit" class="btn btn-primary mt-2">Ajouter au panier</button>
-                                            </form>
+
+                                            <?php if (isset($_SESSION['user']['id'])): ?>
+                                                <form method="POST" action="?url=cart_add" class="mt-auto">
+                                                    <input type="hidden" name="product_id" value="<?= (int) $product['product_id'] ?>">
+                                                    <label for="quantity_<?= $product['product_id'] ?>">Quantité :</label>
+                                                    <input type="number" id="quantity_<?= $product['product_id'] ?>" name="quantity"
+                                                        value="1" min="1" style="width:50px;">
+                                                    <button type="submit" class="btn btn-primary mt-2 w-100">Ajouter au panier</button>
+                                                </form>
+                                            <?php else: ?>
+                                                <p class="text-danger">Connectez-vous pour ajouter au panier</p>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -113,7 +128,7 @@
     </main>
 
     <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
-        <?php include_once "template/footer.php" ?>
+        <?php include_once "template/footer.php"; ?>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
