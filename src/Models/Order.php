@@ -7,6 +7,7 @@ use PDOException;
 class Order
 {
     private PDO $db;
+    private string $table = 'orders';
 
     public function __construct(PDO $db)
     {
@@ -93,5 +94,11 @@ class Order
             // Log ou gérer l'erreur
             return false;
         }
+    }
+
+    public function delete(int $orderId): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE order_id = :order_id");
+        return $stmt->execute(['order_id' => $orderId]);
     }
 }

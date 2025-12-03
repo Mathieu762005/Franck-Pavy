@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 // On importe la classe User pour pouvoir l'utiliser ici
 use App\Models\User;
+use App\Models\Database;
 
 // Définition de la classe UserController
 class UserController
@@ -14,7 +15,8 @@ class UserController
 
     public function __construct()
     {
-        $this->userModel = new User();
+        $this->db = Database::createInstancePDO();
+        $this->userModel = new User($this->db); // On passe $db ici
     }
 
     // Méthode qui gère l'inscription d'un utilisateur
@@ -76,7 +78,7 @@ class UserController
 
             // Si aucune erreur, on crée l'utilisateur
             if (empty($errors)) {
-                $objetUser = new User();
+                $objetUser = new User($this->db);
                 if ($objetUser->createUser($_POST["username"], $_POST["firstname"], $_POST["email"], $_POST["password"])) {
                     // Redirection vers une page de succès
                     header('Location: index.php?url=register_success');
@@ -119,7 +121,7 @@ class UserController
                 if (User::checkMail($_POST["email"])) {
 
                     // On récupère les infos de l'utilisateur
-                    $userInfos = new User();
+                    $userInfos = new User($this->db);
                     $userInfos->getUserInfosByEmail($_POST["email"]);
 
                     // On vérifie que le mot de passe est correct
@@ -131,7 +133,7 @@ class UserController
                         $_SESSION["user"]["username"] = $userInfos->username;
                         $_SESSION["user"]["firstname"] = $userInfos->firstname;
                         $_SESSION["user"]["email"] = $userInfos->email;
-                        $_SESSION["user"]["orders_count"] = $userInfos->orders_count;
+                        $_SESSION["user"]["orders_count"] = $userInfos->ordersCount;
 
                         // Redirection vers la page profil
                         header("Location: index.php?url=06_profil");
@@ -169,7 +171,7 @@ class UserController
         }
 
         // Créer une instance PDO si elle n'existe pas
-        $pdo = \App\Models\Database::createInstancePDO();
+        $pdo = Database::createInstancePDO();
 
         $userId = $_SESSION['user']['id'];
         $userInfo = $this->userModel->getByUserId($userId);
