@@ -14,6 +14,8 @@ use App\Models\Product;
 // Définition de la classe User
 class User
 {
+
+    private PDO $db;
     // Propriétés du User (correspondent aux colonnes de la table "users")
     public int $id;
     public string $role;
@@ -21,8 +23,17 @@ class User
     public string $firstname;
     public string $email;
     public string $password;
-    public float $total_spent;
-    public int $orders_count;
+    public float $totalSpent = 0.0;
+    public int $ordersCount = 0;
+
+    public function __construct(PDO $db)
+    {
+        $this->db = $db;
+
+        // Initialisation obligatoire pour éviter l'erreur
+        $this->totalSpent = 0.0;
+        $this->ordersCount = 0;
+    }
 
     /**
      * Méthode pour créer un nouvel utilisateur dans la base
@@ -126,28 +137,50 @@ class User
         }
     }
 
+    public function loadById(int $userId): bool
+    {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE user_id = :id");
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user)
+            return false;
+
+        $this->id = $user['user_id'];
+        $this->role = $user['user_role'];
+        $this->username = $user['user_name'];
+        $this->firstname = $user['user_first_name'];
+        $this->email = $user['user_email'];
+        $this->password = $user['user_password'];
+        $this->totalSpent = (float) ($user['user_total_spent'] ?? 0);
+        $this->ordersCount = (int) ($user['user_orders_count'] ?? 0);
+
+        return true;
+    }
+
     public function incrementStats(float $amount): bool
     {
-        try {
-            $pdo = Database::createInstancePDO();
-
-            if (!$pdo) {
-                return false;
-            }
-
-            $sql = "UPDATE `users`
-                SET `user_total_spent` = `user_total_spent` + :amount,
-                    `user_orders_count` = `user_orders_count` + 1
-                WHERE `user_id` = :userId";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':amount', $amount, PDO::PARAM_STR);
-            $stmt->bindValue(':userId', $this->id, PDO::PARAM_INT);
-
-            return $stmt->execute();
-        } catch (PDOException $e) {
+        if (!isset($this->id))
             return false;
+
+        $stmt = $this->db->prepare("
+            UPDATE users
+            SET user_total_spent = user_total_spent + :amount,
+                user_orders_count = user_orders_count + 1
+            WHERE user_id = :id
+        ");
+        $stmt->bindValue(':amount', $amount);
+        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+        $result = $stmt->execute();
+
+        if ($result) {
+            // Ces propriétés sont maintenant correctement initialisées
+            $this->totalSpent += $amount;
+            $this->ordersCount += 1;
         }
+
+        return $result;
     }
 
     // Récupérer un utilisateur par ID — retourne array|null
@@ -169,5 +202,21 @@ class User
             // tu peux logger $e->getMessage()
             return null;
         }
+    }
+    public function getUserInfosById(int $userId)
+    {
+        $pdo = Database::createInstancePDO();
+
+        if (!$pdo) {
+            return false;
+        }
+        $sql = ("SELECT * FROM users WHERE user_id = :id");
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $user ?: null;
     }
 }

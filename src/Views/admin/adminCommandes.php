@@ -16,44 +16,43 @@
     <main class="container mt-4">
         <h1>Gestion des commandes</h1>
 
+        <h1>Commandes</h1>
+
         <?php if (!empty($commandes)): ?>
-            <table class="table table-bordered mt-3">
-                <thead class="table-dark">
+            <table class="table">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Numéro</th>
                         <th>Date</th>
-                        <th>Prix total</th>
-                        <th>Heure retrait</th>
-                        <th>Utilisateur</th>
+                        <th>Prix Total</th>
+                        <th>Heure Retrait</th>
                         <th>Statut</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $statusOptions = ['brouillon','confirmée','en préparation','prête','terminée','annulée'];
-                    foreach ($commandes as $commande): 
-                    ?>
+                    <?php foreach ($commandes as $commande): ?>
                         <tr>
                             <td><?= $commande['order_id'] ?></td>
-                            <td><?= htmlspecialchars($commande['order_number']) ?></td>
+                            <td><?= $commande['order_number'] ?></td>
                             <td><?= $commande['order_date'] ?></td>
                             <td><?= number_format($commande['order_total_price'], 2) ?> €</td>
                             <td><?= $commande['order_pickup_time'] ?></td>
-                            <td><?= $commande['user_id'] ?></td>
+                            <td><?= $commande['order_status'] ?></td>
                             <td>
-                                <form method="POST" action="?url=adminUpdateStatus">
+                                <form method="POST" action="?url=adminCommandes">
                                     <input type="hidden" name="order_id" value="<?= $commande['order_id'] ?>">
-                                    <select name="order_status" class="form-select">
-                                        <?php foreach ($statusOptions as $status): ?>
-                                            <option value="<?= $status ?>" <?= $commande['order_status'] === $status ? 'selected' : '' ?>>
-                                                <?= ucfirst($status) ?>
+                                    <select name="status">
+                                        <?php
+                                        $statuses = ['brouillon', 'confirmée', 'en préparation', 'prête', 'terminée', 'annulée'];
+                                        foreach ($statuses as $statusOption):
+                                            ?>
+                                            <option value="<?= $statusOption ?>" <?= $commande['order_status'] === $statusOption ? 'selected' : '' ?>>
+                                                <?= $statusOption ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                            </td>
-                            <td>
                                     <button type="submit" class="btn btn-sm btn-primary">Mettre à jour</button>
                                 </form>
                             </td>
@@ -62,7 +61,7 @@
                 </tbody>
             </table>
         <?php else: ?>
-            <p>Aucune commande trouvée.</p>
+            <p>Aucune commande.</p>
         <?php endif; ?>
     </main>
 

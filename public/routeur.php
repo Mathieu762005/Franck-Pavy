@@ -158,6 +158,14 @@ switch ($page) {
     // ---------- ADMIN ----------
     case 'adminCommandes':
         $adminController = new AdminController($db);
+
+        // Si formulaire envoyé pour changer le statut
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'], $_POST['status'])) {
+            $adminController->updateOrderStatus((int) $_POST['order_id'], $_POST['status']);
+            header('Location: ?url=adminCommandes');
+            exit;
+        }
+
         $adminController->commandes();
         break;
 
