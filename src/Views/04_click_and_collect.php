@@ -52,7 +52,8 @@
                                         <td>
                                             <form method="POST" action="?url=cart_remove" style="display:inline;">
                                                 <input type="hidden" name="cart_item_id" value="<?= $item['cart_item_id'] ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                                <button type="button" class="btn btn-danger btn-sm btn-remove"
+                                                    data-id="<?= $item['cart_item_id'] ?>">Supprimer</button>
                                             </form>
                                         </td>
                                     </tr>
@@ -102,12 +103,10 @@
                                             </p>
 
                                             <?php if (isset($_SESSION['user']['id'])): ?>
-                                                <form method="POST" action="?url=cart_add" class="mt-auto">
-                                                    <input type="hidden" name="product_id" value="<?= (int) $product['product_id'] ?>">
-                                                    <label for="quantity_<?= $product['product_id'] ?>">Quantité :</label>
-                                                    <input type="number" id="quantity_<?= $product['product_id'] ?>" name="quantity"
-                                                        value="1" min="1" style="width:50px;">
-                                                    <button type="submit" class="btn btn-primary mt-2 w-100">Ajouter au panier</button>
+                                                <form method="POST" action="?url=cart_add" class="add-to-cart-form mt-auto">
+                                                    <input type="hidden" name="product_id" value="<?= $product['product_id'] ?>">
+                                                    <input type="hidden" name="quantity" value="1">
+                                                    <button type="submit" class="btn btn-primary w-100 mt-2">Ajouter au panier</button>
                                                 </form>
                                             <?php else: ?>
                                                 <p class="text-danger">Connectez-vous pour ajouter au panier</p>
@@ -147,6 +146,31 @@
                     totalGlobal += parseFloat(cell.textContent.replace(' €', ''));
                 });
                 document.querySelector('#cart-grand-total').textContent = totalGlobal.toFixed(2) + ' €';
+            });
+        });
+        document.querySelectorAll('.btn-remove').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const cartItemId = this.dataset.id;
+
+                fetch('?url=cart_remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'cart_item_id=' + cartItemId
+                })
+                    .then(response => response.text())
+                    .then(() => {
+                        // Supprimer la ligne du tableau côté front
+                        this.closest('tr').remove();
+
+                        // Recalculer le total
+                        let totalGlobal = 0;
+                        document.querySelectorAll('.cart-total').forEach(cell => {
+                            totalGlobal += parseFloat(cell.textContent.replace(' €', ''));
+                        });
+                        document.querySelector('#cart-grand-total').textContent = totalGlobal.toFixed(2) + ' €';
+                    });
             });
         });
     </script>

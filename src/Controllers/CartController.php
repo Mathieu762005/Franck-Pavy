@@ -79,4 +79,31 @@ class CartController
     {
         return $this->cart->updateItem($cartItemId, $quantity, $unitPrice);
     }
+
+    /**
+     * Diminuer la quantité d'un item
+     */
+    public function decreaseQuantity(int $cartItemId): bool
+    {
+        // Récupérer l'article
+        $item = $this->cart->getCartItemById($cartItemId);
+
+        if (!$item) {
+            return false;
+        }
+
+        $qty = (int) $item['cart_items_quantity'];
+
+        if ($qty > 1) {
+            // Diminuer la quantité
+            $unitPrice = (float) $item['cart_items_unit_price'];
+            $newQty = $qty - 1;
+
+            return $this->cart->updateItem($cartItemId, $newQty, $unitPrice);
+
+        } else {
+            // Si quantité = 1 → supprimer la ligne
+            return $this->cart->removeItem($cartItemId);
+        }
+    }
 }
