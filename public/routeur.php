@@ -43,7 +43,7 @@ switch ($page) {
         $cartItems = [];
         if (isset($_SESSION['user']['id'])) {
             $cartController = new CartController($db);
-            $cartItems = $cartController->viewCart($_SESSION['user']['id']);
+            $cartItems = $cartController->viewCart();
         }
 
         require_once __DIR__ . "/../src/Views/04_click_and_collect.php";
@@ -89,7 +89,7 @@ switch ($page) {
     case 'cart_add':
         $userId = $_SESSION['user']['id'] ?? null;
         if (!$userId) {
-            header('Location: ?url=login');
+            http_response_code(401);
             exit;
         }
 
@@ -99,6 +99,16 @@ switch ($page) {
 
         if ($productId > 0) {
             $cartController->addToCart($userId, $productId, $quantity);
+        }
+
+        // Si AJAX, renvoyer le HTML du panier
+        if (
+            !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
+        ) {
+            $cartItems = $cartController->viewCart();
+            include __DIR__ . "/../src/Views/cart_table_partial.php"; // Contenu du tableau du panier
+            exit;
         }
 
         header('Location: ?url=04_click_and_collect');
@@ -129,6 +139,12 @@ switch ($page) {
         }
 
         header('Location: ?url=04_click_and_collect');
+        exit;
+
+    case 'cart_decrease_quantity':
+        $controller = new CartController($db);
+        $controller->decreaseQuantity($_POST['cart_item_id']);
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit;
 
     // ---------- COMMANDES ----------

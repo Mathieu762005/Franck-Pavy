@@ -100,4 +100,13 @@ class Cart
         $stmt->bindValue(':userId', $userId, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    // Dans App\Models\Cart
+    public function getCartItemById(int $cartItemId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM cart_items WHERE cart_item_id = ?");
+        $stmt->execute([$cartItemId]);
+        $item = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $item ?: null;
+    }
 }

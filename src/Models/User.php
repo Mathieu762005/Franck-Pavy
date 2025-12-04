@@ -128,8 +128,8 @@ class User
             $this->firstname = $user->user_first_name;
             $this->email = $user->user_email;
             $this->password = $user->user_password;
-            $this->total_spent = $user->user_total_spent ?? 0;
-            $this->orders_count = $user->user_orders_count ?? 0;
+            $this->user_total_spent = $user->user_total_spent ?? 0;
+            $this->user_orders_count = $user->user_orders_count ?? 0;
 
             return true;
         } catch (PDOException $e) {
