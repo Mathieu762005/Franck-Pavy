@@ -61,9 +61,21 @@ switch ($page) {
         break;
 
     // ---------- PROFIL ----------
+// ---------- PROFIL ----------
     case '06_profil':
-        $controller = new UserController();
-        $controller->profil();
+        $userId = $_SESSION['user']['id'] ?? null;
+        if (!$userId) {
+            header('Location: ?url=login');
+            exit;
+        }
+
+        $userModel = new \App\Models\User($db);
+        $user = $userModel->getByUserId($userId); // ou getUserInfosById($userId)
+
+        $orderController = new OrderController($db);
+        $userOrders = $orderController->getUserOrders($userId);
+
+        require_once __DIR__ . "/../src/Views/06_profil.php";
         break;
 
     case 'login':

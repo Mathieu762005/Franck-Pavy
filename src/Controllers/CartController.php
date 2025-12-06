@@ -43,24 +43,36 @@ class CartController
      */
     public function addToCart(int $userId, int $productId, int $quantity = 1): bool
     {
+        // Récupérer le produit depuis la BDD
+        $product = $this->productModel->getById($productId);
+        if (!$product) {
+            return false; // produit inexistant
+        }
+
+        // Vérifier la disponibilité
+        if ((int) $product['product_available'] <= 0) {
+            // Optionnel : tu peux stocker un message d'erreur en session
+            $_SESSION['errors'][] = "Le produit '{$product['product_name']}' est en rupture de stock.";
+            return false; // bloque l'ajout
+        }
+
         // Vérifier si le produit est déjà dans le panier
         $existingItem = $this->getItemByProductId($userId, $productId);
-
         if ($existingItem) {
-            // Mettre à jour la quantité
             $newQuantity = $existingItem['cart_items_quantity'] + $quantity;
+
+            // Vérifier que la nouvelle quantité ne dépasse pas le stock
+            if ($newQuantity > (int) $product['product_available']) {
+                $_SESSION['errors'][] = "Vous ne pouvez pas ajouter plus de {$product['product_available']} unité(s) de '{$product['product_name']}'.";
+                return false;
+            }
+
             $unitPrice = $existingItem['cart_items_unit_price'];
             return $this->updateItem($existingItem['cart_item_id'], $newQuantity, $unitPrice);
         }
 
-        // Sinon, créer un nouvel item
-        $product = $this->productModel->getById($productId);
-        if (!$product)
-            return false;
-
+        // Ajouter un nouvel item
         $unitPrice = (float) $product['product_price'];
-        $totalPrice = $unitPrice * $quantity;
-
         return $this->cart->addItem($userId, $productId, $product['product_name'], $unitPrice, $quantity);
     }
 

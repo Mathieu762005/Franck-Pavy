@@ -13,7 +13,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                        Link
+                        Produits
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="http://localhost:8000/index.php?url=02_produits&id=1">Les
@@ -36,18 +36,18 @@
                     <a class="nav-link" href="http://localhost:8000/index.php?url=04_click_and_collect">Click And
                         Collect</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                        Link
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="http://localhost:8000/index.php?url=login">Connection</a>
-                        </li>
-                        <li><a class="dropdown-item" href="http://localhost:8000/index.php?url=register">crée ton
-                                compte</a></li>
-                    </ul>
-                </li>
+                <?php if (!isset($_SESSION['user']['id'])): ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Compte
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="index.php?url=login">Connexion</a></li>
+                            <li><a class="dropdown-item" href="index.php?url=register">Créer un compte</a></li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link" href="http://localhost:8000/index.php?url=06_profil">Profil</a>
                 </li>
