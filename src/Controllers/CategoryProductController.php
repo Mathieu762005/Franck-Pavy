@@ -30,15 +30,30 @@ class CategoryProductController
             return;
         }
 
-        // Bannière selon la catégorie
+        // Dossier correct (C&C => impossible)
         $bannerImages = [
-            1 => "/assets/image/C&C/pain-4.png",
-            2 => "/assets/image/C&C/croissant.jpg",
-            3 => "/assets/image/C&C/baguetteApéro.png",
-            4 => "/assets/image/C&C/belleImage.jpg"
+            1 => "/assets/image/Categories/belleimage-pain.jpg",
+            2 => "/assets/image/Categories/croissant.jpg",
+            3 => "/assets/image/Categories/burger.png",
+            4 => "/assets/image/Categories/presentation.jpg"
         ];
 
-        $banner = $bannerImages[$category['category_id']] ?? "/assets/image/C&C/default-banner.jpg";
+        // Fallback propre
+        $defaultBanner = "/assets/image/Categories/default-banner.jpg";
+
+        // Récupérer l’image de la catégorie
+        $banner = $bannerImages[$category["category_id"]] ?? $defaultBanner;
+
+        // Structure envoyée à la vue
+        $categories = [
+            [
+                'category_id' => $category['category_id'],
+                'category_name' => $category['category_name'],
+                'category_description' => $category['category_description'] ?? '',
+                'image' => $banner,
+                'products' => $products ?: []
+            ]
+        ];
 
         require __DIR__ . "/../Views/02_produits.php";
     }
