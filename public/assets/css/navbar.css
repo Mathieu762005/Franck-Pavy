@@ -9,6 +9,19 @@
     font-style: normal;
 }
 
+.mon-lien {
+    color: #571065;
+    font-family: "GFS Didot", serif;
+    font-weight: 400;
+    font-style: normal;
+    cursor: pointer;     /* couleur que tu veux */ /* enlève le soulignement */
+}
+
 img {
     width: 15rem;
 }
+
+.colorss {
+    color: #d506ff;
+    font-size: 2rem;
+} 
