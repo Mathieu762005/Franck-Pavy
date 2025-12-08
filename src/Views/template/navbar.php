@@ -26,7 +26,7 @@
             <!-- CENTRE 40% -->
             <ul class="navbar-nav mx-auto justify-content-evenly" style="width:40%;">
                 <li class="nav-item">
-                    <a class="nav-link color" href="index.php?url=01_home">Home</a>
+                    <a class="nav-link color" href="index.php?url=01_home">Accueil</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle color" href="#" data-bs-toggle="dropdown">
@@ -51,7 +51,7 @@
             </ul>
 
             <!-- DROITE 30% -->
-            <ul class="navbar-nav d-flex align-items-center justify-content-end me-3" style="width:30%;">
+            <ul class="navbar-nav d-flex align-items-center justify-content-end" style="width:30%;">
                 <?php if (!isset($_SESSION['user']['id'])): ?>
                     <li class="nav-item dropdown me-3">
                         <a class="nav-link dropdown-toggle color" href="#" data-bs-toggle="dropdown">
@@ -65,7 +65,7 @@
                 <?php endif; ?>
 
                 <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'admin'): ?>
-                    <li class="nav-item dropdown me-5">
+                    <li class="nav-item dropdown me-3">
                         <a class="nav-link dropdown-toggle color" href="#" data-bs-toggle="dropdown">Admin</a>
                         <ul class="dropdown-menu dropdown-menu-start">
                             <li><a class="dropdown-item" href="index.php?url=adminUsers">Gestion utilisateurs</a></li>
@@ -77,8 +77,13 @@
                 <?php endif; ?>
 
                 <li class="nav-item me-3">
-                    <a class="nav-link" href="index.php?url=06_profil">
+                    <a class="nav-link d-flex align-items-center" href="index.php?url=06_profil">
                         <i class="bi bi-person-circle color" style="font-size: 1.5rem;"></i>
+                        <?php if (isset($_SESSION['user']['firstname']) && !empty($_SESSION['user']['firstname'])): ?>
+                            <span class="mon-lien ms-1">
+                                <?= htmlspecialchars($_SESSION['user']['firstname']) ?>
+                            </span>
+                        <?php endif; ?>
                     </a>
                 </li>
 
