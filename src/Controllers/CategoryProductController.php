@@ -34,8 +34,8 @@ class CategoryProductController
         $bannerImages = [
             1 => "/assets/image/Categories/belleimage-pain.jpg",
             2 => "/assets/image/Categories/croissant.jpg",
-            3 => "/assets/image/Categories/burger.png",
-            4 => "/assets/image/Categories/presentation.jpg"
+            3 => "/assets/image/Categories/burgerFrite.png",
+            4 => "/assets/image/Categories/presentationPatisserie.jpg"
         ];
 
         // Fallback propre

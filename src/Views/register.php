@@ -67,7 +67,7 @@
             <a class="text-black" href="index.php?url=login">Se connecter à A Tout Heure</a>
         </div>
     </main>
-    <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
+    <footer>
         <?php include_once "template/footer.php" ?>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

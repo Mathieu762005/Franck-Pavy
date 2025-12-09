@@ -32,8 +32,8 @@
     </main>
 
 
-    <footer class="mt-auto text-center p-4 mt-3">
-        <p class="m-0">Afpa - 2025 - MVC</p>
+    <footer>
+        <?php include_once "template/footer.php" ?>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

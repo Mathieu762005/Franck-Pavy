@@ -139,7 +139,7 @@ $showLoginModal = !$connected;
     <?php endif; ?>
 </main>
 
-<footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
+<footer>
     <?php include_once "template/footer.php"; ?>
 </footer>
 
