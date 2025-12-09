@@ -69,9 +69,12 @@
         <?php else: ?>
             <p>Aucune commande sélectionnée. Cliquez sur une commande pour voir les détails.</p>
         <?php endif; ?>
+        <?php if (isset($_SESSION['user'])): ?>
+            <a class="btn border border-black" href="index.php?url=logout" type="submit">déconnexion</a>
+        <?php endif; ?>
     </div>
 
-    <footer class="footer text-white text-end pe-3 py-3 d-flex align-items-center justify-content-end">
+    <footer>
         <?php include_once "template/footer.php" ?>
     </footer>
 

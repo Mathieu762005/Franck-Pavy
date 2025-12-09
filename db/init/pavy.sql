@@ -113,6 +113,7 @@ CREATE TABLE `order_items` (
 CREATE TABLE `products` (
   `product_id` int NOT NULL,
   `product_name` varchar(50) NOT NULL,
+  `product_subtitle` varchar(100) NOT NULL,
   `product_description` text NOT NULL,
   `product_price` decimal(10,2) NOT NULL,
   `product_available` tinyint(1) NOT NULL,
