@@ -59,6 +59,25 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.utils.toArray('.partieProduit').forEach((element) => {
+            gsap.from(element, {
+                y: 50,              // décalage vertical depuis le bas
+                opacity: 0,          // invisible au départ
+                duration: 1,         // durée de l'animation
+                ease: "power3.out",  // type de mouvement
+                scrollTrigger: {
+                    trigger: element,  // élément déclencheur
+                    start: "top 80%",  // quand l'élément entre dans la fenêtre
+                    toggleActions: "play none none none"
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
