@@ -1,6 +1,6 @@
 <head>
-    <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/navbar.css">
 </head>
 
 <nav class="navbar navbar-expand-lg background">
