@@ -17,14 +17,14 @@
     <main>
         <div class="partie1">
             <div class="textBouton d-flex flex-column justify-content-between">
-                <h1 class="text-white h1">Artisanat et passion au quotidien.</h1>
+                <h1 class="text-white titreh1">Artisanat et passion au quotidien.</h1>
             </div>
             <img src="/assets/image/Logo/LogoArtisan.png" class="logoArtisant border border-black border-2" alt="">
         </div>
         <div class="partie2 mx-auto">
             <div class="partie2Haute text-center">
                 <img src="/assets/image/Logo/Logo.png" class="logo mt-5" alt="">
-                <h3 class="h2">Bienvenue chez nous.</h3>
+                <h3 class="titreh2">Bienvenue chez nous.</h3>
             </div>
             <div class="partie2Text d-flex">
                 <div class="partie2Gauche me-5">
@@ -47,14 +47,14 @@
                 <div class="text-center">
                     <img src="/assets/image/Logo/LogoArtisan.png"
                         class="partie3logoArtisant border border-black border-2 mb-4" alt="">
-                    <h3 class="h3 text-center mx-auto">À propos de notre boulangerie</h3>
+                    <h3 class="titreh3 text-center mx-auto">À propos de notre boulangerie</h3>
                 </div>
                 <div class="partie3Haute d-flex">
                     <div class="partie3HauteGauche">
-                        <img src="/assets/image/preparationPain.png" class="partie3Image" alt="">
+                        <img src="/assets/image/preparationPain1.png" class="partie3Image" alt="">
                     </div>
                     <div class="partie3HauteDroite">
-                        <h4 class="h4 mb-5">La passion du pain</h4>
+                        <h4 class="titreh4 mb-5">La passion du pain</h4>
                         <p class="partie3Text">Avant même que le soleil ne pointe, notre équipe est déjà à l’œuvre. Le
                             pétrin tourne, les
                             fours chauffent, et les premières odeurs de pain chaud s’échappent dans la rue. Ce rythme
@@ -72,7 +72,7 @@
                 </div>
                 <div class="partie3Basse d-flex">
                     <div class="partie3BasseGauche">
-                        <h4 class="h4 mb-5">Une passion qui se lève tôt </h4>
+                        <h4 class="titreh4 mb-5">Une passion qui se lève tôt </h4>
                         <p class="partie3Text">Depuis les premières lueurs du jour, notre fournil s’anime au rythme des
                             gestes précis et
                             passionnés. Ici, chaque pain est pétri à la main, chaque viennoiserie façonnée avec soin, et
@@ -92,11 +92,15 @@
                 </div>
             </div>
         </div>
-        <div class="partie4 mt-5">
-            <div class="text-center">
-                <img src="/assets/image/Logo/LogoArtisan.png"
-                    class="partie3logoArtisant border border-black border-2 mb-4" alt="">
-                <h3 class="h3 text-center mx-auto">Saveurs artisanales</h3>
+        <div class="partie4 mx-auto mt-5">
+            <div class="partie4Marge mx-auto">
+                <div class="partie4Haute text-center pt-5 mx-auto mb-5">
+                    <img src="/assets/image/Logo/Logo.png" class="logo" alt="">
+                    <h3 class="avis">Vos avis</h3>
+                </div>
+                <div class="partie4Basse mx-auto border border-black border-2 rounded-5">
+                    <p class="text-center mt-3">les avis vont etre affichez plus tard</p>
+                </div>
             </div>
         </div>
     </main>

@@ -24,9 +24,9 @@
             </div>
             <img src="/assets/image/Logo/LogoArtisan.png" class="border border-black border-2" alt="">
         </div>
-        <div class="partie2">
+        <div class="Hpartie2">
             <div class="text-center pt-5 mx-auto mx">
-                <img src="/assets/image/Logo/Logo.png" class="logo" alt="">
+                <img src="/assets/image/Logo/Logo.png" class="Hlogo" alt="">
                 <h2 class="AbhayaLibre titreH2">Fait maison, fait avec cœur, fait pour vous.</h2>
             </div>
             <div class="d-flex flex-wrap justify-content-evenly mx-auto boite my-5">
@@ -71,7 +71,7 @@
                 </div>
             </div>
         </div>
-        <div class="partie4 mx-auto mb-5">
+        <div class="Hpartie4 mx-auto mb-5">
             <div class="partie4-haute d-flex justify-content-center">
                 <img src="/assets/image/Logo/LogoArtisan.png" class="partie4Logo border border-black border-2 my-5"
                     alt="">
@@ -97,12 +97,12 @@
                 <div class="partie5Haute d-flex justify-content-center">
                     <img src="/assets/image/commande.png" class="imageCommande" alt="">
                 </div>
-                <h4 class="jeCommande">
+                <h4 class="titreh4 jeCommande">
                     Je commande
                 </h4>
                 <div class="partie5Basse d-flex justify-content-between">
                     <div class="partie5BasseGauche">
-                        <h4 class="mb-3">On prépare</h4>
+                        <h4 class="titreh4 mb-3">On prépare</h4>
                         <img src="/assets/image/preparation.png" class="imageCommande" alt="">
                     </div>
                     <div class="partie5BasseDroite row justify-content-end align-items-end">
@@ -117,14 +117,44 @@
                 </div>
             </div>
         </div>
-        <div class="partie6">
+        <div class="partie6 mt-3">
             <div class="partie6Marge mx-auto">
-                <div class="text-center pt-5 mx-auto mb-5">
-                    <img src="/assets/image/Logo/Logo.png" class="logo" alt="">
-                    <h3 class="avis">Vos avis</h3>
+                <div class="partie6Haute text-center pt-5 mx-auto mb-5">
+                    <img src="/assets/image/Logo/Logo.png" class="" alt="">
+                    <h3>Saveurs artisanales</h3>
                 </div>
-                <div class="partie6Avis mx-auto border border-black border-2 rounded-5">
-                    <p class="text-center mt-3">les avis vont etre affichez plus tard</p>
+                <div class="partie6Basse row row-cols-1 row-cols-md-3 g-4">
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="/assets/image/home1.png" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Artisanat 100% maison</h5>
+                                <p class="card-text">Du pétrissage à la cuisson, chaque produit est réalisé sur place
+                                    avec passion, authenticité et savoir-faire. Ici, rien n’est laissé au hasard : que
+                                    du vrai, que du bon.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="/assets/image/home2.png" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Click & Collect simplifié</h5>
+                                <p class="card-text">Commandez en ligne, récupérez en boutique : rapide, pratique, et
+                                    toujours avec la même qualité artisanale.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="/assets/image/home3.png" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Contactez-nous en un instant</h5>
+                                <p class="card-text">Laissez-nous un message ou passez directement en boutique : nous
+                                    sommes toujours prêts à vous répondre.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
