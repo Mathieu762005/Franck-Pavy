@@ -63,17 +63,30 @@ switch ($page) {
     // ---------- PROFIL ----------
 // ---------- PROFIL ----------
     case '06_profil':
+        // Vérifier si user connecté
         $userId = $_SESSION['user']['id'] ?? null;
         if (!$userId) {
             header('Location: ?url=login');
             exit;
         }
 
+        // Charger les modèles
         $userModel = new \App\Models\User($db);
-        $user = $userModel->getByUserId($userId); // ou getUserInfosById($userId)
-
         $orderController = new OrderController($db);
+
+        // Infos du user
+        $user = $userModel->getByUserId($userId);
+
+        // Liste des commandes
         $userOrders = $orderController->getUserOrders($userId);
+
+        // Récupération d'une commande si cliquée
+        $orderId = $_GET['order_id'] ?? null;
+        $orderDetails = null;
+
+        if ($orderId) {
+            $orderDetails = $orderController->getOrderDetails((int) $orderId);
+        }
 
         require_once __DIR__ . "/../src/Views/06_profil.php";
         break;

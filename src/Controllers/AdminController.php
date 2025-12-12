@@ -55,46 +55,47 @@ class AdminController
 
         // Récupération des informations de la commande
         $order = $orderModel->getById($orderId);
-        if (!$order) return false;
+        if (!$order)
+            return false;
 
         // Mettre à jour le statut
         $orderModel->updateStatus($orderId, $status);
 
         // Si la commande est terminée
-if ($status === 'terminée') {
-    $userId = $order['user_id'] ?? null;
-    if ($userId) {
-        // Calculer le total dépensé via order_items
-        $items = $orderItemModel->getByOrder($orderId);
-        $totalSpent = 0;
-        foreach ($items as $item) {
-            $totalSpent += (float) $item['total_price'];
+        if ($status === 'terminée') {
+            $userId = $order['user_id'] ?? null;
+            if ($userId) {
+                // Calculer le total dépensé via order_items
+                $items = $orderItemModel->getByOrder($orderId);
+                $totalSpent = 0;
+                foreach ($items as $item) {
+                    $totalSpent += (float) $item['total_price'];
+                }
+
+                // Mettre à jour les stats de l'utilisateur
+                $user = new User($this->db);
+
+                // Hydrater correctement l'objet User avec ses propriétés
+                $userData = $user->getUserInfosById($userId);
+                if ($userData) {
+                    $user->id = (int) $userData['user_id'];
+                    $user->role = $userData['user_role'];
+                    $user->username = $userData['user_name'];
+                    $user->firstname = $userData['user_first_name'];
+                    $user->email = $userData['user_email'];
+                    $user->password = $userData['user_password'];
+                    $user->user_total_spent = (float) $userData['user_total_spent'];
+                    $user->user_orders_count = (int) $userData['user_orders_count'];
+
+                    // Incrémenter les stats
+                    $user->incrementStats($totalSpent);
+                }
+            }
+
+            // Supprimer les éléments et la commande
+            $orderItemModel->deleteByOrder($orderId);
+            $orderModel->delete($orderId);
         }
-
-        // Mettre à jour les stats de l'utilisateur
-        $user = new User($this->db);
-
-        // Hydrater correctement l'objet User avec ses propriétés
-        $userData = $user->getUserInfosById($userId);
-        if ($userData) {
-            $user->id = (int)$userData['user_id'];
-            $user->role = $userData['user_role'];
-            $user->username = $userData['user_name'];
-            $user->firstname = $userData['user_first_name'];
-            $user->email = $userData['user_email'];
-            $user->password = $userData['user_password'];
-            $user->user_total_spent = (float)$userData['user_total_spent'];
-            $user->user_orders_count = (int)$userData['user_orders_count'];
-
-            // Incrémenter les stats
-            $user->incrementStats($totalSpent);
-        }
-    }
-
-    // Supprimer les éléments et la commande
-    $orderItemModel->deleteByOrder($orderId);
-    $orderModel->delete($orderId);
-}
 
         return true;
     }

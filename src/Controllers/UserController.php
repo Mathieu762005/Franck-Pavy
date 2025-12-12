@@ -170,25 +170,25 @@ class UserController
             exit;
         }
 
-        // Créer une instance PDO si elle n'existe pas
         $pdo = Database::createInstancePDO();
 
         $userId = $_SESSION['user']['id'];
-        $userInfo = $this->userModel->getByUserId($userId);
 
-        // Récupérer toutes les commandes de l'utilisateur
+        // IMPORTANT : on met dans $user parce que la vue utilise $user
+        $user = $this->userModel->getByUserId($userId);
+
+        // Commandes du user
         $orderController = new \App\Controllers\OrderController($pdo);
         $userOrders = $orderController->getUserOrders($userId);
 
-        // Récupérer l'ID de la commande si fourni dans l'URL
-        $orderId = $_GET['id'] ?? null;
-        $orderDetails = [];
+        // Récupère l'ID d'une commande
+        $orderId = $_GET['order_id'] ?? null;
+        $orderDetails = null;
 
         if ($orderId) {
             $orderDetails = $orderController->getOrderDetails((int) $orderId);
         }
 
         require_once __DIR__ . "/../Views/06_profil.php";
-
     }
 }
