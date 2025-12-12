@@ -31,49 +31,49 @@ class UserController
             // Vérification du champ "name"
             if (isset($_POST["username"])) {
                 if (empty($_POST["username"])) {
-                    $errors['username'] = 'Nom obligatoire';
+                    $errors['username'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Nom obligatoire';
                 }
             }
 
             // Vérification du champ "firstname"
             if (isset($_POST["firstname"])) {
                 if (empty($_POST["firstname"])) {
-                    $errors['firstname'] = 'Prénom obligatoire';
+                    $errors['firstname'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Prénom obligatoire';
                 }
             }
 
             // Vérification du champ "email"
             if (isset($_POST["email"])) {
                 if (empty($_POST["email"])) {
-                    $errors['email'] = 'Mail obligatoire';
+                    $errors['email'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mail obligatoire';
                 } else if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
-                    $errors['email'] = 'Mail non valide';
+                    $errors['email'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mail non valide';
                 } else if (User::checkMail($_POST["email"])) {
-                    $errors['email'] = 'Mail déjà utilisé';
+                    $errors['email'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mail déjà utilisé';
                 }
             }
 
             // Vérification du champ "password"
             if (isset($_POST["password"])) {
                 if (empty($_POST["password"])) {
-                    $errors['password'] = 'Mot de passe obligatoire';
+                    $errors['password'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mot de passe obligatoire';
                 } else if (strlen($_POST["password"]) < 8) {
-                    $errors['password'] = 'Mot de passe trop court (minimum 8 caractères)';
+                    $errors['password'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mot de passe trop court (minimum 8 caractères)';
                 }
             }
 
             // Vérification du champ "confirmPassword"
             if (isset($_POST["confirmPassword"])) {
                 if (empty($_POST["confirmPassword"])) {
-                    $errors['confirmPassword'] = 'Confirmation du mot de passe obligatoire';
+                    $errors['confirmPassword'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Confirmation du mot de passe obligatoire';
                 } else if ($_POST["confirmPassword"] !== $_POST["password"]) {
-                    $errors['confirmPassword'] = 'Les mots de passe ne sont pas identiques';
+                    $errors['confirmPassword'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Les mots de passe ne sont pas identiques';
                 }
             }
 
             // Vérification de la case CGU
             if (!isset($_POST["cgu"])) {
-                $errors['cgu'] = 'Vous devez accepter les CGU';
+                $errors['cgu'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Vous devez accepter les CGU';
             }
 
             // Si aucune erreur, on crée l'utilisateur
@@ -103,14 +103,14 @@ class UserController
             // Vérification du champ "email"
             if (isset($_POST["email"])) {
                 if (empty($_POST["email"])) {
-                    $errors['email'] = 'Mail obligatoire';
+                    $errors['email'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mail obligatoire';
                 }
             }
 
             // Vérification du champ "password"
             if (isset($_POST["password"])) {
                 if (empty($_POST["password"])) {
-                    $errors['password'] = 'Mot de passe obligatoire';
+                    $errors['password'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mot de passe obligatoire';
                 }
             }
 
@@ -138,10 +138,10 @@ class UserController
                         // Redirection vers la page profil
                         header("Location: index.php?url=06_profil");
                     } else {
-                        $errors['connexion'] = 'Mail ou Mot de passe incorrect';
+                        $errors['connexion'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mail ou Mot de passe incorrect';
                     }
                 } else {
-                    $errors['connexion'] = 'Mail ou Mot de passe incorrect';
+                    $errors['connexion'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Mail ou Mot de passe incorrect';
                 }
             }
         }

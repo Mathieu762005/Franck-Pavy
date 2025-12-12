@@ -10,34 +10,38 @@
     <link rel="stylesheet" href="../assets/css/login.css">
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
-        <div>
-            <?php include_once "template/navbar.php" ?>
-        </div>
         <div class="text-center py-4">
-            <img src="assets/image/Logo/Logo.png" alt="">
+            <a href="http://localhost:8000/index.php?url=01_home"><img src="assets/image/Logo/Logo.png" alt=""></a>
         </div>
     </header>
     <main>
         <div class="formulaire mx-auto mt-4 border p-4 rounded-4">
             <h2 class="text-center mb-5">Se connecter</h2>
-            <form method="POST" action="" novalidate>
-                <div class="mb-3">
-                    <label for=" inputAddress" class="form-label">Votre e-mail</label><span
-                        class="ms-2 text-danger fst-italic fw-light"><?= $errors["email"] ?? '' ?></span>
-                    <input type="email" name="email" value="<?= $_POST["email"] ?? "" ?>" class="form-control"
-                        id="inputAddress">
+            <form method="POST" action="" novalidate class="mx-auto" style="max-width: 400px;">
+                <!-- E-mail -->
+                <div class="mb-2">
+                    <label for="email" class="form-label small mb-1">Votre e-mail</label>
+                    <small class="text-danger fst-italic"><?= $errors['email'] ?? '' ?></small>
+                    <input type="email" name="email" value="<?= $_POST['email'] ?? '' ?>"
+                        class="form-control form-control-sm py-1" id="email">
                 </div>
-                <div class="mb-3">
-                    <label for=" inputAddress" class="form-label">Votre mot de passe</label><span
-                        class="ms-2 text-danger fst-italic fw-light"><?= $errors["password"] ?? '' ?></span>
-                    <input type="password" name="password" value="<?= $_POST["password"] ?? "" ?>" class="form-control"
-                        id="inputAddress">
+
+                <!-- Mot de passe -->
+                <div class="mb-2">
+                    <label for="password" class="form-label small mb-1">Votre mot de passe</label>
+                    <small class="text-danger fst-italic"><?= $errors['password'] ?? '' ?></small>
+                    <input type="password" name="password" value="<?= $_POST['password'] ?? '' ?>"
+                        class="form-control form-control-sm py-1" id="password">
                 </div>
-                <div class="md-3 text-center mx-1 mt-4 row">
-                    <button type="submit" class="btn mb-2 rounded-4 border">Continuer</button>
-                    <span class="ms-2 text-danger fst-italic fw-light"><?= $errors["connexion"] ?? '' ?></span>
+
+                <!-- Bouton -->
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn px-5 rounded-4 border">Continuer</button>
+                    <div>
+                        <small class="text-danger fst-italic"><?= $errors['connexion'] ?? '' ?></small>
+                    </div>
                 </div>
             </form>
         </div>
@@ -45,7 +49,7 @@
             <a class="text-black" href="index.php?url=register">Pas encore inscrit</a>
         </div>
     </main>
-    <footer>
+    <footer class="mt-auto">
         <?php include_once "template/footer.php" ?>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

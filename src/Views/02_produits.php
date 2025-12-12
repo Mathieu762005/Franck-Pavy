@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($categories[0]['category_name'] ?? 'Catégorie') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/produit.css">
+    <link rel="stylesheet" href="../assets/css/produits.css">
 </head>
 
 <body>
@@ -27,7 +27,9 @@
                 <h1 class="produit-partie1__titre mb-5">
                     <?= htmlspecialchars($categories[0]['category_description'] ?? '') ?>
                 </h1>
-                <button class="produit-partie1__btn rounded-5 py-1 px-4">Click & Collect</button>
+                <a href="index.php?url=04_click_and_collect">
+                    <button class="produit-partie1__btn rounded-5 py-1 px-4">Click & Collect</button>
+                </a>
             </div>
         </div>
     </div>

@@ -19,7 +19,9 @@
             <div class="home-partie1__baniere d-flex flex-column justify-content-between">
                 <h1 class="home-partie1__titre text-white">Du bon, du frais, du Pavy. Bienvenue A Toute Heure.</h1>
                 <div>
-                    <button class="home-partie1__btn rounded-5 py-1 px-4">Click & Collect</button>
+                    <a href="index.php?url=04_click_and_collect">
+                        <button class="home-partie1__btn rounded-5 py-1 px-4">Click & Collect</button>
+                    </a>
                 </div>
             </div>
             <img src="/assets/image/Logo/LogoArtisan.png" class="home-partie1__logo border border-black border-2"
@@ -137,7 +139,8 @@
                             <p class="card-text">Chaque jour, nous choisissons des ingrédients frais et de qualité pour
                                 créer des produits artisanaux qui allient tradition et innovation.</p>
                             <div class="home-partie6__basse text-center">
-                                <button class="home-partie6__btn rounded-5 py-1 px-4">Notre histoire</button>
+                                <a href="index.php?url=03_a_propos"><button
+                                        class="home-partie6__btn rounded-5 py-1 px-4">Notre histoire</button></a>
                             </div>
                         </div>
                     </div>
@@ -151,7 +154,8 @@
                                 et
                                 toujours avec la même qualité artisanale.</p>
                             <div class="home-partie6__basse text-center">
-                                <button class="home-partie6__btn rounded-5 py-1 px-4">Click & Collect</button>
+                                <a href="index.php?url=04_click_and_collect"><button
+                                        class="home-partie6__btn rounded-5 py-1 px-4">Click & Collect</button></a>
                             </div>
                         </div>
                     </div>
@@ -165,7 +169,8 @@
                                 nous
                                 sommes toujours prêts à vous répondre.</p>
                             <div class="home-partie6__basse text-center">
-                                <button class="home-partie6__btn rounded-5 py-1 px-4">Contactez-nous</button>
+                                <a href="index.php?url=05_contact"><button
+                                        class="home-partie6__btn rounded-5 py-1 px-4">Contactez-nous</button></a>
                             </div>
                         </div>
                     </div>
@@ -184,8 +189,6 @@
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
-
-
         /* ------------------------------------------
    PARTIE 1 — Logo bannière
 ------------------------------------------- */
@@ -202,6 +205,7 @@
         ------------------------------------------- */
 
         gsap.utils.toArray(".home-partie2__categorie").forEach((card, i) => {
+            // Animation d'apparition au scroll
             gsap.from(card, {
                 opacity: 0,
                 y: 60,
@@ -213,6 +217,25 @@
                     trigger: card,
                     start: "top 90%"
                 }
+            });
+
+            // Animation hover
+            card.addEventListener("mouseenter", () => {
+                gsap.to(card, {
+                    scale: 1.05,
+                    y: -5,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            });
+
+            card.addEventListener("mouseleave", () => {
+                gsap.to(card, {
+                    scale: 1,
+                    y: 0,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
             });
         });
 
