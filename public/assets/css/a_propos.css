@@ -1,0 +1,157 @@
+/* --------------------------- */
+/*         PARTIE 1            */
+/* --------------------------- */
+
+.propos-partie1 {
+    background-image: url('/assets/image/baniere/BaniereApropos.png');
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 60vh;
+}
+
+.propos-partie1__titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-size: 80px;
+    padding-left: 7rem;
+    width: 50rem;
+}
+
+.propos-partie1__logo {
+    width: 120px;
+    height: auto;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+/* --------------------------- */
+/*         PARTIE 2            */
+/* --------------------------- */
+
+.propos-partie2 {
+    width: 80%;
+    margin-bottom: 7rem;
+}
+
+.propos-partie2__haute {
+    margin-bottom: 5rem;
+}
+
+.propos-partie2__logo {
+    width: 10rem;
+}
+
+.propos-partie2__titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+    font-size: 70px;
+}
+
+.propos-partie2__gauche,
+.propos-partie2__droite {
+    width: 50%;
+}
+
+.propos-partie2 p {
+    font-family: "GFS Didot", serif;
+    font-weight: 400;
+    font-size: 20px;
+}
+
+/* --------------------------- */
+/*         PARTIE 3            */
+/* --------------------------- */
+
+.propos-partie3 {
+    background-color: #DFDAC4;
+    padding-bottom: 10rem;
+}
+
+.propos-partie3__centrale {
+    margin-bottom: 7rem;
+}
+
+.propos-partie3__marge {
+    width: 80%;
+}
+
+.propos-partie3__logo {
+    width: 120px;
+    height: auto;
+}
+
+.propos-partie3__titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+    font-size: 80px;
+    width: 45rem;
+    margin-bottom: 7rem;
+}
+
+.propos-partie3__Image {
+    width: 500px;
+    height: 750px;
+}
+
+.propos-partie3__haute {
+    margin-bottom: 7rem;
+}
+
+.propos-partie3__gauche,
+.propos-partie3__droite {
+    width: 50%;
+}
+
+.propos-partie3__gauche-basse,
+.propos-partie3__droite-basse {
+    width: 50%;
+}
+
+.propos-partie3__sous-titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-size: 60px;
+    width: 28rem;
+}
+
+.propos-partie3__text {
+    font-size: 21px;
+}
+
+.propos-partie3__Image-basse {
+    width: 500px;
+    height: 750px;
+}
+
+/* --------------------------- */
+/*         PARTIE 4            */
+/* --------------------------- */
+
+.propos-partie4 {
+    width: 80%;
+    margin-bottom: 5rem;
+}
+
+.propos-partie4-logo {
+    width: 10rem;
+}
+
+.propos-partie4-titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+    font-size: 70px;
+}
+
+.propos-partie4-marge {
+    width: 80%;
+}
+
+.propos-partie4-basse {
+    width: 60%;
+    height: 7rem;
+}

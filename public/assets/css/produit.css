@@ -1,0 +1,114 @@
+/* PAGE PRODUIT */
+
+/* --- PARTIE 1 (Bannière catégorie) --- */
+
+.produit-partie1 {
+    width: 100%;
+}
+
+.produit-partie1__gauche {
+    width: 50%;
+}
+
+.produit-partie1__droite {
+    width: 50%;
+}
+
+/* Logo artisan */
+.produit-partie1__logoArtisan {
+    width: 120px;
+    height: 120px;
+}
+
+/* Titre */
+.produit-partie1__titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: bold;
+    font-style: normal;
+    font-size: 65px;
+    max-width: 40rem;
+}
+
+/* Bouton */
+.produit-partie1__btn {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+    border: 2px solid #571065;
+    background-color: #DFDAC4;
+    font-size: 1.3rem;
+    color: #571065;
+}
+
+
+/* --- PARTIE 2 (Liste des produits) --- */
+
+.produit-partie2 {
+    width: 80%;
+    margin-bottom: 7rem;
+}
+
+/* Logo */
+.logo {
+    width: 10rem;
+}
+
+/* Titre de la catégorie */
+.produit-partie2__haute h2 {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 80px;
+    margin-bottom: 7rem;
+}
+
+/* Bloc produit */
+.produit-partie2__produit {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 7rem;
+}
+
+/* Produit inversé (un sur deux) */
+.produit-partie2__produit.reverse {
+    flex-direction: row-reverse;
+}
+
+/* Image produit */
+.produit-partie2__image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.produit-partie2__image img {
+    width: 600px;
+    height: 400px;
+}
+
+/* Description produit */
+.produit-partie2__description {
+    flex: 1;
+    text-align: center;
+    padding: 1rem;
+}
+
+.produit-partie2__description h3 {
+    font-family: "Abhaya Libre", serif;
+    font-size: 50px;
+    margin-bottom: 1.5rem;
+}
+
+.produit-partie2__description h4 {
+    font-family: "Abhaya Libre", serif;
+    font-size: 25px;
+    font-weight: 300;
+    margin-bottom: 1rem;
+}
+
+.produit-partie2__description p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #404040;
+}

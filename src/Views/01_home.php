@@ -7,7 +7,7 @@
     <title>Accueil</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="../assets/css/test.css">
+    <link rel="stylesheet" href="../assets/css/home.css">
 </head>
 
 <body>
@@ -28,7 +28,7 @@
         <div class="home-partie2 mx-auto">
             <div class="home-partie2__haute text-center mx-auto">
                 <img src="/assets/image/Logo/Logo.png" class="home-partie2__logo" alt="Logo principal">
-                <h2 class="home-partie2__titre">Fait maison, fait avec cœur, fait pour vous.</h2>
+                <h2 class="home-partie2__titre abhayaLibre">Fait maison, fait avec cœur, fait pour vous.</h2>
             </div>
             <div class="home-partie2__categories d-flex flex-wrap justify-content-evenly mx-auto my-5">
 
@@ -179,7 +179,183 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+
+        /* ------------------------------------------
+   PARTIE 1 — Logo bannière
+------------------------------------------- */
+        gsap.from(".home-partie1__logo", {
+            opacity: 0,
+            y: 40,
+            duration: 1.1,
+            ease: "power3.out",
+            delay: 0.4
+        });
+
+        /* ------------------------------------------
+           PARTIE 2 — Logo + Titre + Catégories
+        ------------------------------------------- */
+
+        gsap.utils.toArray(".home-partie2__categorie").forEach((card, i) => {
+            gsap.from(card, {
+                opacity: 0,
+                y: 60,
+                scale: 0.95,
+                duration: 1.1,
+                delay: i * 0.1,
+                ease: "power4.out",
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 90%"
+                }
+            });
+        });
+
+
+        /* ------------------------------------------
+           PARTIE 3 — Texte + Image
+        ------------------------------------------- */
+        gsap.from(".home-partie3__gauche", {
+            opacity: 0,
+            y: 70,
+            duration: 1.1,
+            ease: "power4.out",
+            scrollTrigger: {
+                trigger: ".home-partie3__gauche",
+                start: "top 85%"
+            }
+        });
+
+        gsap.from(".home-partie3__droite", {
+            opacity: 0,
+            x: 80,    // arrivée douce depuis la droite
+            y: 20,    // léger mouvement vertical pour plus de finesse
+            duration: 1.3,
+            ease: "power3.out",
+            scrollTrigger: {
+                trigger: ".home-partie3__droite",
+                start: "top 85%",
+                once: true
+            }
+        });
+
+
+        /* ------------------------------------------
+           PARTIE 4 — Bloc texte
+        ------------------------------------------- */
+        gsap.from(".home-partie4__haute", {
+            opacity: 0,
+            y: 60,
+            duration: 1,
+            ease: "power4.out",
+            scrollTrigger: {
+                trigger: ".home-partie4__haute",
+                start: "top 85%"
+            }
+        });
+
+        gsap.from(".home-partie4__basse", {
+            opacity: 0,
+            y: 70,
+            duration: 1,
+            ease: "power4.out",
+            scrollTrigger: {
+                trigger: ".home-partie4__basse",
+                start: "top 85%"
+            }
+        });
+
+
+        /* ------------------------------------------
+           PARTIE 5 — Je commande (3 images + titres)
+        ------------------------------------------- */
+        gsap.from(".home-partie5__haute", {
+            opacity: 0,
+            y: 70,
+            duration: 1,
+            ease: "power4.out",
+            scrollTrigger: {
+                trigger: ".home-partie5__haute",
+                start: "top 85%"
+            }
+        });
+
+        gsap.utils.toArray(".home-partie5__gauche").forEach((bloc, i) => {
+            gsap.from(bloc, {
+                opacity: 0,
+                x: i % 2 === 0 ? -80 : 80, // gauche → droite / droite → gauche
+                y: 20, // petit mouvement vertical subtil pour plus de fluidité
+                duration: 1.3,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: bloc,
+                    start: "top 85%",
+                    once: true
+                }
+            });
+        });
+
+        gsap.utils.toArray(".home-partie5__decalage").forEach((bloc) => {
+            gsap.from(bloc, {
+                opacity: 0,
+                x: 60,     // slide latéral plus fin
+                y: 10,     // léger flottement vertical
+                duration: 1.2,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: bloc,
+                    start: "top 85%",
+                    once: true
+                }
+            });
+        });
+
+        gsap.from(".home-partie5__btn", {
+            opacity: 0,
+            y: 40,
+            duration: 1,
+            ease: "power4.out",
+            scrollTrigger: {
+                trigger: ".home-partie5__btn",
+                start: "top 85%"
+            }
+        });
+
+
+        /* ------------------------------------------
+           PARTIE 6 — Slogans + cartes
+        ------------------------------------------- */
+        gsap.from(".home-partie6__haute", {
+            opacity: 0,
+            y: 60,
+            duration: 1,
+            ease: "power4.out",
+            scrollTrigger: {
+                trigger: ".home-partie6__haute",
+                start: "top 85%"
+            }
+        });
+
+        gsap.utils.toArray(".home-partie6 .card").forEach((card, i) => {
+            gsap.from(card, {
+                opacity: 0,
+                y: 60,
+                scale: 0.97,
+                duration: 1.1,
+                delay: i * 0.12,
+                ease: "power4.out",
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 90%"
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
