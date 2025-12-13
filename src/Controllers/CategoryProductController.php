@@ -67,7 +67,7 @@ class CategoryProductController
             [
                 'category_id' => 1,
                 'category_name' => 'Les Pains',
-                'image' => '/assets/image/C&C/pain-4.png',
+                'image' => '/assets/image/C&C/pain-6.png',
                 'products' => $this->productModel->getByCategory(1) ?: []
             ],
             [

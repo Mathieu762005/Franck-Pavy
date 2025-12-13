@@ -30,3 +30,10 @@ h1 {
 .footerMargin {
     width: 80%;
 }
+
+.num {
+    text-decoration-line: underline;
+    text-decoration-color: #571065;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
