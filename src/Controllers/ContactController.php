@@ -22,7 +22,7 @@ class ContactController
         // On récupère l'ID de l'utilisateur connecté depuis la session
         $userId = $_SESSION['user']['id'] ?? null;
         if (!is_numeric($userId)) {
-            $errors['auth'] = "Utilisateur non connecté.";
+            $errors['auth'] = `<i class="bi bi-exclamation-circle-fill fs-6"></i>Utilisateur non connecté.`;
         } else {
             $userId = (int) $userId;
         }
@@ -31,12 +31,12 @@ class ContactController
 
             // Vérification du champ "subject"
             if (empty($_POST["subject"])) {
-                $errors['subject'] = 'Objet obligatoire';
+                $errors['subject'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Objet obligatoire';
             }
 
             // Vérification du champ "body"
             if (empty($_POST["body"])) {
-                $errors['body'] = 'Message obligatoire';
+                $errors['body'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Message obligatoire';
             }
 
             // Si aucune erreur, on peut créer le message

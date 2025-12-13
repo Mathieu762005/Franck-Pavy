@@ -1,0 +1,47 @@
+.contact-partie1 {
+    background-image: url('/assets/image/baniere/Baniere-contact.png');
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 60vh;
+    margin-bottom: 1rem;
+}
+
+.contact-partie1__titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-size: 80px;
+    padding-left: 7rem;
+    width: 50rem;
+}
+
+.contact-partie1__logo {
+    width: 120px;
+    height: auto;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.contact-partie2 {
+    width: 40%;
+    margin-bottom: 5rem;
+}
+
+.contact-partie2__haute {
+    margin-bottom: 2rem;
+}
+
+.contact-partie2__logo {
+    width: 10rem;
+}
+
+.contact-partie2__titre {
+    font-size: 60px;
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+    font-style: normal;
+}
