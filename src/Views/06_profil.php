@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/profil.css">
 </head>
 
 <body>
@@ -49,10 +50,17 @@
         <h2>Détails de la commande</h2>
 
         <?php if (!empty($orderDetails)): ?>
-
             <p><strong>Commande :</strong> <?= htmlspecialchars($orderDetails['order']['order_number']) ?></p>
             <p><strong>Date :</strong> <?= htmlspecialchars($orderDetails['order']['order_date']) ?></p>
             <p><strong>Statut :</strong> <?= htmlspecialchars($orderDetails['order']['order_status']) ?></p>
+            <?php if (!empty($orderDetails['order']['order_pickup_time'])): ?>
+                <?php
+                $formattedTime = date("H:i", strtotime($orderDetails['order']['order_pickup_time']));
+                ?>
+                <p><strong>Heure de retrait :</strong> <?= htmlspecialchars($formattedTime) ?></p>
+            <?php else: ?>
+                <p><strong>Heure de retrait :</strong> Non définie</p>
+            <?php endif; ?>
 
             <?php if (!empty($orderDetails['items'])): ?>
                 <table class="table mt-3">

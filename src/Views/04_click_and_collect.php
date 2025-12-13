@@ -11,7 +11,7 @@ $showLoginModal = !$connected;
     <title>Click & Collect</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/clicketcollect.css">
+    <link rel="stylesheet" href="../assets/css/clicketcollects.css">
 </head>
 
 <body>
@@ -25,7 +25,6 @@ $showLoginModal = !$connected;
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                     <ul class="navbar-nav text-center gap-lg-3">
                         <?php foreach ($categories as $category): ?>
@@ -87,18 +86,74 @@ $showLoginModal = !$connected;
 
                         <h3>Total : <span id="cart-grand-total"><?= number_format($total, 2) ?> €</span></h3>
                         <button type="submit" class="btn btn-primary">Modifier le panier</button>
-
-                        <?php if ($connected): ?>
-                            <a href="?url=checkout" class="btn btn-success">Passer à la commande</a>
-                        <?php else: ?>
-                            <button type="button" class="btn btn-secondary" disabled>Passer à la commande</button>
-                        <?php endif; ?>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                            data-bs-target="#pickupTimeModal">
+                            Passer à la commande
+                        </button>
                     </form>
                 <?php else: ?>
                     <p>Votre panier est vide.</p>
                 <?php endif; ?>
             </div>
         </div>
+
+        <!-- Modal Choix Heure -->
+        <div class="modal fade" id="pickupTimeModal" tabindex="-1" aria-labelledby="pickupTimeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-custom-light">
+                    <form method="POST" action="?url=checkout">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title" id="pickupTimeModalLabel" style="color: #571065;">Choisir l'heure de
+                                retrait</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <?php if (!empty($timeslots)): ?>
+                                <label for="pickup_time" class="form-label" style="color: #571065;">Heure souhaitée</label>
+                                <select name="pickup_time" id="pickup_time" class="form-control" required>
+                                    <?php foreach ($timeslots as $slot): ?>
+                                        <option value="<?= htmlspecialchars($slot['time']) ?>" <?= ($slot['full'] || $slot['past']) ? 'disabled' : '' ?>>
+                                            <?= htmlspecialchars($slot['time']) ?>
+                                            <?= $slot['full'] ? '- Complet' : ($slot['past'] ? '- Passé' : '') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            <?php else: ?>
+                                <p>Aucun créneau disponible pour aujourd'hui.</p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="submit" class="btn btn-success w-100"
+                                style="background-color: #571065; border: none;">
+                                Confirmer l'heure
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal connexion si non connecté -->
+        <?php if ($showLoginModal): ?>
+            <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="loginModalLabel">Retour à l'accueil</h5>
+                            <a href="index.php?url=01_home" class="btn-close" aria-label="Close"></a>
+                        </div>
+                        <div class="modal-body">
+                            Vous devez être connecté pour passer commande.
+                        </div>
+                        <div class="modal-footer">
+                            <a href="index.php?url=login" class="btn btn-primary">Se connecter</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
     </header>
 
     <!-- Main Click & Collect -->
@@ -108,7 +163,6 @@ $showLoginModal = !$connected;
         <?php if (!empty($categories)): ?>
             <?php foreach ($categories as $category): ?>
                 <section id="category-<?= $category['category_id'] ?>" class="">
-
                     <?php if (!empty($category['image'])): ?>
                         <div class="category-banner-img d-flex justify-content-center"
                             style="background-image: url('<?= htmlspecialchars($category['image']) ?>');">
@@ -123,29 +177,23 @@ $showLoginModal = !$connected;
                                         <div class="image-wrapper position-relative">
                                             <img src="/assets/image/<?= htmlspecialchars($product['product_image']) ?>"
                                                 class="product-img" alt="<?= htmlspecialchars($product['product_name']) ?>">
-
                                             <?php if ($product['product_available'] <= 0): ?>
                                                 <div class="overlay-image">Rupture de stock</div>
                                             <?php endif; ?>
                                         </div>
-
                                         <div class="card-body d-flex flex-column justify-content-end align-items-center">
                                             <h5 class="card-title text-center mt-1"><?= htmlspecialchars($product['product_name']) ?>
                                             </h5>
-                                            <!-- Wrapper pour coller prix et bouton en bas -->
                                             <div class="mt-auto w-100 text-center">
                                                 <p class="card-text mb-1"><strong><?= number_format($product['product_price'], 2) ?>
                                                         €</strong></p>
-
                                                 <?php if ($product['product_available'] > 0): ?>
                                                     <form method="POST" action="?url=cart_add" class="add-to-cart-form mt-2">
                                                         <input type="hidden" name="product_id" value="<?= $product['product_id'] ?>">
                                                         <input type="hidden" name="quantity" value="1">
                                                         <button type="submit" class="bouton">
                                                             <i class="ajout bi bi-plus-circle-fill"></i>
-                                                            <div class="carre-blanc text-white">
-                                                                s
-                                                            </div>
+                                                            <div class="carre-blanc text-white">s</div>
                                                         </button>
                                                     </form>
                                                 <?php endif; ?>
@@ -158,7 +206,6 @@ $showLoginModal = !$connected;
                     <?php else: ?>
                         <p>Aucun produit disponible pour cette catégorie.</p>
                     <?php endif; ?>
-
                 </section>
             <?php endforeach; ?>
         <?php else: ?>
@@ -170,65 +217,46 @@ $showLoginModal = !$connected;
         <?php include_once "template/footer.php"; ?>
     </footer>
 
-    <!-- Modal connexion si non connecté -->
-    <?php if ($showLoginModal): ?>
-        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="loginModalLabel">Retour à l'accueil</h5>
-                        <a href="index.php?url=01_home" class="btn-close" aria-label="Close"></a>
-                    </div>
-                    <div class="modal-body">
-                        Vous devez être connecté pour passer commande.
-                    </div>
-                    <div class="modal-footer">
-                        <a href="index.php?url=login" class="btn btn-primary">Se connecter</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                var myModal = new bootstrap.Modal(document.getElementById('loginModal'), {
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var offcanvasEl = document.getElementById('offcanvasRight');
+            var pickupBtns = document.querySelectorAll('[data-bs-target="#pickupTimeModal"]');
+
+            // --- Gestion Login Modal ---
+            <?php if ($showLoginModal): ?>
+                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'), {
                     backdrop: 'static',
                     keyboard: false
                 });
-                myModal.show();
-            });
-        </script>
-    <?php endif; ?>
+                loginModal.show();
+            <?php endif; ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+            // --- Gestion Pickup Time Modal ---
+            pickupBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    // Fermer le panier si ouvert
+                    var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                    if (offcanvas) offcanvas.hide();
 
-    <script>
-        // Calcul total dynamique panier
-        document.querySelectorAll('.cart-quantity').forEach(input => {
-            input.addEventListener('input', function () {
-                const quantity = parseInt(this.value) || 0;
-                const price = parseFloat(this.dataset.price);
-                const rowTotalCell = this.closest('tr').querySelector('.cart-total');
-                const rowTotal = quantity * price;
-                rowTotalCell.textContent = rowTotal.toFixed(2) + ' €';
-
-                let totalGlobal = 0;
-                document.querySelectorAll('.cart-total').forEach(cell => {
-                    totalGlobal += parseFloat(cell.textContent.replace(' €', ''));
+                    // Si l'utilisateur n'est pas connecté, ouvrir le loginModal
+                    <?php if (!$connected): ?>
+                        loginModal.show();
+                    <?php endif; ?>
+                    // Sinon, pickupTimeModal s'ouvre automatiquement grâce à data-bs-toggle
                 });
-                document.querySelector('#cart-grand-total').textContent = totalGlobal.toFixed(2) + ' €';
             });
-        });
 
-        // Supprimer un produit du panier
-        document.querySelectorAll('.btn-remove').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const cartItemId = this.dataset.id;
-                fetch('?url=cart_remove', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'cart_item_id=' + cartItemId
-                }).then(() => {
-                    this.closest('tr').remove();
+            // --- Calcul total dynamique du panier ---
+            document.querySelectorAll('.cart-quantity').forEach(input => {
+                input.addEventListener('input', function () {
+                    const quantity = parseInt(this.value) || 0;
+                    const price = parseFloat(this.dataset.price);
+                    const rowTotalCell = this.closest('tr').querySelector('.cart-total');
+                    rowTotalCell.textContent = (quantity * price).toFixed(2) + ' €';
+
                     let totalGlobal = 0;
                     document.querySelectorAll('.cart-total').forEach(cell => {
                         totalGlobal += parseFloat(cell.textContent.replace(' €', ''));
@@ -236,8 +264,29 @@ $showLoginModal = !$connected;
                     document.querySelector('#cart-grand-total').textContent = totalGlobal.toFixed(2) + ' €';
                 });
             });
+
+            // --- Supprimer un produit du panier ---
+            document.querySelectorAll('.btn-remove').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const cartItemId = this.dataset.id;
+                    fetch('?url=cart_remove', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'cart_item_id=' + cartItemId
+                    }).then(() => {
+                        this.closest('tr').remove();
+                        let totalGlobal = 0;
+                        document.querySelectorAll('.cart-total').forEach(cell => {
+                            totalGlobal += parseFloat(cell.textContent.replace(' €', ''));
+                        });
+                        document.querySelector('#cart-grand-total').textContent = totalGlobal.toFixed(2) + ' €';
+                    });
+                });
+            });
+
         });
     </script>
+
 </body>
 
 </html>

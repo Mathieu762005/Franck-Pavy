@@ -36,15 +36,20 @@ switch ($page) {
         break;
 
     case '04_click_and_collect':
-        $controller = new CategoryProductController();
-        $categories = $controller->showClickAndCollect();
+        // Récupérer les catégories
+        $categoryController = new CategoryProductController();
+        $categories = $categoryController->showClickAndCollect();
 
-        // Récupérer le panier de l'utilisateur si connecté
+        // Récupérer le panier si connecté
         $cartItems = [];
         if (isset($_SESSION['user']['id'])) {
             $cartController = new CartController($db);
             $cartItems = $cartController->viewCart();
         }
+
+        // Récupérer les créneaux via OrderController
+        $orderController = new OrderController($db);
+        $timeslots = $orderController->getTimeSlots();
 
         require_once __DIR__ . "/../src/Views/04_click_and_collect.php";
         break;
@@ -179,7 +184,7 @@ switch ($page) {
             die("Erreur : vous devez être connecté pour passer commande.");
 
         $orderController = new OrderController($db);
-        $pickupTime = $_POST['pickup_time'] ?? date('H:i:s');
+        $pickupTime = $_POST['pickup_time'] ?? date('H:i:s'); // récupère l'heure choisie
         $orderId = $orderController->checkout($userId, $pickupTime);
 
         if ($orderId) {

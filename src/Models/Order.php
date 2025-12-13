@@ -69,16 +69,16 @@ class Order
     public function updateTotalPrice(int $orderId): bool
     {
         $stmt = $this->db->prepare("
-        UPDATE orders o
-        JOIN (
-            SELECT order_id, SUM(total_price) AS total
-            FROM order_items
-            WHERE order_id = ?
-            GROUP BY order_id
-        ) oi ON o.order_id = oi.order_id
-        SET o.order_total_price = oi.total
-        WHERE o.order_id = ?
-    ");
+            UPDATE orders o
+            JOIN (
+                SELECT order_id, SUM(total_price) AS total
+                FROM order_items
+                WHERE order_id = ?
+                GROUP BY order_id
+            ) oi ON o.order_id = oi.order_id
+            SET o.order_total_price = oi.total
+            WHERE o.order_id = ?
+        ");
         return $stmt->execute([$orderId, $orderId]);
     }
 
@@ -91,7 +91,6 @@ class Order
             $stmt->bindValue(':orderId', $orderId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
-            // Log ou gérer l'erreur
             return false;
         }
     }
@@ -100,5 +99,17 @@ class Order
     {
         $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE order_id = :order_id");
         return $stmt->execute(['order_id' => $orderId]);
+    }
+
+    // Compter le nombre de réservations sur un créneau donné
+    public function getReservationCount(string $timeSlot): int
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM orders WHERE order_pickup_time = ?");
+            $stmt->execute([$timeSlot]);
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            return 0;
+        }
     }
 }

@@ -99,7 +99,7 @@
         </div>
         <div class="propos-partie4 mx-auto mt-5">
             <div class="propos-partie4-marge mx-auto">
-                <div class="propos-partie4-haute text-center pt-5 mx-auto mb-5">
+                <div class="propos-partie4-haute text-center mx-auto mb-5">
                     <img src="/assets/image/Logo/Logo.png" class="propos-partie4-logo" alt="">
                     <h3 class="propos-partie4-titre">Vos avis</h3>
                 </div>
@@ -109,7 +109,7 @@
             </div>
         </div>
     </main>
-    <footer>
+    <footer> 
         <?php include_once "template/footer.php" ?>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

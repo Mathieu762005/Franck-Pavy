@@ -1,7 +1,7 @@
 html {
     scroll-behavior: smooth;
 }
-
+ 
 .category-banner-img {
     position: relative;
     display: flex;
@@ -11,7 +11,7 @@ html {
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
-    height: 60vh;
+    height: 45vh;
     color: white;
     text-align: center;
     font-size: 2rem;
@@ -150,4 +150,29 @@ html {
 .product-img {
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
+}
+
+/* fichier profil.css ou clicketcollects.css */
+.bg-custom-light {
+    background-color: #DFDAC4;
+}
+
+#pickupTimeModal .modal-content {
+    border-radius: 15px;
+    padding: 10px;
+}
+
+#pickupTimeModal .form-control {
+    border: 2px solid #571065;
+    border-radius: 8px;
+}
+
+#pickupTimeModal .btn-success {
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: background-color 0.3s;
+}
+
+#pickupTimeModal .btn-success:hover {
+    background-color: #3d0945;
 }
