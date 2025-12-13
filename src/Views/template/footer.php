@@ -12,9 +12,9 @@
             <img src="/assets/image/Logo/Logo.png" class="mb-3" alt="">
             <p class="para">62 Rue Félix Faure,</p>
             <p class="para">76290 Montivilliers</p>
-            <p class="mt-3">02 35 30 27 58</p>
-            <span class="pe-3"><i class="bi bi-instagram"></i></span>
-            <span><i class="bi bi-facebook"></i></span>
+            <a href="tel:0235302758" class="num" ><p class="mt-3 text-black">02 35 30 27 58</p></a>
+            <a href="https://www.facebook.com/boulangerieatouteheure/?locale=fr_FR" target="_blank"><span class="pe-3"><i class="bi bi-instagram text-black"></i></span></a>
+            <a href="https://www.instagram.com/frankpavy/" target="_blank"><span><i class="bi bi-facebook text-black"></i></span></a>
         </div>
         <div class="">
             <iframe

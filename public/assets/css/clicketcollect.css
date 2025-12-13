@@ -1,0 +1,153 @@
+html {
+    scroll-behavior: smooth;
+}
+
+.category-banner-img {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* centrer le texte */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 60vh;
+    color: white;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.category-banner-img::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    /* noir transparent */
+    z-index: 1;
+}
+
+/* texte au-dessus de l'overlay */
+.category-banner-img h2 {
+    position: relative;
+    z-index: 2;
+}
+
+.titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 70px;
+}
+
+.partie1-product {
+    width: 80%;
+    margin-top: 5rem;
+    margin-bottom: 7rem;
+}
+
+.card {
+    background-color: #DFDAC4;
+    position: relative;
+    width: 15rem;
+    height: 275px;
+}
+
+.card-body {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+.titre1 {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 80px;
+    margin-top: 7rem;
+    margin-bottom: 7rem;
+    color: #571065;
+}
+
+.ajout {
+    font-size: 2.4rem;
+    color: #571065;
+    position: absolute;
+    left: 10%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.carre-blanc {
+    background-color: white;
+    width: 20px;
+    position: relative;
+    left: 10%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.bouton {
+    position: absolute;
+    top: 61.2%;
+    left: 50%;
+    background: none;
+    border: none;
+    padding: 0;
+    display: inline-block;
+}
+
+.bouton:focus {
+    outline: none;
+    /* enlève le contour au clic */
+}
+
+.product-img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    display: block;
+}
+
+.image-wrapper {
+    position: relative;
+}
+
+.overlay-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: red;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.card-title {
+    font-size: 17px;
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+    font-style: normal;
+    height: 30px;
+}
+
+.card-text {
+    font-size: 17px;
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-style: normal;
+    color: #571065;
+}
+
+.product-img {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
