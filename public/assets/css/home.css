@@ -146,7 +146,7 @@
 
 /* Modificateurs pour les backgrounds */
 .home-partie2__categorie--pains {
-    background-image: url(/assets/image/C&C/pain-4.png);
+    background-image: url(/assets/image/C&C/presentationPain.jpg);
 }
 
 .home-partie2__categorie--viennoiseries {
@@ -308,6 +308,7 @@
     flex-direction: column;
     padding: 1.4rem;
     background-color: #DFDAC4;
+    height: 35rem;
 }
 
 .card-img-top {

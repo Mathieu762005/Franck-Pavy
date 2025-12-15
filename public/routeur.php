@@ -22,6 +22,12 @@ $page = explode('/', $url)[0];
 // ROUTEUR
 switch ($page) {
 
+
+    case 'stripe_webhook':
+        $orderController = new OrderController($db);
+        $orderController->stripeWebhook(); // crée la méthode dans OrderController
+        break;
+
     // ---------- HOME ----------
     case '01_home':
         $controller = new HomeController();
@@ -36,6 +42,12 @@ switch ($page) {
         break;
 
     case '04_click_and_collect':
+        // Instancie le contrôleur
+        $orderController = new OrderController($db);
+
+        // --- TRAITEMENT FORMULAIRE SI POST ---
+        $orderController->submitPickupTime();
+
         // Récupérer les catégories
         $categoryController = new CategoryProductController();
         $categories = $categoryController->showClickAndCollect();
@@ -48,10 +60,28 @@ switch ($page) {
         }
 
         // Récupérer les créneaux via OrderController
-        $orderController = new OrderController($db);
-        $timeslots = $orderController->getTimeSlots();
+        $timeslots = $orderController->showForm();
 
         require_once __DIR__ . "/../src/Views/04_click_and_collect.php";
+        break;
+
+    case 'checkout_stripe':
+        $orderController = new OrderController($db);
+        $orderController->checkoutStripe();
+        break;
+
+    case 'checkout_success':
+        $orderId = (int) ($_GET['order_id'] ?? 0);
+        $orderController = new OrderController($db);
+        $order = $orderController->getOrderDetails($orderId); // ['order' => ..., 'items' => ...]
+
+        // Préparer l'heure pour affichage via la fonction du contrôleur
+        $order['display_pickup_time'] = $orderController->getDisplayPickupTime($order['order']);
+
+        // Récupérer le user
+        $user = $_SESSION['user'] ?? null;
+
+        require_once __DIR__ . "/../src/Views/checkout_success.php";
         break;
 
     // ---------- A PROPOS ----------

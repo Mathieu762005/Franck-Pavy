@@ -121,7 +121,8 @@
                     </div>
                 </div>
                 <div class="home-partie5__basse text-center">
-                    <button class="home-partie5__btn rounded-5 py-1 px-4">Click & Collect</button>
+                    <a href="index.php?url=04_click_and_collect"><button
+                            class="home-partie5__btn rounded-5 py-1 px-4">Click & Collect</button></a>
                 </div>
             </div>
         </div>

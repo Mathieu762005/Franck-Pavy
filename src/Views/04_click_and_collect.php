@@ -12,6 +12,10 @@ $showLoginModal = !$connected;
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/navbar.css">
     <link rel="stylesheet" href="../assets/css/clicketcollects.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe("pk_test_51SeEPH0So1rm7kaS8HWEgNEEiF2rlknkLqzFLzfMu0HgYZRdXpkYPpXuwNSoCfEkEd31Qi8wbBaaxw2lI1iRv25w00jdQ2tMNq"); // <-- ta clé publique ici
+    </script>
 </head>
 
 <body>
@@ -97,20 +101,20 @@ $showLoginModal = !$connected;
             </div>
         </div>
 
-        <!-- Modal Choix Heure -->
+        <!-- Modal Choix Heure avec Stripe -->
         <div class="modal fade" id="pickupTimeModal" tabindex="-1" aria-labelledby="pickupTimeModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content bg-custom-light">
-                    <form method="POST" action="?url=checkout">
+                    <form id="checkout-form" method="POST" action="?url=checkout_stripe">
                         <div class="modal-header border-0">
                             <h5 class="modal-title" id="pickupTimeModalLabel" style="color: #571065;">Choisir l'heure de
                                 retrait</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+
                         <div class="modal-body">
                             <?php if (!empty($timeslots)): ?>
-                                <label for="pickup_time" class="form-label" style="color: #571065;">Heure souhaitée</label>
                                 <select name="pickup_time" id="pickup_time" class="form-control" required>
                                     <?php foreach ($timeslots as $slot): ?>
                                         <option value="<?= htmlspecialchars($slot['time']) ?>" <?= ($slot['full'] || $slot['past']) ? 'disabled' : '' ?>>
@@ -123,10 +127,11 @@ $showLoginModal = !$connected;
                                 <p>Aucun créneau disponible pour aujourd'hui.</p>
                             <?php endif; ?>
                         </div>
+
                         <div class="modal-footer border-0">
                             <button type="submit" class="btn btn-success w-100"
                                 style="background-color: #571065; border: none;">
-                                Confirmer l'heure
+                                Payer avec Stripe
                             </button>
                         </div>
                     </form>

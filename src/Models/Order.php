@@ -112,4 +112,10 @@ class Order
             return 0;
         }
     }
+
+    public function markAsPaid(int $orderId): bool
+    {
+        $stmt = $this->db->prepare("UPDATE orders SET order_status = 'payée' WHERE order_id = :order_id");
+        return $stmt->execute([':order_id' => $orderId]);
+    }
 }
