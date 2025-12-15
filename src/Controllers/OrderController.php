@@ -323,8 +323,7 @@ class OrderController
 
         // 🔹 2. Créer la session Stripe
         $totalPriceCents = $totalPrice * 100; // en centimes pour Stripe
-        \Stripe\Stripe::setApiKey('sk_test_51SeEPH0So1rm7kaSioj0O3pSfICCZ8iFCm5dBsBmdJBPK5FVls4nlHmJKluhL8Gdgz5nen0V99ymuNpatA2vucxO000toFtKP0'); // ta clé secrète
-
+        \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
         $session = \Stripe\Checkout\Session::create([
             'payment_method_types' => ['card'],
             'line_items' => [
