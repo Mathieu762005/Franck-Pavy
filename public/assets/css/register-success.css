@@ -1,0 +1,29 @@
+main {
+    background-image: url(/assets/image/baniere/baniere-contact.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.s-register-partie1 {
+    width: 50%;
+    background-color: white;
+}
+
+.s-register-partie1__titre {
+    font-size: 60px;
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+}
+
+.s-register-partie1__description {
+    font-size: 20px;
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+}
+
+.btn {
+    font-size: 20px;
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+}

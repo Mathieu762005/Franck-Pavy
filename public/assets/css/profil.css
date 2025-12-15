@@ -1,0 +1,49 @@
+.profil-partie1__titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 60px;
+}
+
+main {
+    width: 85%;
+}
+
+.profil-partie1 {
+    width: 100%;
+}
+
+.profil-partie1__haute {
+    width: 30%;
+}
+
+.profil-partie1__basse {
+    width: 70%;
+}
+
+.profil-partie1__commandes {
+    min-width: 470px;
+    min-height: 400px;
+}
+
+.profil-partie1__detail {
+    min-width: 470px;
+    min-height: 400px;
+}
+
+.profil-partie1__sous-titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 30px;
+}
+
+.profil-partie1__liste {
+    width: 100%;
+}
+
+.profil-partie1__btn {
+    color: #571065;
+    border: 1px solid #571065;
+    background-color: white;
+}

@@ -14,20 +14,56 @@ class Order
         $this->db = $db;
     }
 
+    private function getNextOrderNumber(): string
+    {
+        $now = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $resetHour = 19;
+
+        // Jour logique CMD
+        $cmdDay = clone $now;
+        if ((int) $now->format('H') < $resetHour) {
+            $cmdDay->modify('-1 day');
+        }
+
+        $start = $cmdDay->format('Y-m-d') . ' 19:00:00';
+        $end = (clone $cmdDay)->modify('+1 day')->format('Y-m-d') . ' 18:59:59';
+
+        $stmt = $this->db->prepare("
+        SELECT order_number
+        FROM orders
+        WHERE order_date BETWEEN :start AND :end
+        ORDER BY order_id DESC
+        LIMIT 1
+    ");
+        $stmt->execute([
+            'start' => $start,
+            'end' => $end
+        ]);
+
+        $last = $stmt->fetchColumn();
+
+        if ($last) {
+            $num = (int) str_replace('CMD_', '', $last);
+            return 'CMD_' . ($num + 1);
+        }
+
+        return 'CMD_1';
+    }
+
     // Créer une commande brouillon
     public function create(int $userId, float $totalPrice, string $pickupTime): int
     {
-        $orderNumber = uniqid("CMD_");
-        try {
-            $stmt = $this->db->prepare("
-                INSERT INTO orders (order_number, order_date, order_total_price, order_pickup_time, order_status, user_id)
-                VALUES (?, NOW(), ?, ?, 'brouillon', ?)
-            ");
-            $stmt->execute([$orderNumber, $totalPrice, $pickupTime, $userId]);
-            return (int) $this->db->lastInsertId();
-        } catch (PDOException $e) {
-            return 0;
-        }
+        $orderNumber = $this->getNextOrderNumber(); // <- ici
+
+        $stmt = $this->db->prepare("
+        INSERT INTO orders 
+        (order_number, order_date, order_total_price, order_pickup_time, order_status, user_id)
+        VALUES (?, NOW(), ?, ?, 'brouillon', ?)
+    ");
+
+        $stmt->execute([$orderNumber, $totalPrice, $pickupTime, $userId]);
+
+        return (int) $this->db->lastInsertId();
     }
 
     // Confirmer une commande
@@ -121,5 +157,15 @@ class Order
             WHERE order_id = ?
         ");
         $stmt->execute([$orderId]);
+    }
+
+    public function getAllOrders(): array
+    {
+        try {
+            $stmt = $this->db->query("SELECT * FROM orders ORDER BY order_date ASC");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
     }
 }

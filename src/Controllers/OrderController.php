@@ -143,23 +143,11 @@ class OrderController
 
     public function getDisplayPickupTime(array $order): string
     {
-        $pickupTime = $order['order_pickup_time'] ?? '';
-        $displayTime = substr($pickupTime, 0, 5); // HH:MM
-
-        $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
-        $orderDate = new DateTime($order['order_date'], new DateTimeZone('Europe/Paris'));
-        $pickupDate = clone $orderDate;
-        $pickupDate->setTime(
-            (int) substr($pickupTime, 0, 2),
-            (int) substr($pickupTime, 3, 2)
-        );
-
-        $forTomorrow = '';
-        if ($pickupDate <= $now) {
-            $forTomorrow = ' (pour demain)';
+        if (empty($order['order_pickup_time'])) {
+            return 'Non définie';
         }
 
-        return $displayTime . $forTomorrow;
+        return substr($order['order_pickup_time'], 0, 5); // HH:MM
     }
 
 
@@ -227,11 +215,45 @@ class OrderController
         exit;
     }
 
+    public function getUserOrdersWithCmd(int $userId): array
+    {
+        // Récupérer toutes les commandes de tous les utilisateurs
+        $allOrders = $this->order->getAllOrders(); // créer cette méthode dans le modèle
 
+        $resetHour = 19;
+        $cmdCounter = 1;
+        $currentCmdDay = null;
 
+        foreach ($allOrders as &$order) {
+            $orderDateTime = new DateTime($order['order_date']);
+            $hour = (int) $orderDateTime->format('H');
 
+            // Si après 19h, on passe au jour suivant pour le compteur
+            if ($hour >= $resetHour) {
+                $orderDateTime->modify('+1 day');
+            }
 
+            $cmdDay = $orderDateTime->format('Y-m-d');
 
+            if ($currentCmdDay !== $cmdDay) {
+                $cmdCounter = 1;
+                $currentCmdDay = $cmdDay;
+            }
+
+            $order['cmd_number'] = 'CMD_' . $cmdCounter;
+            $order['order_time_formatted'] = $orderDateTime->format('H:i');
+
+            $cmdCounter++;
+        }
+
+        // Filtrer uniquement les commandes de l’utilisateur connecté
+        $userOrders = array_values(array_filter(
+            $allOrders,
+            fn($order) => $order['user_id'] === $userId
+        ));
+
+        return $userOrders;
+    }
 
 
     public function formatPickupTimeForDisplay(array $order): string
@@ -256,12 +278,6 @@ class OrderController
 
         return $displayTime . $forTomorrow;
     }
-
-
-
-
-
-
 
 
     // ======================

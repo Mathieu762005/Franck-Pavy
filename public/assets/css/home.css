@@ -15,12 +15,12 @@
 /* PAGE HOME */
 .home-partie1 {
     background-image: url('/assets/image/baniere/baniere-2.png');
-    position: relative;
-    display: flex;
-    align-items: center;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
     height: 60vh;
 }
 

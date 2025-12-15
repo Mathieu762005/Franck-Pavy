@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="../assets/css/footer.css">
 </head>
 
-<div class="text-black border background">
+<div class="text-black background">
     <div class="footerMargin mx-auto d-flex justify-content-between align-items-center pt-5 pb-4">
         <div class="">
             <img src="/assets/image/Logo/LogoArtisan.png" class="Logo border border-black border-2" alt="">
