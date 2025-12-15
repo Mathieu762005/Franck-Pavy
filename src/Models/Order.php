@@ -113,9 +113,13 @@ class Order
         }
     }
 
-    public function markAsPaid(int $orderId): bool
+    public function markAsPaid(int $orderId): void
     {
-        $stmt = $this->db->prepare("UPDATE orders SET order_status = 'payée' WHERE order_id = :order_id");
-        return $stmt->execute([':order_id' => $orderId]);
+        $stmt = $this->db->prepare("
+            UPDATE orders 
+            SET order_paid = 1, paid_at = NOW()
+            WHERE order_id = ?
+        ");
+        $stmt->execute([$orderId]);
     }
 }

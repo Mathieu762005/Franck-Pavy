@@ -75,8 +75,15 @@ switch ($page) {
         $orderController = new OrderController($db);
         $order = $orderController->getOrderDetails($orderId); // ['order' => ..., 'items' => ...]
 
-        // Préparer l'heure pour affichage via la fonction du contrôleur
-        $order['display_pickup_time'] = $orderController->getDisplayPickupTime($order['order']);
+        if ($order && !empty($order['order'])) {
+            // Préparer l'heure pour affichage via la fonction du contrôleur
+            $order['display_pickup_time'] = $orderController->getDisplayPickupTime($order['order']);
+        } else {
+            // Gestion si la commande est introuvable
+            $_SESSION['error'] =    "Commande introuvable.";
+            header("Location: index.php?url=04_click_and_collect");
+            exit;
+        }
 
         // Récupérer le user
         $user = $_SESSION['user'] ?? null;

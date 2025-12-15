@@ -1,7 +1,3 @@
-<?php
-$orderData = $order['order'] ?? [];
-$userName = $user['username'];
-?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -11,31 +7,35 @@ $userName = $user['username'];
     <title>Commande réussie</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/clicketcollects.css">
+    <link rel="stylesheet" href="../assets/css/checkout-strip.css">
 </head>
 
-<body>
-    <header>
-        <?php include_once "template/navbarC&C.php"; ?>
-    </header>
-
-    <main class="container mt-5">
-        <div class="alert alert-success">
-            <h2>Merci pour votre commande<?= isset($user['username']) ? ', ' . htmlspecialchars($user['username']) : '' ?> !</h2>
-            <p>Numéro de commande : <strong><?= htmlspecialchars($orderData['order_number'] ?? 'N/A') ?></strong></p>
-            <p>Montant total : <strong><?= number_format((float) ($orderData['order_total_price'] ?? 0), 2) ?> €</strong>
-            </p>
-            <p>Heure de retrait : <strong><?= htmlspecialchars($order['display_pickup_time']) ?></strong></p>
+<body class="d-flex flex-column min-vh-100">
+    <main class="row flex-grow-1">
+        <div class="strip-partie1 d-flex align-items-center justify-content-center">
+            <h2 class="strip-partie1__titre text-center">Merci pour votre
+                commande, <?= isset($user['username']) ? htmlspecialchars($user['username']) : '' ?>!</h2>
         </div>
-
-        <a href="index.php?url=06_profil" class="btn btn-primary mt-3">Retour à l'accueil</a>
+        <div class="strip-partie2 mx-auto border border-black rounded-0 px-5 mb-3 row">
+            <div class="strip-partie2__haute d-flex justify-content-center align-items-center ">
+                <p class="strip-partie2__cmd text-center">Numéro de commande :
+                    <strong><?= htmlspecialchars($order['order']['order_number'] ?? 'N/A') ?></strong>
+                </p>
+            </div>
+            <div class="strip-partie2__basse d-flex justify-content-evenly">
+                <p>Montant total : <strong><?= number_format((float) ($order['order']['order_total_price'] ?? 0), 2) ?>
+                        €</strong></p>
+                <p>Heure de retrait : <strong><?= htmlspecialchars($order['display_pickup_time']) ?></strong></p>
+            </div>
+        </div>
+        <div class="strip-partie3 text-center">
+            <a href="index.php?url=06_profil" class="btn border-black rounded-0 mt-3">Retour au Profil</a>
+        </div>
     </main>
 
-    <footer class="mt-5">
+    <footer class="mt-auto">
         <?php include_once "template/footer.php"; ?>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

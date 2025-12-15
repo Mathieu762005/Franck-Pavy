@@ -7,6 +7,8 @@ use App\Models\Cart;
 use DateTime;
 use DateTimeZone;
 use PDO;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class OrderController
 {
@@ -267,40 +269,21 @@ class OrderController
 // ======================
     public function checkoutStripe()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['pickup_time'])) {
+        $userId = $_SESSION['user']['id'] ?? null;
+        if (!$userId) {
+            $_SESSION['error'] = "Vous devez être connecté.";
+            header("Location: index.php?url=login");
+            exit;
+        }
+
+        $pickupTime = $_POST['pickup_time'] ?? null;
+        if (!$pickupTime) {
             $_SESSION['error'] = "Aucun créneau choisi.";
             header("Location: index.php?url=04_click_and_collect");
             exit;
         }
 
-        $pickupTime = $_POST['pickup_time'];
-        $userId = $_SESSION['user']['id'] ?? null;
-
-        if (!$userId) {
-            $_SESSION['error'] = "Vous devez être connecté pour passer une commande.";
-            header("Location: index.php?url=login");
-            exit;
-        }
-
-        // Vérification créneau passé
-        $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
-        $pickup = DateTime::createFromFormat('H:i', $pickupTime, new DateTimeZone('Europe/Paris'));
-        $pickup->setDate((int) $now->format('Y'), (int) $now->format('m'), (int) $now->format('d'));
-
-        if ($pickup <= $now) {
-            $_SESSION['error'] = "Ce créneau est déjà passé.";
-            header("Location: index.php?url=04_click_and_collect");
-            exit;
-        }
-
-        // Vérification créneau complet
-        if ($this->order->getReservationCount($pickupTime) >= 10) {
-            $_SESSION['error'] = "Ce créneau est complet. Veuillez choisir un autre horaire.";
-            header("Location: index.php?url=04_click_and_collect");
-            exit;
-        }
-
-        // Vérification panier non vide
+        // Vérifier panier non vide
         $cartItems = $this->cart->getAllItems($userId);
         if (empty($cartItems)) {
             $_SESSION['error'] = "Votre panier est vide.";
@@ -308,23 +291,26 @@ class OrderController
             exit;
         }
 
-        // 🔹 1. Créer la commande
+        // Calculer le total
         $totalPrice = array_sum(array_column($cartItems, 'cart_items_total_price'));
-        $orderId = $this->order->create($userId, $totalPrice, $pickupTime);
 
+        // 🔹 Créer la commande dans la BDD
+        $orderId = $this->order->create($userId, $totalPrice, $pickupTime);
         if ($orderId <= 0) {
             $_SESSION['error'] = "Impossible de créer la commande.";
             header("Location: index.php?url=04_click_and_collect");
             exit;
         }
 
+        // Copier les items du panier vers la commande
         $this->orderItem->copyCartToOrder($orderId, $userId);
         $this->cart->clearUserCart($userId);
 
-        // 🔹 2. Créer la session Stripe
-        $totalPriceCents = $totalPrice * 100; // en centimes pour Stripe
-        \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
-        $session = \Stripe\Checkout\Session::create([
+        // 🔹 Créer la session Stripe
+        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+        $totalPriceCents = $totalPrice * 100;
+
+        $session = Session::create([
             'payment_method_types' => ['card'],
             'line_items' => [
                 [
@@ -337,12 +323,12 @@ class OrderController
                 ]
             ],
             'mode' => 'payment',
-            'client_reference_id' => $orderId, // 🔹 important pour relier la commande
+            'client_reference_id' => $orderId,
             'success_url' => "http://localhost:8000/index.php?url=checkout_success&order_id=$orderId",
             'cancel_url' => 'http://localhost:8000/index.php?url=04_click_and_collect',
         ]);
 
-        // 🔹 3. Redirection vers Stripe
+        // Rediriger vers Stripe
         header("Location: " . $session->url);
         exit;
     }
