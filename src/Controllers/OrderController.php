@@ -279,6 +279,23 @@ class OrderController
         return $displayTime . $forTomorrow;
     }
 
+    /**
+     * Récupère toutes les commandes d’un utilisateur avec leurs items
+     */
+    public function getUserOrdersWithItems(int $userId): array
+    {
+        // Récupérer les commandes de l’utilisateur
+        $userOrders = $this->getUserOrders($userId);
+
+        // Ajouter les items pour chaque commande
+        foreach ($userOrders as &$order) {
+            $orderDetails = $this->getOrderDetails($order['order_id']);
+            $order['items'] = $orderDetails['items'] ?? [];
+        }
+
+        return $userOrders;
+    }
+
 
     // ======================
 // 🔵 checkoutStripe

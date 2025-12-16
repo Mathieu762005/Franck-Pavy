@@ -1,49 +1,177 @@
+/* ========== MAIN ========== */
+body,
+html {
+    height: 100%;
+    margin: 0;
+}
+
+.main {
+    background-image: url(/assets/image/baniere/baniere-contact.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+/* ========== CONTENEUR PRINCIPAL ========== */
+.profil-partie1 {
+    width: 85%;
+    margin: 0 auto;
+}
+
+/* ========== TITRE ========== */
 .profil-partie1__titre {
     font-family: "Abhaya Libre", serif;
-    font-weight: 400;
-    font-style: normal;
+    font-weight: 700;
     font-size: 60px;
+    color: white;
 }
 
-main {
-    width: 85%;
+/* ========== INFOS UTILISATEUR ========== */
+.profil-partie1__information {
+    background-color: #DFDAC4;
+    padding: 1rem;
+    border-radius: 1rem;
+    min-height: 340px;
+    max-height: 340px;
 }
 
-.profil-partie1 {
-    width: 100%;
-}
-
-.profil-partie1__haute {
-    width: 30%;
-}
-
-.profil-partie1__basse {
-    width: 70%;
-}
-
+/* ========== COMMANDES ========== */
 .profil-partie1__commandes {
-    min-width: 470px;
-    min-height: 400px;
+    background-color: #DFDAC4;
+    padding: 1rem;
+    border-radius: 1rem;
+    min-height: 340px;
+    max-height: 340px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.profil-partie1__detail {
-    min-width: 470px;
-    min-height: 400px;
-}
-
+/* ========== TITRES SECTIONS ========== */
 .profil-partie1__sous-titre {
     font-family: "Abhaya Libre", serif;
     font-weight: 700;
-    font-style: normal;
     font-size: 30px;
+    margin-bottom: 1rem;
+    background-color: #DFDAC4;
+    padding: 1rem;
 }
 
-.profil-partie1__liste {
-    width: 100%;
+.titre__5 {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-size: 25px;
 }
 
+/* ========== BOUTONS ========== */
 .profil-partie1__btn {
+    color: white;
+    background-color: #571065;
+}
+
+.profil-partie1__btn:hover {
     color: #571065;
+    background-color: #DFDAC4;
     border: 1px solid #571065;
+}
+
+.profil-partie1__btn-fermer {
+    color: white;
+    background-color: #571065;
+}
+
+.profil-partie1__btn-fermer:hover {
+    color: #571065;
+    background-color: #e9ecef;
+    border: 1px solid #571065;
+}
+
+
+
+
+/* MODAL */
+
+/* En-tête du modal */
+.modal-header {
+    background-color: #571065;
+    /* violet */
+    color: #fff;
+    /* texte blanc */
+    /* violet foncé pour séparation */
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+/* Titre du modal */
+.modal-header .modal-title {
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+/* Bouton de fermeture du modal */
+.modal-header .btn-close {
+    filter: invert(1);
+    /* rend le bouton blanc */
+}
+
+/* Corps du modal */
+.modal-body {
+    padding: 1.5rem;
+    font-size: 1rem;
+}
+
+/* Footer du modal */
+.modal-footer {
+    border-top: 2px solid #400040;
+}
+
+.profil-partie1__btn-fermer:hover {
+    color: #571065;
     background-color: white;
+    border: 1px solid #571065;
+}
+
+/* Table à l'intérieur du modal */
+.modal-body table {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+strong {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+th {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+/* Badges personnalisés */
+/* Badges personnalisés */
+.badge-prete {
+    background-color: #41d04f !important;
+    /* vert */
+    color: #fff !important;
+}
+
+.badge-confirmee {
+    background-color: #ffbf50 !important;
+    /* violet personnalisé */
+    color: #fff !important;
+}
+
+.badge-en-preparation {
+    background-color: #ff857a !important;
+    /* jaune */
+    color: #fff !important;
+}
+
+span {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-size: 18px;
 }
