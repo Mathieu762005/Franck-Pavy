@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Database;
+use App\Models\User;
 use App\Controllers\AdminController;
 use App\Controllers\ContactController;
 use App\Controllers\HomeController;
@@ -7,9 +9,9 @@ use App\Controllers\UserController;
 use App\Controllers\CategoryProductController;
 use App\Controllers\CartController;
 use App\Controllers\OrderController;
-use App\Models\Database;
+use App\Controllers\StripeController;
 
-// Connexion à la BDD
+
 $db = Database::createInstancePDO();
 if (!$db) {
     die("Erreur : impossible de se connecter à la base de données.");
@@ -21,12 +23,6 @@ $page = explode('/', $url)[0];
 
 // ROUTEUR
 switch ($page) {
-
-
-    case 'stripe_webhook':
-        $orderController = new OrderController($db);
-        $orderController->stripeWebhook(); // crée la méthode dans OrderController
-        break;
 
     // ---------- HOME ----------
     case '01_home':
@@ -42,10 +38,7 @@ switch ($page) {
         break;
 
     case '04_click_and_collect':
-        // Instancie le contrôleur
         $orderController = new OrderController($db);
-
-        // --- TRAITEMENT FORMULAIRE SI POST ---
         $orderController->submitPickupTime();
 
         // Récupérer les catégories
@@ -60,50 +53,26 @@ switch ($page) {
         }
 
         // Récupérer les créneaux via OrderController
-        $timeslots = $orderController->showForm();
+        $timeslots = $orderController->generateAvailableTimeSlots();
 
         require_once __DIR__ . "/../src/Views/04_click_and_collect.php";
         break;
 
-    case 'checkout_stripe':
-        $orderController = new OrderController($db);
-        $orderController->checkoutStripe();
-        break;
-
-    case 'checkout_success':
-        $orderId = (int) ($_GET['order_id'] ?? 0);
-        $orderController = new OrderController($db);
-        $order = $orderController->getOrderDetails($orderId); // ['order' => ..., 'items' => ...]
-
-        if ($order && !empty($order['order'])) {
-            // Préparer l'heure pour affichage via la fonction du contrôleur
-            $order['display_pickup_time'] = $orderController->getDisplayPickupTime($order['order']);
-        } else {
-            // Gestion si la commande est introuvable
-            $_SESSION['error'] =    "Commande introuvable.";
-            header("Location: index.php?url=04_click_and_collect");
-            exit;
-        }
-
-        // Récupérer le user
-        $user = $_SESSION['user'] ?? null;
-
-        require_once __DIR__ . "/../src/Views/checkout_success.php";
-        break;
-
     // ---------- A PROPOS ----------
+
     case '03_a_propos':
         require_once __DIR__ . "/../src/Views/03_a_propos.php";
         break;
 
     // ---------- CONTACT ----------
+
     case '05_contact':
         $controller = new ContactController();
         $controller->send();
         break;
 
     // ---------- PROFIL ----------
-// ---------- PROFIL ----------
+
     case '06_profil':
         // Vérifier si user connecté
         $userId = $_SESSION['user']['id'] ?? null;
@@ -113,7 +82,7 @@ switch ($page) {
         }
 
         // Charger les modèles
-        $userModel = new \App\Models\User($db);
+        $userModel = new User($db);
         $orderController = new OrderController($db);
 
         // Infos du user
@@ -143,6 +112,10 @@ switch ($page) {
         $controller->register();
         break;
 
+
+
+    // ---------- SOUS PAGES ----------
+
     case 'register_success':
         require_once __DIR__ . "/../src/Views/register_success.php";
         break;
@@ -152,15 +125,19 @@ switch ($page) {
         $controller->logout();
         break;
 
+
+
     // ---------- PANIER ----------
+
     case 'cart_add':
         $userId = $_SESSION['user']['id'] ?? null;
         if (!$userId) {
-            http_response_code(401);
+            header('Location: ?url=login');
             exit;
         }
 
         $cartController = new CartController($db);
+
         $productId = (int) ($_POST['product_id'] ?? 0);
         $quantity = (int) ($_POST['quantity'] ?? 1);
 
@@ -168,18 +145,10 @@ switch ($page) {
             $cartController->addToCart($userId, $productId, $quantity);
         }
 
-        // Si AJAX, renvoyer le HTML du panier
-        if (
-            !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest'
-        ) {
-            $cartItems = $cartController->viewCart();
-            include __DIR__ . "/../src/Views/cart_table_partial.php"; // Contenu du tableau du panier
-            exit;
-        }
-
+        // Redirection classique après ajout
         header('Location: ?url=04_click_and_collect');
         exit;
+
 
     case 'cart_remove':
         $userId = $_SESSION['user']['id'] ?? null;
@@ -214,7 +183,10 @@ switch ($page) {
         header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit;
 
+
+
     // ---------- COMMANDES ----------
+
     case 'checkout':
         $userId = $_SESSION['user']['id'] ?? null;
         if (!$userId)
@@ -222,7 +194,7 @@ switch ($page) {
 
         $orderController = new OrderController($db);
         $pickupTime = $_POST['pickup_time'] ?? date('H:i:s'); // récupère l'heure choisie
-        $orderId = $orderController->checkout($userId, $pickupTime);
+        $orderId = $orderController->createOrder($userId, $pickupTime);
 
         if ($orderId) {
             header('Location: ?url=order_details&id=' . $orderId);
@@ -238,7 +210,10 @@ switch ($page) {
         require_once __DIR__ . "/../src/Views/06_profil.php";
         break;
 
+
+
     // ---------- ADMIN ----------
+
     case 'adminCommandes':
         $adminController = new AdminController($db);
 
@@ -270,6 +245,38 @@ switch ($page) {
     case 'adminMessages':
         $adminController = new AdminController($db);
         $adminController->messages();
+        break;
+
+
+
+    // ---------- STRIPE ----------
+
+    case 'checkout_stripe':
+        $orderController = new StripeController($db);
+        $orderController->checkoutStripe();
+        break;
+
+    case 'checkout_success':
+        // Si nécessaire, valider le paiement via le webhook Stripe
+        $stripeController = new StripeController($db);
+        $stripeController->stripeWebhook();
+        $order = $orderController->getOrderForDisplay($orderId);
+
+        if (!$order) {
+            $_SESSION['error'] = "Commande introuvable.";
+            header("Location: index.php?url=04_click_and_collect");
+            exit;
+        }
+
+        // Récupérer le user connecté
+        $user = $_SESSION['user'] ?? null;
+
+        require_once __DIR__ . "/../src/Views/checkout_success.php";
+        break;
+
+    case 'stripe_webhook':
+        $stripeController = new StripeController($db);
+        $stripeController->stripeWebhook();
         break;
 
     // ---------- PAGE 404 ----------

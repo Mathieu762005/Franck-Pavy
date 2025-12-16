@@ -1,411 +1,280 @@
 <?php
+// On déclare le namespace pour organiser le code
 namespace App\Controllers;
 
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Cart;
-use DateTime;
-use DateTimeZone;
-use PDO;
-use Stripe\Stripe;
-use Stripe\Checkout\Session;
+// On importe les modèles utilisés par le contrôleur
+use App\Models\Order;       // Modèle pour gérer les commandes
+use App\Models\OrderItem;   // Modèle pour gérer les articles des commandes
+use App\Models\Cart;        // Modèle pour gérer le panier
+use DateTime;               // Classe pour manipuler les dates et heures
+use DateTimeZone;           // Classe pour gérer les fuseaux horaires
+use PDO;                    // Classe pour la connexion à la base de données
 
 class OrderController
 {
-    private Order $order;
-    private OrderItem $orderItem;
-    private Cart $cart;
+    // Définition des propriétés pour stocker les modèles
+    private Order $order;           // Pour accéder aux commandes
+    private OrderItem $orderItem;   // Pour accéder aux articles des commandes
+    private Cart $cart;             // Pour accéder aux articles du panier
 
+    // Constructeur du contrôleur
     public function __construct(PDO $db)
     {
-        $this->order = new Order($db);
-        $this->orderItem = new OrderItem($db);
-        $this->cart = new Cart($db);
+        $this->order = new Order($db);          // Instancie le modèle Order avec la connexion PDO
+        $this->orderItem = new OrderItem($db);  // Instancie le modèle OrderItem
+        $this->cart = new Cart($db);            // Instancie le modèle Cart
     }
 
-    // Créer une commande depuis le panier
-    public function checkout(int $userId, string $pickupTime): ?int
+
+    /**
+     * Crée une commande à partir du panier
+     * @param int $userId : ID de l'utilisateur
+     * @param string $pickupTime : créneau choisi
+     * @return int|null : ID de la commande ou null si panier vide
+     */
+    public function createOrder(int $userId, string $pickupTime): ?int
     {
-        $cartItems = $this->cart->getAllItems($userId);
-        if (empty($cartItems))
+        // Récupère tous les articles du panier de l'utilisateur
+        $items = $this->cart->getAllItems($userId);
+
+        // Si le panier est vide, retourne null (aucune commande)
+        if (empty($items))
             return null;
 
-        $totalPrice = array_sum(array_column($cartItems, 'cart_items_total_price'));
+        // Calcul du prix total du panier
+        $total = array_sum(array_column($items, 'cart_items_total_price'));
 
-        $orderId = $this->order->create($userId, $totalPrice, $pickupTime);
+        // Crée la commande dans la base et récupère son ID
+        $orderId = $this->order->create($userId, $total, $pickupTime);
+
+        // Si la commande a bien été créée (ID > 0)
         if ($orderId > 0) {
-            $this->orderItem->copyCartToOrder($orderId, $userId);
-            $this->cart->clearUserCart($userId);
+            $this->orderItem->copyCartToOrder($orderId, $userId); // Copie les articles du panier dans la commande
+            $this->cart->clearUserCart($userId);                  // Vide le panier
         }
 
+        // Retourne l'ID de la commande créée
         return $orderId;
     }
 
-    // Récupérer les détails d'une commande
-    public function getOrderDetails(int $orderId): array
-    {
-        $orderData = $this->order->getById($orderId);
-        $items = $this->orderItem->getByOrder($orderId);
-
-        return ['order' => $orderData, 'items' => $items];
-    }
-
-    // Récupérer toutes les commandes d'un utilisateur
-    public function getUserOrders(int $userId): array
-    {
-        return $this->order->getByUser($userId);
-    }
-
-    public function showForm(): array
-    {
-        $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
-        $day = $now->format('Y-m-d');
-
-        // Générer les créneaux du jour
-        $timeslots = $this->generateTimeSlots($day, $now);
-
-        // Si tous les créneaux du jour sont passés, générer ceux du lendemain
-        $allPast = array_reduce($timeslots, fn($carry, $slot) => $carry && $slot['past'], true);
-        if ($allPast) {
-            $tomorrow = (clone $now)->modify('+1 day')->format('Y-m-d');
-            $timeslots = $this->generateTimeSlots($tomorrow, $now, true); // ignore les créneaux passés
-        }
-
-        return $timeslots;
-    }
 
     /**
-     * Génère les créneaux pour une date donnée
+     * Traite le formulaire Click & Collect
      */
-    private function generateTimeSlots(string $day, DateTime $now, bool $ignorePast = false): array
-    {
-        $timeslots = [];
-        $start = strtotime('07:00'); // début à 7h
-        $end = strtotime('19:00');   // fin à 19h
-
-        while ($start <= $end) {
-            $slot = date('H:i', $start);
-            $slotTime = new DateTime($day . ' ' . $slot, new DateTimeZone('Europe/Paris'));
-
-            // On ajoute une marge de 15 minutes avant l’heure du créneau
-            $slotTime->modify('-15 minutes');
-
-            $count = $this->order->getReservationCount($slot);
-
-            // On ne garde que les créneaux valides
-            if ($ignorePast || $slotTime > $now) {
-                $timeslots[] = [
-                    'time' => $slot,
-                    'full' => $count >= 10,
-                    'past' => false
-                ];
-            }
-
-            $start = strtotime('+30 minutes', $start);
-        }
-
-        return $timeslots;
-    }
-
-
-
-
-
-    public function getOrderDetailsForDisplay(int $orderId): array
-    {
-        $orderData = $this->getOrderDetails($orderId); // retourne ['order' => ..., 'items' => ...]
-
-        if (!$orderData || empty($orderData['order'])) {
-            return $orderData; // ou gérer erreur ici
-        }
-
-        $pickupTime = $orderData['order']['order_pickup_time'] ?? '';
-        $displayTime = substr($pickupTime, 0, 5); // HH:MM
-
-        // Déterminer si c'est pour demain
-        $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
-        $orderDate = new DateTime($orderData['order']['order_date'], new DateTimeZone('Europe/Paris'));
-        $pickupDate = clone $orderDate;
-        $pickupDate->setTime(
-            (int) substr($pickupTime, 0, 2),
-            (int) substr($pickupTime, 3, 2)
-        );
-
-        $forTomorrow = '';
-        if ($pickupDate <= $now) {
-            $forTomorrow = ' (pour demain)';
-        }
-
-        $orderData['display_pickup_time'] = $displayTime . $forTomorrow;
-
-        return $orderData;
-    }
-
-    public function getDisplayPickupTime(array $order): string
-    {
-        if (empty($order['order_pickup_time'])) {
-            return 'Non définie';
-        }
-
-        return substr($order['order_pickup_time'], 0, 5); // HH:MM
-    }
-
-
-
-
-
-
-    // Traitement du formulaire Click & Collect
     public function submitPickupTime()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['pickup_time'])) {
+        // Vérifie que la requête est en POST et que le créneau est défini
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['pickup_time']))
             return;
-        }
 
-        $pickupTime = $_POST['pickup_time'];
-        $userId = $_SESSION['user']['id'] ?? null;
+        $userId = $_SESSION['user']['id'] ?? null;   // Récupère l'ID utilisateur depuis la session
+        $pickupTime = $_POST['pickup_time'] ?? '';   // Récupère le créneau choisi
 
+        // Vérifie que l'utilisateur est connecté
         if (!$userId) {
-            $_SESSION['error'] = "Vous devez être connecté pour passer une commande.";
-            header("Location: index.php?url=login");
-            exit;
+            $_SESSION['error'] = "You must be logged in to place an order."; // message d'erreur
+            header("Location: index.php?url=login"); // redirige vers la page login
+            exit; // stop le script
         }
 
-        // Vérification créneau passé avec marge 15 minutes
+        // Récupère l'heure actuelle dans le fuseau de Paris
         $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
+
+        // Convertit le créneau choisi en objet DateTime
         $pickup = DateTime::createFromFormat('H:i', $pickupTime, new DateTimeZone('Europe/Paris'));
+
+        // Définit la date du créneau comme aujourd'hui
         $pickup->setDate((int) $now->format('Y'), (int) $now->format('m'), (int) $now->format('d'));
-        $pickupMinus15 = (clone $pickup)->modify('-15 minutes');
 
-        if ($pickupMinus15 <= $now) {
-            $_SESSION['error'] = "Ce créneau est déjà passé ou trop proche.";
-            header("Location: index.php?url=04_click_and_collect");
+        // Vérifie si le créneau est déjà passé (marge de 15 minutes)
+        if ((clone $pickup)->modify('-15 minutes') <= $now) {
+            $_SESSION['error'] = "This time slot has already passed or is too close."; // message erreur
+            header("Location: index.php?url=04_click_and_collect"); // redirection
             exit;
         }
 
-        // Vérification créneau complet
+        // Vérifie si le créneau est complet (10 commandes max)
         if ($this->order->getReservationCount($pickupTime) >= 10) {
-            $_SESSION['error'] = "Ce créneau est complet. Veuillez choisir un autre horaire.";
+            $_SESSION['error'] = "This time slot is full.";
             header("Location: index.php?url=04_click_and_collect");
             exit;
         }
 
-        // Vérification panier non vide
-        $cartItems = $this->cart->getAllItems($userId);
-        if (empty($cartItems)) {
-            $_SESSION['error'] = "Votre panier est vide.";
-            header("Location: index.php?url=04_click_and_collect");
+        // Crée la commande avec la méthode createOrder
+        $orderId = $this->createOrder($userId, $pickupTime);
+
+        // Si la commande a été créée avec succès
+        if ($orderId) {
+            $_SESSION['success'] = "Order successfully placed."; // message succès
+            header("Location: index.php?url=order_confirmation&order_id=$orderId"); // redirection
             exit;
         }
 
-        // Création de la commande
-        $totalPrice = array_sum(array_column($cartItems, 'cart_items_total_price'));
-        $orderId = $this->order->create($userId, $totalPrice, $pickupTime);
-
-        if ($orderId > 0) {
-            $this->orderItem->copyCartToOrder($orderId, $userId);
-            $this->cart->clearUserCart($userId);
-            $_SESSION['success'] = "Commande enregistrée avec succès pour $pickupTime.";
-            header("Location: index.php?url=order_confirmation&order_id=$orderId");
-            exit;
-        }
-
-        $_SESSION['error'] = "Une erreur est survenue lors de la création de votre commande.";
+        // Si erreur lors de la création
+        $_SESSION['error'] = "Error creating order.";
         header("Location: index.php?url=04_click_and_collect");
         exit;
     }
 
-    public function getUserOrdersWithCmd(int $userId): array
-    {
-        // Récupérer toutes les commandes de tous les utilisateurs
-        $allOrders = $this->order->getAllOrders(); // créer cette méthode dans le modèle
-
-        $resetHour = 19;
-        $cmdCounter = 1;
-        $currentCmdDay = null;
-
-        foreach ($allOrders as &$order) {
-            $orderDateTime = new DateTime($order['order_date']);
-            $hour = (int) $orderDateTime->format('H');
-
-            // Si après 19h, on passe au jour suivant pour le compteur
-            if ($hour >= $resetHour) {
-                $orderDateTime->modify('+1 day');
-            }
-
-            $cmdDay = $orderDateTime->format('Y-m-d');
-
-            if ($currentCmdDay !== $cmdDay) {
-                $cmdCounter = 1;
-                $currentCmdDay = $cmdDay;
-            }
-
-            $order['cmd_number'] = 'CMD_' . $cmdCounter;
-            $order['order_time_formatted'] = $orderDateTime->format('H:i');
-
-            $cmdCounter++;
-        }
-
-        // Filtrer uniquement les commandes de l’utilisateur connecté
-        $userOrders = array_values(array_filter(
-            $allOrders,
-            fn($order) => $order['user_id'] === $userId
-        ));
-
-        return $userOrders;
-    }
-
-
-    public function formatPickupTimeForDisplay(array $order): string
-    {
-        $pickupTime = $order['order_pickup_time'] ?? '';
-        $displayTime = substr($pickupTime, 0, 5); // HH:MM
-
-        $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
-        $orderDate = new DateTime($order['order_date'], new DateTimeZone('Europe/Paris'));
-
-        $pickupDate = clone $orderDate;
-        $pickupDate->setTime(
-            (int) substr($pickupTime, 0, 2),
-            (int) substr($pickupTime, 3, 2)
-        );
-
-        // Si l’heure de retrait est avant maintenant, considérer que c’est pour demain
-        $forTomorrow = '';
-        if ($pickupDate <= $now) {
-            $forTomorrow = ' (pour demain)';
-        }
-
-        return $displayTime . $forTomorrow;
-    }
 
     /**
-     * Récupère toutes les commandes d’un utilisateur avec leurs items
+     * Récupère toutes les commandes d'un utilisateur
+     */
+    public function getUserOrders(int $userId): array
+    {
+        return $this->order->getByUser($userId); // appelle le modèle Order
+    }
+
+
+    /**
+     * Récupère les détails d'une commande avec ses articles
+     */
+    public function getOrderDetails(int $orderId): array
+    {
+        $orderData = $this->order->getById($orderId);       // infos de la commande
+        $items = $this->orderItem->getByOrder($orderId);    // articles de la commande
+
+        return ['order' => $orderData, 'items' => $items];  // retourne les deux ensemble
+    }
+
+
+    /**
+     * Formate l'heure de retrait pour l'affichage
+     */
+    public function formatPickupTime(array $order): string
+    {
+        $pickupTime = $order['order_pickup_time'] ?? ''; // récupère l'heure de retrait
+        if (!$pickupTime)
+            return 'Not set';             // si vide, retourne "non défini"
+
+        $displayTime = substr($pickupTime, 0, 5); // garde seulement HH:MM
+
+        $now = new DateTime('now', new DateTimeZone('Europe/Paris')); // date actuelle
+        $orderDate = new DateTime($order['order_date'], new DateTimeZone('Europe/Paris')); // date commande
+
+        // Crée un objet DateTime pour le créneau exact
+        $pickupDate = clone $orderDate;
+        $pickupDate->setTime((int) substr($pickupTime, 0, 2), (int) substr($pickupTime, 3, 2));
+
+        // Si l'heure est passée, ajoute "pour demain"
+        if ($pickupDate <= $now)
+            $displayTime .= ' (for tomorrow)';
+
+        return $displayTime; // retourne la chaîne formatée
+    }
+
+
+    /**
+     * Récupère les commandes avec numérotation CMD_x par jour
+     */
+    public function getUserOrdersWithNumber(int $userId): array
+    {
+        $allOrders = $this->order->getAllOrders(); // toutes les commandes
+        $resetHour = 19;   // à partir de 19h, le compteur change de jour
+        $counter = 1;      // compteur CMD_x
+        $currentDay = null; // jour courant
+
+        foreach ($allOrders as &$order) {
+            $orderDate = new DateTime($order['order_date']); // date de la commande
+            if ((int) $orderDate->format('H') >= $resetHour)
+                $orderDate->modify('+1 day'); // si après 19h → lendemain
+
+            $day = $orderDate->format('Y-m-d'); // extrait le jour
+
+            if ($currentDay !== $day) { // nouveau jour
+                $counter = 1;           // réinitialise le compteur
+                $currentDay = $day;
+            }
+
+            $order['cmd_number'] = 'CMD_' . $counter++;                    // ajoute CMD_x
+            $order['order_time_formatted'] = $orderDate->format('H:i');   // heure formatée
+        }
+
+        // Filtre uniquement les commandes de l'utilisateur connecté
+        return array_values(array_filter($allOrders, fn($order) => $order['user_id'] === $userId));
+    }
+
+
+    /**
+     * Récupère les commandes avec leurs articles
      */
     public function getUserOrdersWithItems(int $userId): array
     {
-        // Récupérer les commandes de l’utilisateur
-        $userOrders = $this->getUserOrders($userId);
+        $orders = $this->getUserOrders($userId); // récupère toutes les commandes de l'utilisateur
 
-        // Ajouter les items pour chaque commande
-        foreach ($userOrders as &$order) {
-            $orderDetails = $this->getOrderDetails($order['order_id']);
-            $order['items'] = $orderDetails['items'] ?? [];
+        foreach ($orders as &$order) {
+            $details = $this->getOrderDetails($order['order_id']); // récupère les articles
+            $order['items'] = $details['items'] ?? [];             // ajoute les articles à la commande
         }
 
-        return $userOrders;
+        return $orders; // retourne toutes les commandes avec leurs items
+    }
+
+    /**
+     * Récupère une commande et prépare l'heure pour affichage
+     * @param int $orderId
+     * @return array|null : retourne la commande prête à afficher ou null si introuvable
+     */
+    public function getOrderForDisplay(int $orderId): ?array
+    {
+        $order = $this->getOrderDetails($orderId); // récupère la commande avec ses items
+
+        if (!$order || empty($order['order'])) {
+            return null; // commande introuvable
+        }
+
+        // Prépare l'heure pour affichage
+        $order['display_pickup_time'] = $this->formatPickupTime($order['order']);
+
+        return $order;
     }
 
 
-    // ======================
-// 🔵 checkoutStripe
-// ======================
-    public function checkoutStripe()
+    /**
+     * Génère les créneaux disponibles pour le Click & Collect
+     */
+    public function generateAvailableTimeSlots(): array
     {
-        $userId = $_SESSION['user']['id'] ?? null;
-        if (!$userId) {
-            $_SESSION['error'] = "Vous devez être connecté.";
-            header("Location: index.php?url=login");
-            exit;
-        }
+        $now = new DateTime('now', new DateTimeZone('Europe/Paris')); // date actuelle
 
-        $pickupTime = $_POST['pickup_time'] ?? null;
-        if (!$pickupTime) {
-            $_SESSION['error'] = "Aucun créneau choisi.";
-            header("Location: index.php?url=04_click_and_collect");
-            exit;
-        }
+        // Fonction interne pour générer les créneaux pour un jour donné
+        $generate = function (string $day, bool $ignorePast = false) use ($now) {
+            $slots = [];
+            $start = strtotime('07:00');
+            $end = strtotime('19:00'); // horaires d'ouverture
 
-        // Vérifier panier non vide
-        $cartItems = $this->cart->getAllItems($userId);
-        if (empty($cartItems)) {
-            $_SESSION['error'] = "Votre panier est vide.";
-            header("Location: index.php?url=04_click_and_collect");
-            exit;
-        }
+            while ($start <= $end) {
+                $slot = date('H:i', $start); // format HH:MM
+                $slotTime = new DateTime("$day $slot", new DateTimeZone('Europe/Paris'));
+                $slotTime->modify('-15 minutes'); // marge de sécurité
 
-        // Calculer le total
-        $totalPrice = array_sum(array_column($cartItems, 'cart_items_total_price'));
+                $count = $this->order->getReservationCount($slot); // nombre de commandes pour ce créneau
+                $isPast = !$ignorePast && $slotTime <= $now;       // indique si le créneau est passé
 
-        // 🔹 Créer la commande dans la BDD
-        $orderId = $this->order->create($userId, $totalPrice, $pickupTime);
-        if ($orderId <= 0) {
-            $_SESSION['error'] = "Impossible de créer la commande.";
-            header("Location: index.php?url=04_click_and_collect");
-            exit;
-        }
+                if ($ignorePast || !$isPast) { // si on ignore le passé ou si le créneau est futur
+                    $slots[] = ['time' => $slot, 'full' => $count >= 10, 'past' => $isPast];
+                }
 
-        // Copier les items du panier vers la commande
-        $this->orderItem->copyCartToOrder($orderId, $userId);
-        $this->cart->clearUserCart($userId);
-
-        // 🔹 Créer la session Stripe
-        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
-        $totalPriceCents = $totalPrice * 100;
-
-        $session = Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [
-                [
-                    'price_data' => [
-                        'currency' => 'eur',
-                        'product_data' => ['name' => 'Commande Click & Collect'],
-                        'unit_amount' => $totalPriceCents,
-                    ],
-                    'quantity' => 1,
-                ]
-            ],
-            'mode' => 'payment',
-            'client_reference_id' => $orderId,
-            'success_url' => "http://localhost:8000/index.php?url=checkout_success&order_id=$orderId",
-            'cancel_url' => 'http://localhost:8000/index.php?url=04_click_and_collect',
-        ]);
-
-        // Rediriger vers Stripe
-        header("Location: " . $session->url);
-        exit;
-    }
-
-
-    public function stripeWebhook()
-    {
-        // Lire la requête brute de Stripe
-        $payload = @file_get_contents('php://input');
-        $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
-
-        // Clé secrète de ton webhook Stripe (depuis Stripe CLI ou Dashboard)
-        $endpointSecret = 'whsec_fa3af3f0d5f258134f8ad2c19bf11d047be38f77eb0860fdaa3a9c0c52d4d47d';
-
-        try {
-            $event = \Stripe\Webhook::constructEvent(
-                $payload,
-                $sigHeader,
-                $endpointSecret
-            );
-        } catch (\UnexpectedValueException $e) {
-            // Payload invalide
-            http_response_code(400);
-            exit();
-        } catch (\Stripe\Exception\SignatureVerificationException $e) {
-            // Signature invalide
-            http_response_code(400);
-            exit();
-        }
-
-        // Traiter l'événement
-        if ($event->type === 'checkout.session.completed') {
-            $session = $event->data->object;
-
-            // Récupérer l'ID de commande depuis Stripe (client_reference_id)
-            $orderId = $session->client_reference_id ?? null;
-
-            if ($orderId) {
-                $this->order->markAsPaid((int) $orderId);
+                $start = strtotime('+30 minutes', $start); // passe au créneau suivant
             }
+
+            return $slots; // retourne les créneaux du jour
+        };
+
+        $day = $now->format('Y-m-d');
+        $timeslots = $generate($day); // génère les créneaux pour aujourd'hui
+
+        // Si tous les créneaux sont passés, génère ceux de demain
+        if (array_reduce($timeslots, fn($c, $s) => $c && $s['past'], true)) {
+            $tomorrow = (clone $now)->modify('+1 day')->format('Y-m-d');
+            $timeslots = $generate($tomorrow, true);
         }
 
-        http_response_code(200);
+        return $timeslots; // retourne tous les créneaux disponibles
     }
 
-
+    public function getOrderModel(): Order
+    {
+        return $this->order;
+    }
 }
