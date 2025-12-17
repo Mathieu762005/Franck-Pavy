@@ -47,7 +47,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link color" href="index.php?url=04_click_and_collect">Click & Collect</a>
-                </li>
+                </li> 
             </ul>
 
             <!-- DROITE 30% -->

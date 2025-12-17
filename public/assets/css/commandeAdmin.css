@@ -1,0 +1,29 @@
+.A-commande-partie1 {
+    width: 100%;
+}
+
+.A-commande-partie1__aside {
+    width: 15%;
+}
+
+.A-commande-partie1__centrale {
+    width: 85%;
+}
+
+.A-commande-partie1__contour {
+    height: 84vh;
+}
+
+.A-commande-partie1__titre {
+    font-family: "Abhaya Libre", serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.A-commande-partie1__titre-marge {
+    background-color: #F5F5F5;
+}
+
+.table {
+    background-color: #F5F5F5;
+}
