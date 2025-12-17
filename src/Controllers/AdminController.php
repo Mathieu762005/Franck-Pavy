@@ -58,6 +58,15 @@ class AdminController
         require __DIR__ . '/../Views/admin/adminCommandes.php'; // Inclut la vue
     }
 
+    // ---------- COMMANDES ----------
+    // Affiche toutes les commandes dans le panneau admin
+    public function details()
+    {
+        $commandeModel = new AdminCommande(); // Instancie le modèle AdminCommande
+        $detail = $commandeModel->detailModel(); // Récupère toutes les commandes
+        require __DIR__ . '/../Views/admin/adminCommandes.php'; // Inclut la vue
+    }
+
     // ---------- UPDATE STATUS ----------
     // Met à jour le statut d'une commande et applique les effets si terminée
     public function updateOrderStatus(int $orderId, string $status): bool
@@ -125,15 +134,20 @@ class AdminController
     // Combine affichage et mise à jour des commandes dans un seul appel
     public function handleCommandes(): void
     {
-        // Si le formulaire est envoyé, on met à jour le statut
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->handleStatusUpdate(); // handleStatusUpdate gère la redirection et exit
-            return; // Juste pour indiquer qu'on ne continue pas après handleStatusUpdate
+            $this->handleStatusUpdate();
+            return;
         }
 
-        // Sinon on affiche toutes les commandes
         $commandeModel = new AdminCommande();
         $commandes = $commandeModel->findAll();
+
+        // Récupérer les détails pour chaque commande
+        foreach ($commandes as &$commande) {
+            $commande['details'] = $commandeModel->findDetailsByOrder($commande['order_id']);
+        }
+        unset($commande); // bonne pratique après avoir utilisé une référence
+
         require __DIR__ . '/../Views/admin/adminCommandes.php';
     }
 }
