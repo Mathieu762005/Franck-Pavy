@@ -5,7 +5,10 @@ if (!$userId) {
     exit;
 }
 
-// Récupérer les commandes de l'utilisateur avec leurs items
+// Récupère les infos de l'utilisateur
+$user = $this->userModel->loadById($userId) ? $this->userModel : null;
+
+// Récupère les commandes de l'utilisateur avec leurs items
 $userOrders = $orderController->getUserOrdersWithItems($userId);
 ?>
 
@@ -21,7 +24,6 @@ $userOrders = $orderController->getUserOrdersWithItems($userId);
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-
     <header>
         <?php include_once "template/navbar.php"; ?>
     </header>
@@ -29,11 +31,11 @@ $userOrders = $orderController->getUserOrdersWithItems($userId);
     <main class="main d-flex flex-column flex-grow-1">
         <div>
             <h1 class="profil-partie1__titre text-center mb-4">
-                Bienvenue <?= htmlspecialchars($user['user_first_name'] ?? 'Utilisateur') ?>
+                Bienvenue <?= htmlspecialchars($user->firstname ?? 'Utilisateur') ?>
             </h1>
         </div>
-        <div class="profil-partie1">
 
+        <div class="profil-partie1">
             <div class="d-flex gap-4 flex-wrap">
 
                 <!-- INFOS UTILISATEUR -->
@@ -41,11 +43,11 @@ $userOrders = $orderController->getUserOrdersWithItems($userId);
                     <div class="profil-partie1__marge row justify-content-between">
                         <h2 class="profil-partie1__sous-titre rounded-4">Mes informations</h2>
                         <div class="profil-partie1__information" style="flex: 1; min-width: 250px;">
-                            <p><span>Nom : </span><?= htmlspecialchars($user['user_name'] ?? '-') ?></p>
-                            <p><span>Prénom : </span><?= htmlspecialchars($user['user_first_name'] ?? '-') ?></p>
-                            <p><span>Email : </span><?= htmlspecialchars($user['user_email'] ?? '-') ?></p>
-                            <p><span>Total dépensé : </span><?= number_format($user['user_total_spent'] ?? 0, 2) ?> €</p>
-                            <p><span>Nombre de commandes : </span><?= $user['user_orders_count'] ?? 0 ?></p>
+                            <p><span>Nom : </span><?= htmlspecialchars($user->username ?? '-') ?></p>
+                            <p><span>Prénom : </span><?= htmlspecialchars($user->firstname ?? '-') ?></p>
+                            <p><span>Email : </span><?= htmlspecialchars($user->email ?? '-') ?></p>
+                            <p><span>Total dépensé : </span><?= number_format($user->user_total_spent ?? 0, 2) ?> €</p>
+                            <p><span>Nombre de commandes : </span><?= $user->user_orders_count ?? 0 ?></p>
                             <div>
                                 <a class="profil-partie1__btn btn mt-3" href="index.php?url=logout">Déconnexion</a>
                             </div>
@@ -57,7 +59,6 @@ $userOrders = $orderController->getUserOrdersWithItems($userId);
                 <div style="flex: 2; min-width: 400px;">
                     <h2 class="profil-partie1__sous-titre rounded-4">Mes commandes</h2>
                     <div class="profil-partie1__commandes">
-
                         <?php if (!empty($userOrders)): ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle text-center"
@@ -82,7 +83,7 @@ $userOrders = $orderController->getUserOrdersWithItems($userId);
                                                 <td><?= htmlspecialchars(substr($order['order_pickup_time'], 0, 5)) ?></td>
                                                 <td>
                                                     <?php
-                                                    $status = strtolower($order['order_status']); // converti pour éviter les erreurs de majuscule
+                                                    $status = strtolower($order['order_status']);
                                                     if ($status === 'prête'): ?>
                                                         <span
                                                             class="badge badge-prete"><?= htmlspecialchars($order['order_status']) ?></span>
@@ -113,15 +114,14 @@ $userOrders = $orderController->getUserOrdersWithItems($userId);
 
                                             <div class="modal-header">
                                                 <h5 class="titre__5 modal-title">Commande
-                                                    <?= htmlspecialchars($order['order_number']) ?>
-                                                </h5>
+                                                    <?= htmlspecialchars($order['order_number']) ?></h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
 
                                             <div class="modal-body">
-                                                <p><strong>statut :
+                                                <p><strong>Statut :</strong>
                                                     <?php
-                                                    $status = strtolower($order['order_status']); // converti pour éviter les erreurs de majuscule
+                                                    $status = strtolower($order['order_status']);
                                                     if ($status === 'prête'): ?>
                                                         <span
                                                             class="badge badge-prete"><?= htmlspecialchars($order['order_status']) ?></span>
@@ -135,7 +135,7 @@ $userOrders = $orderController->getUserOrdersWithItems($userId);
                                                         <span
                                                             class="badge bg-secondary"><?= htmlspecialchars($order['order_status']) ?></span>
                                                     <?php endif; ?>
-                                                    </strong></p>
+                                                </p>
                                                 <p><strong>Heure de retrait :</strong>
                                                     <?= htmlspecialchars(substr($order['order_pickup_time'], 0, 5)) ?></p>
                                                 <hr>

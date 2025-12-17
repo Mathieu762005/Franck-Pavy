@@ -1,174 +1,121 @@
 <?php
 
+// ---------- IMPORTS ----------
 use App\Models\Database;
-use App\Models\User;
 use App\Controllers\AdminController;
+use App\Controllers\CartController;
 use App\Controllers\ContactController;
 use App\Controllers\HomeController;
 use App\Controllers\UserController;
 use App\Controllers\CategoryProductController;
-use App\Controllers\CartController;
 use App\Controllers\OrderController;
 use App\Controllers\StripeController;
 
-
+// ---------- CONNEXION À LA BASE ----------
 $db = Database::createInstancePDO();
 if (!$db) {
-    die("Erreur : impossible de se connecter à la base de données.");
+    die("Erreur : impossible de se connecter à la base de données."); // stoppe le script si pas de DB
 }
 
-// Récupération de l'URL
-$url = $_GET['url'] ?? '01_home';
-$page = explode('/', $url)[0];
+// ---------- RÉCUPÉRATION DE L'URL ----------
+$url = $_GET['url'] ?? '01_home'; // si aucune URL, on prend la page d'accueil
+$page = explode('/', $url)[0];    // on prend seulement la première partie de l'URL
 
-// ROUTEUR
+// ---------- ROUTEUR PRINCIPAL ----------
 switch ($page) {
 
     // ---------- HOME ----------
     case '01_home':
-        $controller = new HomeController();
-        $controller->index();
+        $controller = new HomeController(); // instancie le contrôleur de la page d'accueil
+        $controller->index();               // appelle la méthode pour afficher la page
         break;
 
     // ---------- PRODUITS ----------
     case '02_produits':
-        $controller = new CategoryProductController();
-        $id = (int) ($_GET['id'] ?? 0);
-        $controller->showCategoryWithProducts($id);
+        $controller = new CategoryProductController(); // contrôleur des catégories & produits
+        $id = (int) ($_GET['id'] ?? 0);               // récupère l'id de la catégorie si présent
+        $controller->showCategoryWithProducts($id);   // affiche la catégorie et ses produits
         break;
 
     case '04_click_and_collect':
-        $orderController = new OrderController($db);
-        $orderController->submitPickupTime();
+        $orderController = new OrderController($db); // contrôleur pour gérer les commandes
+        $orderController->submitPickupTime();        // gère le POST pour choisir un créneau
 
-        // Récupérer les catégories
-        $categoryController = new CategoryProductController();
-        $categories = $categoryController->showClickAndCollect();
+        // récupère les données pour afficher la page
+        $data = $orderController->showClickAndCollectPage();
+        $categories = $data['categories'];
+        $cartItems = $data['cartItems'];
+        $timeslots = $data['timeslots'];
 
-        // Récupérer le panier si connecté
-        $cartItems = [];
-        if (isset($_SESSION['user']['id'])) {
-            $cartController = new CartController($db);
-            $cartItems = $cartController->viewCart();
-        }
-
-        // Récupérer les créneaux via OrderController
-        $timeslots = $orderController->generateAvailableTimeSlots();
-
-        require_once __DIR__ . "/../src/Views/04_click_and_collect.php";
+        require_once __DIR__ . "/../src/Views/04_click_and_collect.php"; // vue
         break;
 
     // ---------- A PROPOS ----------
-
     case '03_a_propos':
-        require_once __DIR__ . "/../src/Views/03_a_propos.php";
+        require_once __DIR__ . "/../src/Views/03_a_propos.php"; // page statique
         break;
 
     // ---------- CONTACT ----------
-
     case '05_contact':
-        $controller = new ContactController();
-        $controller->send();
+        $controller = new ContactController(); // contrôleur du formulaire contact
+        $controller->send();                  // gère l'envoi du message
         break;
 
     // ---------- PROFIL ----------
-
     case '06_profil':
-        // Vérifier si user connecté
-        $userId = $_SESSION['user']['id'] ?? null;
-        if (!$userId) {
-            header('Location: ?url=login');
-            exit;
-        }
-
-        // Charger les modèles
-        $userModel = new User($db);
-        $orderController = new OrderController($db);
-
-        // Infos du user
-        $user = $userModel->getByUserId($userId);
-
-        // Liste des commandes
-        $userOrders = $orderController->getUserOrders($userId);
-
-        // Récupération d'une commande si cliquée
-        $orderId = $_GET['order_id'] ?? null;
-        $orderDetails = null;
-
-        if ($orderId) {
-            $orderDetails = $orderController->getOrderDetails((int) $orderId);
-        }
-
-        require_once __DIR__ . "/../src/Views/06_profil.php";
+        $controller = new UserController();
+        $controller->profil(); // affiche la page profil et gère toutes les infos
         break;
 
     case 'login':
         $controller = new UserController();
-        $controller->login();
+        $controller->login();  // formulaire de connexion
         break;
 
     case 'register':
         $controller = new UserController();
-        $controller->register();
+        $controller->register(); // formulaire d'inscription
         break;
 
-
-
     // ---------- SOUS PAGES ----------
-
     case 'register_success':
-        require_once __DIR__ . "/../src/Views/register_success.php";
+        require_once __DIR__ . "/../src/Views/register_success.php"; // page de succès inscription
         break;
 
     case 'logout':
         $controller = new UserController();
-        $controller->logout();
+        $controller->logout(); // supprime la session et redirige vers login
         break;
 
-
-
     // ---------- PANIER ----------
-
     case 'cart_add':
-        $userId = $_SESSION['user']['id'] ?? null;
-        if (!$userId) {
-            header('Location: ?url=login');
-            exit;
-        }
+        $cartController = new CartController($db); // contrôleur du panier
 
-        $cartController = new CartController($db);
-
+        // récupère les données POST
         $productId = (int) ($_POST['product_id'] ?? 0);
         $quantity = (int) ($_POST['quantity'] ?? 1);
 
+        // ajoute le produit si id valide
         if ($productId > 0) {
-            $cartController->addToCart($userId, $productId, $quantity);
+            $cartController->addToCart($productId, $quantity);
         }
 
-        // Redirection classique après ajout
+        // redirection après ajout
         header('Location: ?url=04_click_and_collect');
         exit;
 
-
     case 'cart_remove':
-        $userId = $_SESSION['user']['id'] ?? null;
-        if (!$userId)
-            die("Erreur : vous devez être connecté pour modifier le panier.");
-
         $cartController = new CartController($db);
-        $cartController->removeItem((int) ($_POST['cart_item_id'] ?? 0));
+        $cartController->removeItem((int) ($_POST['cart_item_id'] ?? 0)); // supprime l'article
         header('Location: ?url=04_click_and_collect');
         exit;
 
     case 'cart_update_all':
-        $userId = $_SESSION['user']['id'] ?? null;
-        if (!$userId)
-            die("Erreur : vous devez être connecté pour modifier le panier.");
-
         $cartController = new CartController($db);
         $quantities = $_POST['quantities'] ?? [];
         $unitPrices = $_POST['unit_prices'] ?? [];
 
+        // met à jour tous les articles du panier
         foreach ($quantities as $cartItemId => $quantity) {
             $unitPrice = (float) ($unitPrices[$cartItemId] ?? 0);
             $cartController->updateItem((int) $cartItemId, (int) $quantity, $unitPrice);
@@ -178,109 +125,74 @@ switch ($page) {
         exit;
 
     case 'cart_decrease_quantity':
-        $controller = new CartController($db);
-        $controller->decreaseQuantity($_POST['cart_item_id']);
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        $cartController = new CartController($db);
+        $cartController->decreaseQuantity((int) ($_POST['cart_item_id'] ?? 0)); // diminue la quantité
+        header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '?url=04_click_and_collect'));
         exit;
-
-
 
     // ---------- COMMANDES ----------
-
     case 'checkout':
-        $userId = $_SESSION['user']['id'] ?? null;
-        if (!$userId)
-            die("Erreur : vous devez être connecté pour passer commande.");
-
-        $orderController = new OrderController($db);
-        $pickupTime = $_POST['pickup_time'] ?? date('H:i:s'); // récupère l'heure choisie
-        $orderId = $orderController->createOrder($userId, $pickupTime);
-
-        if ($orderId) {
-            header('Location: ?url=order_details&id=' . $orderId);
-        } else {
-            die("Erreur : impossible de créer la commande (panier vide).");
-        }
-        exit;
+        $orderController->handleCheckoutFromPost(); // création de la commande via POST
+        break;
 
     case 'order_details':
-        $orderController = new OrderController($db);
-        $orderId = (int) ($_GET['id'] ?? 0);
-        $details = $orderController->getOrderDetails($orderId);
+        $details = $orderController->handleOrderDetailsFromGet(); // détails de la commande
         require_once __DIR__ . "/../src/Views/06_profil.php";
         break;
 
-
-
     // ---------- ADMIN ----------
-
     case 'adminCommandes':
         $adminController = new AdminController($db);
-
-        // Si formulaire envoyé pour changer le statut
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'], $_POST['status'])) {
-            $adminController->updateOrderStatus((int) $_POST['order_id'], $_POST['status']);
-            header('Location: ?url=adminCommandes');
-            exit;
-        }
-
-        $adminController->commandes();
-        break;
-
-    case 'adminUpdateStatus':
-        $adminController = new AdminController($db);
-        $adminController->handleStatusUpdate();
+        $adminController->handleCommandes(); // gestion commandes admin
         break;
 
     case 'adminUsers':
         $adminController = new AdminController($db);
-        $adminController->users();
+        $adminController->users(); // gestion utilisateurs
         break;
 
     case 'adminProducts':
         $adminController = new AdminController($db);
-        $adminController->produits();
+        $adminController->produits(); // gestion produits
         break;
 
     case 'adminMessages':
         $adminController = new AdminController($db);
-        $adminController->messages();
+        $adminController->messages(); // gestion messages
         break;
 
-
-
     // ---------- STRIPE ----------
-
     case 'checkout_stripe':
-        $orderController = new StripeController($db);
-        $orderController->checkoutStripe();
+        $stripeController = new StripeController($db);
+        $stripeController->checkoutStripe(); // redirection vers Stripe
         break;
 
     case 'checkout_success':
-        // Si nécessaire, valider le paiement via le webhook Stripe
         $stripeController = new StripeController($db);
-        $stripeController->stripeWebhook();
-        $order = $orderController->getOrderForDisplay($orderId);
+        $orderId = (int) ($_GET['order_id'] ?? 0);
 
-        if (!$order) {
+        // vérifie que l'ID commande est valide
+        if ($orderId <= 0) {
             $_SESSION['error'] = "Commande introuvable.";
             header("Location: index.php?url=04_click_and_collect");
             exit;
         }
 
-        // Récupérer le user connecté
-        $user = $_SESSION['user'] ?? null;
+        // récupère les infos pour la vue
+        $data = $stripeController->handleCheckoutSuccess($orderId);
+        $order = $data['order'];
+        $user = $data['user'];
 
         require_once __DIR__ . "/../src/Views/checkout_success.php";
         break;
 
     case 'stripe_webhook':
         $stripeController = new StripeController($db);
-        $stripeController->stripeWebhook();
+        $stripeController->stripeWebhook(); // webhook Stripe pour valider le paiement
         break;
 
     // ---------- PAGE 404 ----------
     default:
-        require_once __DIR__ . "/../src/Views/page404.php";
+        require_once __DIR__ . "/../src/Views/page404.php"; // page introuvable
         break;
 }

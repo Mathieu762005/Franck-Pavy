@@ -23,6 +23,7 @@
                 </p>
             </div>
             <div class="strip-partie2__basse d-flex justify-content-evenly">
+                
                 <p>Montant total : <strong><?= number_format((float) ($order['order']['order_total_price'] ?? 0), 2) ?>
                         €</strong></p>
                 <p>Heure de retrait : <strong><?= htmlspecialchars($order['display_pickup_time']) ?></strong></p>

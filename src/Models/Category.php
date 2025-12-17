@@ -1,54 +1,52 @@
 <?php
 
-// On indique que cette classe appartient au dossier logique "Models"
 namespace App\Models;
 
-// On importe la classe Database pour se connecter à la base
 use App\Models\DataBase;
-
-// On importe les classes PDO pour exécuter des requêtes SQL
 use PDO;
 use PDOException;
 
-// Définition de la classe User
 class Category
 {
-    // Propriétés du User (correspondent aux colonnes de la table "users")
-    public int $id;
-    public string $name;
-    public string $description;
+    // Propriétés correspondant aux colonnes de la table categories
+    public int $id;           // ID de la catégorie
+    public string $name;      // Nom de la catégorie
+    public string $description; // Description de la catégorie
 
-
-    // Récupérer une catégorie par son id
-    public function getCategoryById($id)
+    /**
+     * Récupère une catégorie via son ID
+     * @param int $id ID de la catégorie
+     * @return array|false Tableau associatif avec les infos de la catégorie ou false si non trouvé
+     */
+    public function getCategoryById(int $id)
     {
         try {
+            // Crée une connexion PDO via le modèle Database
             $pdo = Database::createInstancePDO();
-
-            if (!$pdo) {
+            if (!$pdo)
                 return false;
-            }
 
+            // Préparation de la requête SQL
             $sql = "SELECT category_id, category_name, category_description 
-                FROM categories 
-                WHERE category_id = :id";
-
+                    FROM categories 
+                    WHERE category_id = :id";
             $stmt = $pdo->prepare($sql);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
+            // Exécution de la requête
             $stmt->execute();
 
-            // On récupère la ligne en tableau associatif
+            // Récupération du résultat sous forme de tableau associatif
             $category = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Si aucun résultat
-            if (!$category) {
+            // Retourne false si aucune catégorie trouvée
+            if (!$category)
                 return false;
-            }
 
             return $category;
 
         } catch (PDOException $e) {
+            // En cas d'erreur SQL, retourne false
             return false;
         }
     }

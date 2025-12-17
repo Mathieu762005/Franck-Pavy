@@ -158,7 +158,7 @@ class OrderController
 
         // Si l'heure est passée, ajoute "pour demain"
         if ($pickupDate <= $now)
-            $displayTime .= ' (for tomorrow)';
+            $displayTime .= ' (Pour demain)';
 
         return $displayTime; // retourne la chaîne formatée
     }
@@ -276,5 +276,59 @@ class OrderController
     public function getOrderModel(): Order
     {
         return $this->order;
+    }
+
+    public function showClickAndCollectPage(): array
+    {
+        // Récupération des catégories
+        $categoryController = new \App\Controllers\CategoryProductController();
+        $categories = $categoryController->showClickAndCollect();
+
+        // Récupération du panier si connecté
+        $cartItems = [];
+        if (isset($_SESSION['user']['id'])) {
+            $userId = $_SESSION['user']['id'];
+            // Utilise directement le modèle Cart déjà instancié
+            $cartItems = $this->cart->getAllItems($userId);
+        }
+
+        // Génération des créneaux disponibles
+        $timeslots = $this->generateAvailableTimeSlots();
+
+        return [
+            'categories' => $categories,
+            'cartItems' => $cartItems,
+            'timeslots' => $timeslots
+        ];
+    }
+
+    /**
+     * Crée une commande depuis le POST et gère la redirection
+     */
+    public function handleCheckoutFromPost(): void
+    {
+        $userId = $_SESSION['user']['id'] ?? null;
+        if (!$userId) {
+            die("Erreur : vous devez être connecté pour passer commande.");
+        }
+
+        $pickupTime = $_POST['pickup_time'] ?? date('H:i:s'); // créneau choisi
+        $orderId = $this->createOrder($userId, $pickupTime);
+
+        if ($orderId) {
+            header('Location: ?url=order_details&id=' . $orderId);
+        } else {
+            die("Erreur : impossible de créer la commande (panier vide).");
+        }
+        exit;
+    }
+
+    /**
+     * Récupère les détails d'une commande depuis l'ID GET
+     */
+    public function handleOrderDetailsFromGet(): array
+    {
+        $orderId = (int) ($_GET['id'] ?? 0);
+        return $this->getOrderDetails($orderId);
     }
 }

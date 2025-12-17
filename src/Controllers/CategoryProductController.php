@@ -1,36 +1,48 @@
 <?php
+// On indique que cette classe appartient au namespace "Controllers"
 namespace App\Controllers;
 
+// On importe les modèles nécessaires
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Database;
 
+// Définition de la classe CategoryProductController
 class CategoryProductController
 {
-    private Category $categoryModel;
-    private Product $productModel;
+    private Category $categoryModel; // Objet pour gérer les catégories
+    private Product $productModel;   // Objet pour gérer les produits
 
+    // Constructeur
     public function __construct()
     {
-        $db = Database::createInstancePDO(); // récupérer l'instance PDO
+        // Crée l'instance PDO pour la base de données
+        $db = Database::createInstancePDO();
+
+        // Instancie les modèles
         $this->categoryModel = new Category();
-        $this->productModel = new Product($db); // passer $db au modèle Product
+        $this->productModel = new Product($db); // Product a besoin de la connexion
     }
 
     /**
-     * Afficher une catégorie avec ses produits
+     * Affiche une catégorie et tous ses produits
+     * @param int $id ID de la catégorie
      */
     public function showCategoryWithProducts(int $id)
     {
+        // Récupère la catégorie
         $category = $this->categoryModel->getCategoryById($id);
+
+        // Récupère tous les produits de cette catégorie
         $products = $this->productModel->getByCategory($id);
 
+        // Si la catégorie n'existe pas, afficher un message
         if (!$category) {
             echo "Catégorie introuvable";
             return;
         }
 
-        // Dossier correct (C&C => impossible)
+        // Images par défaut pour chaque catégorie
         $bannerImages = [
             1 => "/assets/image/Categories/belleimage-pain.jpg",
             2 => "/assets/image/Categories/croissant.jpg",
@@ -38,31 +50,34 @@ class CategoryProductController
             4 => "/assets/image/Categories/presentationPatisserie.jpg"
         ];
 
-        // Fallback propre
+        // Image de fallback si aucune correspondance
         $defaultBanner = "/assets/image/Categories/default-banner.jpg";
 
-        // Récupérer l’image de la catégorie
+        // Choisir l'image correspondant à la catégorie ou l'image par défaut
         $banner = $bannerImages[$category["category_id"]] ?? $defaultBanner;
 
-        // Structure envoyée à la vue
+        // Préparer les données à envoyer à la vue
         $categories = [
             [
                 'category_id' => $category['category_id'],
                 'category_name' => $category['category_name'],
                 'category_description' => $category['category_description'] ?? '',
                 'image' => $banner,
-                'products' => $products ?: []
+                'products' => $products ?: [] // si aucun produit, tableau vide
             ]
         ];
 
+        // Affiche la vue
         require __DIR__ . "/../Views/02_produits.php";
     }
 
     /**
-     * Afficher la page Click & Collect avec toutes les catégories et leurs produits
+     * Affiche toutes les catégories avec leurs produits pour Click & Collect
+     * @return array Tableau des catégories et produits
      */
     public function showClickAndCollect(): array
     {
+        // Ici on crée manuellement un tableau avec toutes les catégories et leurs produits
         $categories = [
             [
                 'category_id' => 1,
@@ -90,6 +105,7 @@ class CategoryProductController
             ]
         ];
 
-        return $categories; // <-- ici
+        // Retourne le tableau
+        return $categories;
     }
 }

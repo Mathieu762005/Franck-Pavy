@@ -1,41 +1,39 @@
 <?php
 
-// On indique que cette classe appartient au dossier logique "Models"
 namespace App\Models;
 
-// On importe la classe Database pour se connecter à la base
 use App\Models\DataBase;
-
-// On importe les classes PDO pour exécuter des requêtes SQL
 use PDO;
 use PDOException;
 
-// Définition de la classe User
 class AdminProduct
 {
-    private PDO $db;
+    private PDO $db; // Connexion à la base de données
 
     public function __construct()
     {
-        // Connexion à la base via ta classe DataBase
+        // On utilise la classe Database pour créer une instance PDO
         $this->db = DataBase::createInstancePDO();
     }
 
-
-    // Récupérer tous les utilisateurs
-    public function findAll()
+    /**
+     * Récupère tous les produits avec leur catégorie
+     * @return array Tableau associatif des produits ou vide en cas d'erreur
+     */
+    public function findAll(): array
     {
         try {
-            $sql = "SELECT products.product_id, products.product_name, products.product_available, categories.category_name
-                    FROM products
-                    JOIN categories ON products.category_id = categories.category_id;";
-            $stmt = $this->db->query($sql);
-
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+            // Requête SQL pour récupérer les produits avec le nom de la catégorie
+            $sql = "
+                SELECT products.product_id, products.product_name, products.product_available, categories.category_name
+                FROM products
+                JOIN categories ON products.category_id = categories.category_id;
+            ";
+            $stmt = $this->db->query($sql); // Exécute la requête
+            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retourne un tableau associatif
         } catch (PDOException $e) {
+            // En cas d'erreur SQL, retourne un tableau vide
             return [];
         }
     }
-
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers;
 
+// Import des modèles utilisés par le contrôleur admin
 use App\Models\AdminUser;
 use App\Models\AdminProduct;
 use App\Models\AdminMessage;
@@ -12,87 +13,88 @@ use PDO;
 
 class AdminController
 {
+    // On stocke la connexion PDO pour la base de données
     private PDO $db;
 
+    // Constructeur : on passe la connexion PDO
     public function __construct(PDO $db)
     {
         $this->db = $db;
     }
 
+    // ---------- USERS ----------
+    // Affiche tous les utilisateurs dans le panneau admin
     public function users()
     {
-        $userModel = new AdminUser();
-        $users = $userModel->findAll();
-        require __DIR__ . '/../Views/admin/adminUsers.php';
+        $userModel = new AdminUser();     // On instancie le modèle AdminUser
+        $users = $userModel->findAll();   // On récupère tous les utilisateurs
+        require __DIR__ . '/../Views/admin/adminUsers.php'; // On inclut la vue correspondante
     }
 
+    // ---------- MESSAGES ----------
+    // Affiche tous les messages reçus dans le panneau admin
     public function messages()
     {
-        $messageModel = new AdminMessage();
-        $messages = $messageModel->findAll();
-        require __DIR__ . '/../Views/admin/adminMessages.php';
+        $messageModel = new AdminMessage(); // On instancie le modèle AdminMessage
+        $messages = $messageModel->findAll(); // On récupère tous les messages
+        require __DIR__ . '/../Views/admin/adminMessages.php'; // On inclut la vue correspondante
     }
 
+    // ---------- PRODUITS ----------
+    // Affiche tous les produits dans le panneau admin
     public function produits()
     {
-        $produitModel = new AdminProduct();
-        $produits = $produitModel->findAll();
-        require __DIR__ . '/../Views/admin/adminProducts.php';
+        $produitModel = new AdminProduct(); // Instancie le modèle AdminProduct
+        $produits = $produitModel->findAll(); // Récupère tous les produits
+        require __DIR__ . '/../Views/admin/adminProducts.php'; // Inclut la vue
     }
 
+    // ---------- COMMANDES ----------
+    // Affiche toutes les commandes dans le panneau admin
     public function commandes()
     {
-        $commandeModel = new AdminCommande();
-        $commandes = $commandeModel->findAll(); // retourne un array de toutes les commandes
-        require __DIR__ . '/../Views/admin/adminCommandes.php';
+        $commandeModel = new AdminCommande(); // Instancie le modèle AdminCommande
+        $commandes = $commandeModel->findAll(); // Récupère toutes les commandes
+        require __DIR__ . '/../Views/admin/adminCommandes.php'; // Inclut la vue
     }
 
+    // ---------- UPDATE STATUS ----------
     // Met à jour le statut d'une commande et applique les effets si terminée
     public function updateOrderStatus(int $orderId, string $status): bool
     {
         $orderModel = new Order($this->db);
         $orderItemModel = new OrderItem($this->db);
 
-        // Récupération des informations de la commande
+        // Récupère la commande
         $order = $orderModel->getById($orderId);
-        if (!$order)
+        if (!$order) {
             return false;
+        }
 
-        // Mettre à jour le statut
+        // Met à jour le statut
         $orderModel->updateStatus($orderId, $status);
 
-        // Si la commande est terminée
         if ($status === 'terminée') {
+
             $userId = $order['user_id'] ?? null;
             if ($userId) {
-                // Calculer le total dépensé via order_items
+
+                // Récupère les articles
                 $items = $orderItemModel->getByOrder($orderId);
-                $totalSpent = 0;
+                $totalSpent = 0.0;
+
                 foreach ($items as $item) {
                     $totalSpent += (float) $item['total_price'];
                 }
 
-                // Mettre à jour les stats de l'utilisateur
+                // 👉 LOGIQUE CORRECTE
                 $user = new User($this->db);
-
-                // Hydrater correctement l'objet User avec ses propriétés
-                $userData = $user->getUserInfosById($userId);
-                if ($userData) {
-                    $user->id = (int) $userData['user_id'];
-                    $user->role = $userData['user_role'];
-                    $user->username = $userData['user_name'];
-                    $user->firstname = $userData['user_first_name'];
-                    $user->email = $userData['user_email'];
-                    $user->password = $userData['user_password'];
-                    $user->user_total_spent = (float) $userData['user_total_spent'];
-                    $user->user_orders_count = (int) $userData['user_orders_count'];
-
-                    // Incrémenter les stats
+                if ($user->loadById((int) $userId)) {
                     $user->incrementStats($totalSpent);
                 }
             }
 
-            // Supprimer les éléments et la commande
+            // Nettoyage
             $orderItemModel->deleteByOrder($orderId);
             $orderModel->delete($orderId);
         }
@@ -100,19 +102,38 @@ class AdminController
         return true;
     }
 
-    // Traite le POST du formulaire dans la vue adminCommandes
+    // ---------- HANDLE STATUS UPDATE ----------
+    // Traite le POST du formulaire pour changer le statut d'une commande
     public function handleStatusUpdate()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $orderId = (int) ($_POST['order_id'] ?? 0);
-            $status = $_POST['status'] ?? '';
+            $orderId = (int) ($_POST['order_id'] ?? 0); // Récupère l'ID de la commande
+            $status = $_POST['status'] ?? '';           // Récupère le nouveau statut
 
+            // Vérifie que le statut est valide
             if ($orderId && in_array($status, ['brouillon', 'confirmée', 'en préparation', 'prête', 'terminée', 'annulée'])) {
-                $this->updateOrderStatus($orderId, $status);
+                $this->updateOrderStatus($orderId, $status); // Met à jour la commande
             }
         }
 
+        // Redirection après POST pour éviter le double envoi
         header('Location: ?url=adminCommandes');
         exit;
+    }
+
+    // ---------- HANDLE COMMANDES ----------
+    // Combine affichage et mise à jour des commandes dans un seul appel
+    public function handleCommandes(): void
+    {
+        // Si le formulaire est envoyé, on met à jour le statut
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->handleStatusUpdate(); // handleStatusUpdate gère la redirection et exit
+            return; // Juste pour indiquer qu'on ne continue pas après handleStatusUpdate
+        }
+
+        // Sinon on affiche toutes les commandes
+        $commandeModel = new AdminCommande();
+        $commandes = $commandeModel->findAll();
+        require __DIR__ . '/../Views/admin/adminCommandes.php';
     }
 }

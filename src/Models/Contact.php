@@ -1,50 +1,49 @@
 <?php
 
-// On indique que cette classe appartient au dossier logique "Models"
 namespace App\Models;
 
-// On importe la classe Database pour se connecter à la base
 use App\Models\DataBase;
-
-// On importe les classes PDO pour exécuter des requêtes SQL
 use PDO;
 use PDOException;
 
-// Définition de la classe User
 class Contact
 {
-    // Propriétés du User (correspondent aux colonnes de la table "users")
-    public int $id;
-    public string $subject;
-    public string $body;
-    public string $sentAt;
+    // Propriétés correspondant aux colonnes de la table messages
+    public int $id;       // ID du message
+    public string $subject; // Sujet du message
+    public string $body;    // Contenu du message
+    public string $sentAt;  // Date d'envoi
 
-    // Créer un nouveau message
+    /**
+     * Crée un nouveau message dans la base
+     * @param string $subject Sujet du message
+     * @param string $body Contenu du message
+     * @param int|null $userId ID de l'utilisateur qui envoie le message (optionnel)
+     * @return bool True si succès, false sinon
+     */
     public function createMessage(string $subject, string $body, ?int $userId = null): bool
     {
         try {
+            // Crée une connexion PDO via le modèle Database
             $pdo = Database::createInstancePDO();
-
-            if (!$pdo) {
+            if (!$pdo)
                 return false;
-            }
 
+            // Préparation de la requête pour insérer un nouveau message
             $sql = "INSERT INTO messages (message_subject, message_body, message_sent_at, user_id)
                     VALUES (:subject, :body, NOW(), :user_id)";
-
             $stmt = $pdo->prepare($sql);
 
+            // Liaison des valeurs aux paramètres SQL
             $stmt->bindValue(':subject', $subject, PDO::PARAM_STR);
             $stmt->bindValue(':body', $body, PDO::PARAM_STR);
             $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
 
+            // Exécution de la requête
             return $stmt->execute();
-
         } catch (PDOException $e) {
-            // echo 'Erreur : ' . $e->getMessage();
+            // En cas d'erreur, retourne false (on pourrait logger $e->getMessage() pour debug)
             return false;
         }
     }
-
 }
-

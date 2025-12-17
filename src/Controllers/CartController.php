@@ -1,4 +1,13 @@
 <?php
+// On déclare le namespace du contrôleur pour organiser le code
+namespace App\Controllers;
+
+// On importe les modèles dont on aura besoin
+use App\Models\Cart;      // Modèle pour gérer le panier
+use App\Models\Product;   // Modèle pour gérer les produits
+use PDO;                  // Classe PHP pour la base de données
+
+// Début de la classe CartController
 namespace App\Controllers;
 
 use App\Models\Cart;
@@ -7,115 +16,143 @@ use PDO;
 
 class CartController
 {
-    private Cart $cart;       // <--- Déclarer la propriété
+    // Propriétés pour gérer le panier et les produits
+    private Cart $cart;
     private Product $productModel;
 
+    // Constructeur : instancie les modèles avec la connexion DB
     public function __construct(PDO $db)
     {
-        $this->cart = new Cart($db);          // <--- Instancier Cart
+        $this->cart = new Cart($db);
         $this->productModel = new Product($db);
     }
 
-    public function viewCart(): array
+    // ---------- MÉTHODES INTERNES ----------
+
+    // Récupère l'ID de l'utilisateur connecté ou null
+    private function getUserId(): ?int
     {
-        // Récupérer l'ID de l'utilisateur connecté depuis la session
-        $userId = $_SESSION['user']['id'] ?? null;
+        return $_SESSION['user']['id'] ?? null;
+    }
+
+    // Vérifie si l'utilisateur est connecté
+    // Si non, redirige vers login
+    private function checkUser(): int
+    {
+        $userId = $this->getUserId();
         if (!$userId) {
-            // Si pas connecté, rediriger vers la page de login
             header('Location: index.php?url=login');
             exit;
         }
+        return $userId;
+    }
 
-        // Récupérer tous les items du panier pour cet utilisateur
+    // ---------- MÉTHODES PUBLIQUES ----------
+
+    // Retourne tous les articles du panier de l'utilisateur
+    public function viewCart(): array
+    {
+        $userId = $this->checkUser();
         return $this->cart->getAllItems($userId);
     }
 
-    /**
-     * Récupérer un item du panier par produit
-     */
-    public function getItemByProductId(int $userId, int $productId): ?array
+    // Vérifie si le stock est suffisant
+    private function checkStock(array $product, int $quantity): bool
     {
-        return $this->cart->getItemByProductId($userId, $productId);
+        if ((int) $product['product_available'] < $quantity) {
+            $_SESSION['errors'][] = "Stock insuffisant pour '{$product['product_name']}'.";
+            return false;
+        }
+        return true;
     }
 
-    /**
-     * Ajouter un produit au panier (évite les doublons)
-     */
-    public function addToCart(int $userId, int $productId, int $quantity = 1): bool
+    // Ajouter un produit au panier
+    public function addToCart(int $productId, int $quantity = 1): bool
     {
-        // Récupérer le produit depuis la BDD
+        $userId = $this->checkUser();
+
         $product = $this->productModel->getById($productId);
-        if (!$product) {
-            return false; // produit inexistant
-        }
+        if (!$product)
+            return false;
 
-        // Vérifier la disponibilité
-        if ((int) $product['product_available'] <= 0) {
-            // Optionnel : tu peux stocker un message d'erreur en session
-            $_SESSION['errors'][] = "Le produit '{$product['product_name']}' est en rupture de stock.";
-            return false; // bloque l'ajout
-        }
+        $existingItem = $this->cart->getItemByProductId($userId, $productId);
 
-        // Vérifier si le produit est déjà dans le panier
-        $existingItem = $this->getItemByProductId($userId, $productId);
         if ($existingItem) {
-            $newQuantity = $existingItem['cart_items_quantity'] + $quantity;
-
-            // Vérifier que la nouvelle quantité ne dépasse pas le stock
-            if ($newQuantity > (int) $product['product_available']) {
-                $_SESSION['errors'][] = "Vous ne pouvez pas ajouter plus de {$product['product_available']} unité(s) de '{$product['product_name']}'.";
+            $newQty = $existingItem['cart_items_quantity'] + $quantity;
+            if (!$this->checkStock($product, $newQty))
                 return false;
-            }
-
-            $unitPrice = $existingItem['cart_items_unit_price'];
-            return $this->updateItem($existingItem['cart_item_id'], $newQuantity, $unitPrice);
+            return $this->updateItem(
+                $existingItem['cart_item_id'],
+                $newQty,
+                $existingItem['cart_items_unit_price']
+            );
         }
 
-        // Ajouter un nouvel item
-        $unitPrice = (float) $product['product_price'];
-        return $this->cart->addItem($userId, $productId, $product['product_name'], $unitPrice, $quantity);
+        if (!$this->checkStock($product, $quantity))
+            return false;
+
+        return $this->cart->addItem(
+            $userId,
+            $productId,
+            $product['product_name'],
+            (float) $product['product_price'],
+            $quantity
+        );
     }
 
-    /**
-     * Supprimer un item du panier
-     */
+    // Supprimer un article
     public function removeItem(int $cartItemId): bool
     {
         return $this->cart->removeItem($cartItemId);
     }
 
-    /**
-     * Mettre à jour un item du panier
-     */
+    // Mettre à jour un article (quantité + prix)
     public function updateItem(int $cartItemId, int $quantity, float $unitPrice): bool
     {
         return $this->cart->updateItem($cartItemId, $quantity, $unitPrice);
     }
 
-    /**
-     * Diminuer la quantité d'un item
-     */
+    // Diminuer la quantité
     public function decreaseQuantity(int $cartItemId): bool
     {
-        // Récupérer l'article
         $item = $this->cart->getCartItemById($cartItemId);
-
-        if (!$item) {
+        if (!$item)
             return false;
+
+        $newQty = $item['cart_items_quantity'] - 1;
+
+        return $newQty > 0
+            ? $this->updateItem($cartItemId, $newQty, $item['cart_items_unit_price'])
+            : $this->removeItem($cartItemId);
+    }
+
+    // ---------- MÉTHODES "HANDLE POST" ----------
+
+    public function handleAddFromPost(): void
+    {
+        $productId = (int) ($_POST['product_id'] ?? 0);
+        $quantity = (int) ($_POST['quantity'] ?? 1);
+        if ($productId > 0)
+            $this->addToCart($productId, $quantity);
+    }
+
+    public function handleRemoveFromPost(): void
+    {
+        $this->removeItem((int) ($_POST['cart_item_id'] ?? 0));
+    }
+
+    public function handleUpdateAllFromPost(): void
+    {
+        $quantities = $_POST['quantities'] ?? [];
+        $unitPrices = $_POST['unit_prices'] ?? [];
+        foreach ($quantities as $cartItemId => $quantity) {
+            $unitPrice = (float) ($unitPrices[$cartItemId] ?? 0);
+            $this->updateItem((int) $cartItemId, (int) $quantity, $unitPrice);
         }
+    }
 
-        $qty = (int) $item['cart_items_quantity'];
-
-        if ($qty > 1) {
-            // Diminuer la quantité
-            $unitPrice = (float) $item['cart_items_unit_price'];
-            $newQty = $qty - 1;
-
-            return $this->cart->updateItem($cartItemId, $newQty, $unitPrice);
-
-        } else {
-            // Si quantité = 1 → supprimer la ligne
-            return $this->cart->removeItem($cartItemId);
-        }
+    public function handleDecreaseFromPost(): void
+    {
+        $this->decreaseQuantity((int) ($_POST['cart_item_id'] ?? 0));
     }
 }

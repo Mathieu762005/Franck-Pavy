@@ -6,16 +6,18 @@ use PDOException;
 
 class Cart
 {
-    private PDO $db;
-    private Cart $cart;       // <--- Déclarer la propriété
-    private Product $productModel;
+    private PDO $db;            // Connexion à la base de données
+    private Cart $cart;         // Propriété pour manipuler le panier (si besoin)
+    private Product $productModel; // Modèle produit pour récupérer les infos produit
 
     public function __construct(PDO $db)
     {
         $this->db = $db;
     }
 
-    // Récupère tous les produits du panier d’un utilisateur
+    /**
+     * Récupère tous les produits d’un utilisateur
+     */
     public function getUserCart(int $userId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM cart_items WHERE user_id = ?");
@@ -23,7 +25,9 @@ class Cart
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Récupère **tous les produits** du panier (tous utilisateurs)
+    /**
+     * Récupère tous les produits non commandés d’un utilisateur
+     */
     public function getAllItems(int $userId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM cart_items WHERE user_id = ? AND order_id IS NULL");
@@ -31,21 +35,25 @@ class Cart
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Récupère un produit spécifique d’un utilisateur via product_id
+    /**
+     * Récupère un produit spécifique dans le panier d’un utilisateur
+     */
     public function getItemByProductId(int $userId, int $productId): ?array
     {
         try {
             $stmt = $this->db->prepare("SELECT * FROM cart_items WHERE user_id = ? AND product_id = ?");
             $stmt->execute([$userId, $productId]);
             $item = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $item ?: null;
+            return $item ?: null; // Retourne null si non trouvé
         } catch (PDOException $e) {
             echo "Erreur SQL : " . $e->getMessage();
             return null;
         }
     }
 
-    // Ajoute un produit au panier
+    /**
+     * Ajoute un produit dans le panier
+     */
     public function addItem(int $userId, int $productId, string $productName, float $unitPrice, int $quantity): bool
     {
         $totalPrice = $unitPrice * $quantity;
@@ -63,7 +71,9 @@ class Cart
         }
     }
 
-    // Met à jour un produit existant
+    /**
+     * Met à jour la quantité et le prix d’un produit du panier
+     */
     public function updateItem(int $cartItemId, int $quantity, float $unitPrice): bool
     {
         $totalPrice = $quantity * $unitPrice;
@@ -81,7 +91,9 @@ class Cart
         ]);
     }
 
-    // Supprime un produit du panier
+    /**
+     * Supprime un produit du panier
+     */
     public function removeItem(int $cartItemId): bool
     {
         try {
@@ -93,6 +105,9 @@ class Cart
         }
     }
 
+    /**
+     * Vide le panier d’un utilisateur
+     */
     public function clearUserCart(int $userId): bool
     {
         $sql = "DELETE FROM cart_items WHERE user_id = :userId AND order_id IS NULL";
@@ -101,7 +116,9 @@ class Cart
         return $stmt->execute();
     }
 
-    // Dans App\Models\Cart
+    /**
+     * Récupère un item du panier via son ID
+     */
     public function getCartItemById(int $cartItemId): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM cart_items WHERE cart_item_id = ?");
