@@ -88,6 +88,41 @@ td {
     font-weight: bold;
 }
 
-.form-select {
-    background-color: rgb(0, 176, 15);
+.order-status {
+    color: white;
+    font-weight: 600;
+}
+
+.icone-suprimée {
+    color: red;
+    font-size: 20px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.form-control {
+    height: 45px;
+    width: 300px;
+}
+
+.recherche {
+    height: 45px;
+}
+
+.loupe {
+    color: #571065;
+    font-size: 20px;
+}
+
+.loupe:hover {
+    color: white;
+
+}
+
+.loupeBackground {
+    background-color: white;
+}
+
+.suggestions {
+    cursor: pointer;
 }

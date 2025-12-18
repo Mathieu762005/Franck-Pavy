@@ -43,4 +43,16 @@ class AdminMessage
             return [];
         }
     }
+
+    public function deleteMessage(int $messageId): bool
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM messages WHERE message_id = :id");
+            $stmt->bindValue(':id', $messageId, PDO::PARAM_INT);
+            return $stmt->execute(); // Retourne true si la suppression a réussi
+        } catch (PDOException $e) {
+            // Tu peux logger l'erreur ici si besoin
+            return false;
+        }
+    }
 }

@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Commandes</title>
+    <title>Admin/Messages</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdmin.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdmine.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -57,20 +57,23 @@
 
             <div class="A-commande-partie1__contour">
                 <?php if (!empty($messages)): ?>
-                    <table class="table table-striped custom-table">
+                    <table class="table table-striped custom-table text-center align-middle">
                         <thead class="thead">
-                            <tr class="text-center">
+                            <tr>
                                 <th>nom</th>
                                 <th>Prénom</th>
+                                <th>date</th>
                                 <th>E-mail</th>
                                 <th>Voir le message</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($messages as $message): ?>
-                                <tr class="text-center">
+                                <tr>
                                     <td><?= htmlspecialchars($message['user_name']) ?></td>
                                     <td><?= htmlspecialchars($message['user_first_name']) ?></td>
+                                    <td> <?= (new DateTime($message['message_sent_at']))->format('d/m/Y H:i') ?></td>
                                     <td><?= htmlspecialchars($message['user_email']) ?></td>
                                     <td>
                                         <button class="A-commande-partie1__btn btn btn-sm" data-bs-toggle="modal"
@@ -78,16 +81,44 @@
                                             Détails
                                         </button>
                                     </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                            <i class="icone-suprimée bi bi-trash3-fill"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <p>Aucune commande.</p>
+                    <p>Aucun message.</p>
                 <?php endif; ?>
             </div>
         </div>
     </main>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Veut tu vraiment suprimée ce produit
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="delete_message_id" value="<?= $message['message_id'] ?>">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 

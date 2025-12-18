@@ -130,7 +130,7 @@ switch ($page) {
         header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '?url=04_click_and_collect'));
         exit;
 
-    // ---------- COMMANDES ----------
+        // ---------- COMMANDES ----------
     case 'checkout':
         $orderController->handleCheckoutFromPost(); // création de la commande via POST
         break;
@@ -149,6 +149,11 @@ switch ($page) {
     case 'adminUsers':
         $adminController = new AdminController($db);
         $adminController->users(); // gestion utilisateurs
+        break;
+
+    case 'searchUsers':
+        $controller = new AdminController($db);
+        $controller->searchUsers();
         break;
 
     case 'adminProducts':

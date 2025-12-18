@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 // Import des modèles utilisés par le contrôleur admin
@@ -23,21 +24,83 @@ class AdminController
     }
 
     // ---------- USERS ----------
-    // Affiche tous les utilisateurs dans le panneau admin
     public function users()
     {
-        $userModel = new AdminUser();     // On instancie le modèle AdminUser
-        $users = $userModel->findAll();   // On récupère tous les utilisateurs
-        require __DIR__ . '/../Views/admin/adminUsers.php'; // On inclut la vue correspondante
+        $userModel = new AdminUser();
+
+        // Suppression si POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_id'])) {
+            $userId = (int) $_POST['delete_user_id'];
+            $userModel->deleteUser($userId);
+            header('Location: ?url=adminUsers');
+            exit;
+        }
+
+        // Recherche
+        $search = trim($_GET['search'] ?? '');
+
+        if ($search !== '') {
+            $users = $userModel->searchByNameOrFirstname($search);
+        } else {
+            $users = $userModel->findAll();
+        }
+
+        // Trier les utilisateurs de façon à afficher les admins en premier
+        usort($users, function ($a, $b) {
+            // Vérifie si $a est un admin et $b n'est pas admin
+            // Si c'est le cas, on renvoie -1 pour placer $a avant $b dans le tableau
+            if ($a['user_role'] === 'admin' && $b['user_role'] !== 'admin') return -1;
+
+            // Vérifie si $b est un admin et $a n'est pas admin
+            // Si c'est le cas, on renvoie 1 pour placer $b avant $a dans le tableau
+            if ($a['user_role'] !== 'admin' && $b['user_role'] === 'admin') return 1;
+
+            // Si les deux sont admins ou les deux ne le sont pas, on garde l’ordre original
+            return 0;
+        });
+
+        require __DIR__ . '/../Views/admin/adminUsers.php';
     }
 
-    // ---------- MESSAGES ----------
-    // Affiche tous les messages reçus dans le panneau admin
+    public function searchUsers()
+    {
+        $query = trim($_GET['query'] ?? '');
+
+        if (strlen($query) < 1) {
+            echo json_encode([]);
+            exit;
+        }
+
+        $userModel = new AdminUser();
+        $users = $userModel->searchByNameOrFirstname($query);
+
+        header('Content-Type: application/json');
+        echo json_encode($users);
+        exit;
+    }
+
     public function messages()
     {
-        $messageModel = new AdminMessage(); // On instancie le modèle AdminMessage
-        $messages = $messageModel->findAll(); // On récupère tous les messages
-        require __DIR__ . '/../Views/admin/adminMessages.php'; // On inclut la vue correspondante
+        $messageModel = new AdminMessage();
+
+        // Vérifie si un message doit être supprimé
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_message_id'])) {
+            $messageId = (int) $_POST['delete_message_id'];
+            $messageModel->deleteMessage($messageId);
+
+            // Redirection pour éviter la suppression multiple si l'utilisateur rafraîchit
+            header('Location: ?url=adminMessages');
+            exit;
+        }
+
+        // Sinon, affiche tous les messages
+        $messages = $messageModel->findAll();
+
+        // Trier les messages dans l'ordre croissante
+        usort($messages, function ($a, $b) {
+            return strtotime($a['message_sent_at']) <=> strtotime($b['message_sent_at']);
+        });
+        require __DIR__ . '/../Views/admin/adminMessages.php';
     }
 
     // ---------- PRODUITS ----------
@@ -108,6 +171,21 @@ class AdminController
             $orderModel->delete($orderId);
         }
 
+        if ($status === 'annulée') {
+
+            $userId = $order['user_id'] ?? null;
+            if ($userId) {
+
+                // Récupère les articles
+                $items = $orderItemModel->getByOrder($orderId);
+                $totalSpent = 0.0;
+            }
+
+            // Nettoyage
+            $orderItemModel->deleteByOrder($orderId);
+            $orderModel->delete($orderId);
+        }
+
         return true;
     }
 
@@ -147,6 +225,12 @@ class AdminController
             $commande['details'] = $commandeModel->findDetailsByOrder($commande['order_id']);
         }
         unset($commande); // bonne pratique après avoir utilisé une référence
+
+        // Trier les commandes par order_pickup_time décroissante
+        usort($commandes, function ($a, $b) {
+            return strtotime($a['order_pickup_time']) <=> strtotime($b['order_pickup_time']);
+        });
+
 
         require __DIR__ . '/../Views/admin/adminCommandes.php';
     }
