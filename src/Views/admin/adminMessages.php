@@ -30,7 +30,7 @@
                     <hr>
                     <li class="nav-item">
                         <a class="navbar-brand d-flex align-items-center" href="?url=adminUsers">
-                            <i class="bi bi-person-circle me-3"></i> CLIENTS
+                            <i class="bi bi-person-circle me-3"></i> UTILISATEURS
                         </a>
                     </li>
                     <hr>
