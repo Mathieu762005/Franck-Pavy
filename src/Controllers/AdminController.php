@@ -10,6 +10,7 @@ use App\Models\AdminCommande;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Models\Category;
 use PDO;
 
 class AdminController
@@ -104,12 +105,77 @@ class AdminController
     }
 
     // ---------- PRODUITS ----------
-    // Affiche tous les produits dans le panneau admin
-    public function produits()
+    public function produits($db)
     {
-        $produitModel = new AdminProduct(); // Instancie le modèle AdminProduct
-        $produits = $produitModel->findAll(); // Récupère tous les produits
-        require __DIR__ . '/../Views/admin/adminProducts.php'; // Inclut la vue
+        $produitModel = new AdminProduct();
+        $categoryModel = new Category($db);
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            // SUPPRESSION
+            if (isset($_POST['delete_product_id'])) {
+                $produitModel->deleteProduit((int)$_POST['delete_product_id']);
+                header('Location: ?url=adminProducts');
+                exit;
+            }
+
+            // MODIFICATION
+            if (isset($_POST['edit_product'])) {
+                // Si tu gères l'upload d'image
+                $imagePath = $_POST['current_image'] ?? '';
+                if (!empty($_FILES['product_image']['name'])) {
+                    $targetDir = '../uploads/';
+                    $targetFile = $targetDir . basename($_FILES['product_image']['name']);
+                    move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile);
+                    $imagePath = $targetFile;
+                }
+
+                $produitModel->updateProduit(
+                    (int)$_POST['product_id'],
+                    trim($_POST['product_name']),
+                    trim($_POST['product_subtitle']),
+                    trim($_POST['product_description']),
+                    (float)$_POST['product_price'],
+                    $imagePath,
+                    (int)$_POST['category_id'],
+                    (int)$_POST['product_available']
+                );
+
+                header('Location: ?url=adminProducts');
+                exit;
+            }
+        }
+
+        $produits = $produitModel->findAll();
+        $categories = $categoryModel->getAll();
+
+        // Tableau unique pour éviter doublons
+        $uniqueCategories = [];
+        foreach ($categories as $cat) {
+            $uniqueCategories[$cat['category_id']] = $cat['category_name'];
+        }
+
+        require __DIR__ . '/../Views/admin/adminProducts.php';
+    }
+
+    public function toggleProductStock()
+    {
+        // On lit les données JSON envoyées par fetch()
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Vérifie que les infos nécessaires sont présentes
+        if (!isset($data['product_id'], $data['product_available'])) {
+            http_response_code(400);
+            return;
+        }
+
+        $produitModel = new AdminProduct();
+        $produitModel->updateStock(
+            (int)$data['product_id'],
+            (int)$data['product_available']
+        );
+
+        http_response_code(200); // OK
     }
 
     // ---------- COMMANDES ----------

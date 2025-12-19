@@ -96,8 +96,6 @@ td {
 .icone-suprimée {
     color: red;
     font-size: 20px;
-    margin: 0px;
-    padding: 0px;
 }
 
 .form-control {
@@ -125,4 +123,13 @@ td {
 
 .suggestions {
     cursor: pointer;
+}
+
+.icone-modifier {
+    color: #000;
+    font-size: 20px;
+}
+
+.stock-btn {
+    min-width: 90px;
 }

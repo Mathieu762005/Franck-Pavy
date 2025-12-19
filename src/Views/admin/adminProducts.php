@@ -1,6 +1,3 @@
-<?php
-var_dump($produits);
-?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -10,7 +7,7 @@ var_dump($produits);
     <title>Admin/Produits</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdmine.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdminee.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -55,118 +52,221 @@ var_dump($produits);
         <!-- MAIN CONTENT -->
         <div class="A-commande-partie1__centrale">
             <div class="A-commande-partie1__titre-marge">
-                <h1 class="A-commande-partie1__titre text-white p-3 ms-4 mb-0">Gestion des commandes</h1>
+                <h1 class="A-commande-partie1__titre text-white p-3 ms-4 mb-0">Gestion des produits</h1>
             </div>
 
             <div class="A-commande-partie1__contour">
-                <?php if (!empty($commandes)): ?>
+                <?php if (!empty($produits)): ?>
                     <table class="table table-striped custom-table text-center align-middle">
                         <thead class="thead">
                             <tr>
-                                <th>N° commande</th>
-                                <th>Date</th>
-                                <th>Prix Total</th>
-                                <th>Heure Retrait</th>
-                                <th>Commande</th>
-                                <th>Statut</th>
+                                <th>Nom</th>
+                                <th>Stock</th>
+                                <th>Catégorie</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($commandes as $commande): ?>
+                            <?php foreach ($produits as $produit): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($commande['order_number']) ?></td>
-                                    <td><?= htmlspecialchars(substr($commande['order_date'], 5, 11)) ?></td>
-                                    <td><?= htmlspecialchars($commande['order_total_price']) ?> €</td>
-                                    <td><?= htmlspecialchars(substr($commande['order_pickup_time'], 0, 5)) ?></td>
+                                    <td><?= htmlspecialchars($produit['product_name']) ?></td>
                                     <td>
-                                        <button class="A-commande-partie1__btn btn btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#orderModal<?= $commande['order_id'] ?>">
-                                            Détails
-                                        </button>
+                                        <input
+                                            type="checkbox"
+                                            class="btn-check stock-toggle"
+                                            id="stock<?= $produit['product_id'] ?>"
+                                            data-id="<?= $produit['product_id'] ?>"
+                                            <?= ((int)$produit['product_available'] > 0) ? 'checked' : '' ?>
+                                            autocomplete="off">
+                                        <label
+                                            class="stock-btn btn <?= ((int)$produit['product_available'] > 0) ? 'btn-success' : 'btn-danger' ?>"
+                                            for="stock<?= $produit['product_id'] ?>">
+                                            <?= ((int)$produit['product_available'] > 0) ? 'En stock' : 'Rupture' ?>
+                                        </label>
                                     </td>
+                                    <td><?= htmlspecialchars($produit['category_name']) ?></td>
                                     <td>
-                                        <form method="POST" class="d-flex align-items-center justify-content-between"
-                                            action="?url=adminCommandes">
-                                            <input type="hidden" name="order_id" value="<?= $commande['order_id'] ?>">
-                                            <select name="status" class="form-select form-select-sm me-2">
-                                                <?php
-                                                $statuses = ['brouillon', 'confirmée', 'en préparation', 'prête', 'terminée', 'annulée'];
-                                                foreach ($statuses as $statusOption): ?>
-                                                    <option value="<?= $statusOption ?>"
-                                                        <?= ($commande['order_status'] === $statusOption) ? 'selected' : '' ?>>
-                                                        <?= $statusOption ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <button type="submit" class="A-commande-partie1__btn btn btn-sm ">modifier</button>
-                                        </form>
+                                        <!-- EDIT -->
+                                        <button class="btn btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editProduit<?= $produit['product_id'] ?>">
+                                            <i class="icone-modifier bi bi-pencil-fill"></i>
+                                        </button>
+
+                                        <!-- DELETE -->
+                                        <button class="btn btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteProduit<?= $produit['product_id'] ?>">
+                                            <i class="icone-suprimée bi bi-trash3-fill"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <p>Aucune commande.</p>
+                    <p>Aucun produit.</p>
                 <?php endif; ?>
             </div>
         </div>
     </main>
 
-    <!-- MODALS -->
-    <?php foreach ($commandes as $commande): ?>
-        <div class="modal fade" id="orderModal<?= $commande['order_id'] ?>" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-                <div class="modal-content rounded-5">
 
+    <!-- Modal De Suppression -->
+    <?php foreach ($produits as $produit): ?>
+        <div class="modal fade" id="deleteProduit<?= $produit['product_id'] ?>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Commande <?= htmlspecialchars($commande['order_number']) ?></h5>
+                        <h5 class="modal-title">Confirmer la suppression</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-
                     <div class="modal-body">
-                        <p><strong>Heure de retrait :</strong>
-                            <?= htmlspecialchars(substr($commande['order_pickup_time'] ?? '', 0, 5)) ?></p>
-                        <hr>
-
-                        <?php $items = $commande['details'] ?? []; ?>
-                        <?php if (!empty($items)): ?>
-                            <table class="table table-striped">
-                                <thead class="table-secondary">
-                                    <tr>
-                                        <th>Produit</th>
-                                        <th>Qté</th>
-                                        <th>Prix</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $total = 0; ?>
-                                    <?php foreach ($items as $item): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($item['product_name']) ?></td>
-                                            <td><?= $item['quantity'] ?></td>
-                                            <td><?= number_format($item['unit_price'], 2) ?> €</td>
-                                            <td><?= number_format($item['total_line'], 2) ?> €</td>
-                                        </tr>
-                                        <?php $total += $item['total_line']; ?>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                            <h5 class="text-end">Total : <?= number_format($total, 2) ?> €</h5>
-                        <?php else: ?>
-                            <p>Aucun article dans cette commande.</p>
-                        <?php endif; ?>
+                        Veux tu vraiment supprimé : <?= htmlspecialchars($produit['product_name']) ?> ? qui appartient a la categorie : <?= htmlspecialchars($produit['category_name']) ?> ?
                     </div>
-
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="delete_product_id" value="<?= $produit['product_id'] ?>">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
                     </div>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
 
+    <!-- Modal Edition -->
+    <?php foreach ($produits as $produit): ?>
+        <div class="modal fade" id="editProduit<?= $produit['product_id'] ?>" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <form method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Modifier le produit</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+
+                            <input type="hidden" name="product_id" value="<?= $produit['product_id'] ?>">
+
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <input type="text" name="product_name" class="form-control"
+                                    value="<?= htmlspecialchars($produit['product_name']) ?>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Sous-titre</label>
+                                <input type="text" name="product_subtitle" class="form-control"
+                                    value="<?= htmlspecialchars($produit['product_subtitle'] ?? '') ?>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="product_description" class="form-control" rows="4"><?= htmlspecialchars($produit['product_description'] ?? '') ?></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Prix</label>
+                                <input type="number" name="product_price" class="form-control" step="0.01"
+                                    value="<?= htmlspecialchars($produit['product_price'] ?? 0) ?>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Image</label>
+                                <input type="text" name="product_image" class="form-control"
+                                    value="<?= htmlspecialchars($produit['product_image'] ?? '') ?>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Catégorie</label>
+                                <select name="category_id" class="form-select">
+                                    <?php foreach ($categories as $cat): ?>
+                                        <option value="<?= $cat['category_id'] ?>"
+                                            <?= ($cat['category_id'] == ($produit['category_id'] ?? 0)) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($cat['category_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Stock</label>
+                                <input type="number" name="product_available" class="form-control"
+                                    value="<?= (int)($produit['product_available'] ?? 0) ?>" min="0" required>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" name="edit_product" class="btn btn-success">Enregistrer</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     <?php endforeach; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // On sélectionne TOUS les éléments qui ont la classe "stock-toggle"
+        document.querySelectorAll('.stock-toggle').forEach(toggle => {
+
+            // Pour chaque toggle, on écoute le changement (coché / décoché)
+            toggle.addEventListener('change', function() {
+
+                // On récupère l'id du produit depuis l'attribut data-id
+                const productId = this.dataset.id;
+
+                // Si la checkbox est cochée → stock = 1
+                // Sinon → stock = 0
+                const newStock = this.checked ? 1 : 0;
+
+                // On récupère le label associé à cette checkbox
+                // (grâce à l'attribut for="id_de_la_checkbox")
+                const label = document.querySelector(`label[for="${this.id}"]`);
+
+                // ====== MISE À JOUR VISUELLE ======
+
+                // Si le produit est en stock
+                if (this.checked) {
+                    // On change le texte du bouton
+                    label.textContent = 'En stock';
+
+                    // On enlève la couleur rouge
+                    label.classList.remove('btn-danger');
+
+                    // On ajoute la couleur verte
+                    label.classList.add('btn-success');
+                }
+                // Sinon (rupture de stock)
+                else {
+                    // On change le texte
+                    label.textContent = 'Rupture';
+
+                    // On enlève la couleur verte
+                    label.classList.remove('btn-success');
+
+                    // On ajoute la couleur rouge
+                    label.classList.add('btn-danger');
+                }
+
+                // ====== ENVOI AU SERVEUR (AJAX) ======
+
+                // On envoie les nouvelles données au serveur sans recharger la page
+                fetch('index.php?url=toggleProductStock', {
+                    method: 'POST', // Méthode POST
+                    headers: {
+                        'Content-Type': 'application/json' // On envoie du JSON
+                    },
+                    body: JSON.stringify({
+                        product_id: productId, // ID du produit
+                        product_available: newStock // Nouveau stock (0 ou 1)
+                    })
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
