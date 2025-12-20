@@ -81,4 +81,50 @@ class AdminCommande
             ':id' => $orderId
         ]);
     }
+
+    public function findAllWithDetails(): array
+    {
+        $sql = "
+        SELECT 
+            o.order_id,
+            o.order_number,
+            o.order_date,
+            o.order_total_price,
+            o.order_pickup_time,
+            o.order_status,
+            u.user_name,
+            u.user_email
+        FROM orders o
+        JOIN users u ON u.user_id = o.user_id
+        ORDER BY o.order_date DESC
+    ";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!$orders) {
+            return [];
+        }
+
+        $detailStmt = $this->db->prepare("
+        SELECT 
+            p.product_name,
+            oi.quantity,
+            oi.unit_price,
+            (oi.quantity * oi.unit_price) AS total_line
+        FROM order_items oi
+        JOIN products p ON p.product_id = oi.product_id
+        WHERE oi.order_id = ?
+    ");
+
+        // Ajoute les détails pour chaque commande
+        foreach ($orders as &$order) {
+            $detailStmt->execute([$order['order_id']]);
+            $order['details'] = $detailStmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        unset($order);
+
+        return $orders;
+    }
 }

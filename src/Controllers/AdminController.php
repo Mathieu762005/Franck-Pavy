@@ -245,21 +245,23 @@ class AdminController
 
         // ----- GESTION DU POST -----
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
             if (isset($_POST['order_id'], $_POST['status'])) {
-                $orderId = (int)$_POST['order_id'];
-                $status = $_POST['status'];
 
-                // Mettre à jour le statut en base
-                $commandeModel->updateStatus($orderId, $status);
+                $orderId = (int) $_POST['order_id'];
+                $status  = $_POST['status'];
 
-                // Redirection pour éviter le double envoi
+                // ✅ UTILISER LA LOGIQUE MÉTIER
+                $this->updateOrderStatus($orderId, $status);
+
+                // Redirection POST/REDIRECT/GET
                 header('Location: ?url=adminCommandes');
                 exit;
             }
         }
 
         // ----- AFFICHAGE -----
-        $commandes = $commandeModel->findAll();
+        $commandes = $commandeModel->findAllWithDetails();
         require __DIR__ . '/../Views/admin/adminCommandes.php';
     }
 
@@ -269,7 +271,7 @@ class AdminController
         $orderModel = new Order($this->db);
         $orderItemModel = new OrderItem($this->db);
 
-        // Récupération de la commande
+        // Récupération commande
         $order = $orderModel->getById($orderId);
         if (!$order) {
             return false;
@@ -278,7 +280,11 @@ class AdminController
         // Mise à jour du statut
         $orderModel->updateStatus($orderId, $status);
 
-        // Si la commande est terminée
+        /*
+    |--------------------------------------------------------------------------
+    | STATUT : TERMINÉE
+    |--------------------------------------------------------------------------
+    */
         if ($status === 'terminée') {
 
             $userId = $order['user_id'] ?? null;
@@ -288,7 +294,7 @@ class AdminController
                 $totalSpent = 0;
 
                 foreach ($items as $item) {
-                    $totalSpent += (float)$item['total_price'];
+                    $totalSpent += (float) $item['total_price'];
                 }
 
                 $user = new User($this->db);
@@ -297,7 +303,22 @@ class AdminController
                 }
             }
 
-            // Suppression commande + items
+            // Suppression items + commande
+            $orderItemModel->deleteByOrder($orderId);
+            $orderModel->delete($orderId);
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | STATUT : ANNULÉE
+    |--------------------------------------------------------------------------
+    */
+        if ($status === 'annulée') {
+
+            // ❌ PAS de stats
+            // ❌ PAS de calcul
+
+            // Suppression items + commande
             $orderItemModel->deleteByOrder($orderId);
             $orderModel->delete($orderId);
         }
