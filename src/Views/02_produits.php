@@ -45,7 +45,6 @@
                         <img src="/assets/image/<?= rawurlencode($product['product_image'] ?? 'default.png') ?>"
                             alt="<?= htmlspecialchars($product['product_name'] ?? '') ?>" class="rounded-4">
                     </div>
-                    <?php var_dump($product['product_image']) ?>
                     <div class="produit-partie2__description">
                         <h3><?= htmlspecialchars($product['product_name'] ?? '') ?></h3>
                         <h4><?= htmlspecialchars($product['product_subtitle'] ?? '') ?></h4>

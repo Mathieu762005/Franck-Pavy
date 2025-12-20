@@ -98,11 +98,6 @@ td {
     font-size: 20px;
 }
 
-.form-control {
-    height: 45px;
-    width: 300px;
-}
-
 .recherche {
     height: 45px;
 }
@@ -132,4 +127,9 @@ td {
 
 .stock-btn {
     min-width: 90px;
+}
+
+.btn-edit {
+    color: white;
+    font-size: 1.1rem;
 }

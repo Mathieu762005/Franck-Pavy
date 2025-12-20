@@ -7,7 +7,7 @@
     <title>Admin/Produits</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdminee.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdminec.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -136,16 +136,16 @@
         </div>
     <?php endforeach; ?>
 
-
-
     <?php foreach ($produits as $produit): ?>
         <div class="modal fade" id="editProduit<?= $produit['product_id'] ?>" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
-                <div class="modal-content">
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Modifier le produit</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content shadow-lg border-0 rounded-4">
+                    <form method="POST" enctype="multipart/form-data" class="p-">
+                        <div class="modal-header bg-dark text-white rounded-top-4">
+                            <h5 class="modal-title">
+                                <i class="bi bi-pencil-square me-2"></i> Modifier le produit
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
 
                         <div class="modal-body">
@@ -155,77 +155,65 @@
 
                             <!-- NOM / SOUS-TITRE -->
                             <div class="row g-4 mb-4">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">Nom</label>
-                                    <input type="text"
-                                        name="product_name"
-                                        class="form-control"
-                                        value="<?= htmlspecialchars($produit['product_name']) ?>"
-                                        required>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Nom</label>
+                                    <input type="text" name="product_name" class="form-control rounded-3 shadow-sm"
+                                        value="<?= htmlspecialchars($produit['product_name']) ?>" required>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">Sous-titre</label>
-                                    <input type="text"
-                                        name="product_subtitle"
-                                        class="form-control"
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Sous-titre</label>
+                                    <input type="text" name="product_subtitle" class="form-control rounded-3 shadow-sm"
                                         value="<?= htmlspecialchars($produit['product_subtitle'] ?? '') ?>">
                                 </div>
                             </div>
 
                             <!-- DESCRIPTION -->
-                            <div class="mb-5 w-50">
-                                <label class="form-label fw-semibold">Description complète</label>
-                                <textarea name="product_description"
-                                    class="form-control"
-                                    style="min-height: 150px; resize: vertical; width: 100%;"
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Description complète</label>
+                                <textarea name="product_description" class="form-control rounded-3 shadow-sm"
+                                    style="min-height: 150px; resize: vertical;"
                                     placeholder="Décris le produit en détail..."><?= htmlspecialchars($produit['product_description'] ?? '') ?></textarea>
                             </div>
 
                             <!-- IMAGE -->
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Image du produit</label>
-                                <input type="file" name="product_image"
-                                    class="form-control"
-                                    id="productImageInput<?= $produit['product_id'] ?>"
-                                    accept="image/*">
-
-                                <?php if (!empty($produit['product_image'])): ?>
-                                    <small class="text-muted">Image actuelle :</small>
-                                    <div class="mt-2">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Image du produit</label>
+                                <input type="file" name="product_image" id="productImageInput<?= $produit['product_id'] ?>" accept="image/*" hidden>
+                                <label for="productImageInput<?= $produit['product_id'] ?>"
+                                    class="cadre-image d-flex align-items-center justify-content-center rounded-3 border border-2 border-secondary p-3 bg-light"
+                                    style="cursor:pointer; min-height:200px; transition:0.3s;">
+                                    <?php if (!empty($produit['product_image'])): ?>
                                         <img id="currentImage<?= $produit['product_id'] ?>"
                                             src="/assets/image/<?= rawurlencode($produit['product_image']) ?>"
-                                            alt="Image produit" style="max-height:100px;">
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="mt-2">
-                                    <small class="text-muted">Nouvelle image sélectionnée :</small><br>
-                                    <img id="previewImage<?= $produit['product_id'] ?>" src=""
-                                        alt="Preview" style="max-height:150px; display:none;">
-                                </div>
+                                            alt="Image produit" class="img-fluid rounded shadow-sm" style="max-height:180px;">
+                                    <?php endif; ?>
+                                    <img id="previewImage<?= $produit['product_id'] ?>" src="" alt="Preview"
+                                        class="img-fluid rounded shadow-sm" style="max-height:180px; display:none;">
+                                    <?php if (empty($produit['product_image'])): ?>
+                                        <span id="placeholder<?= $produit['product_id'] ?>" class="text-muted">
+                                            <i class="bi bi-image me-2"></i> Cliquez pour ajouter une image
+                                        </span>
+                                    <?php endif; ?>
+                                </label>
                             </div>
 
                             <!-- PRIX / STOCK / CATEGORIE -->
-                            <div class="row g-4 mt-3">
+                            <div class="row g-4">
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold">Prix (€)</label>
-                                    <input type="number" name="product_price"
-                                        class="form-control"
-                                        step="0.01"
-                                        value="<?= htmlspecialchars($produit['product_price'] ?? 0) ?>"
-                                        required>
+                                    <label class="form-label fw-bold">Prix (€)</label>
+                                    <input type="number" name="product_price" class="form-control rounded-3 shadow-sm"
+                                        step="0.01" value="<?= htmlspecialchars($produit['product_price'] ?? 0) ?>" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold">Stock</label>
-                                    <input type="number" name="product_available"
-                                        class="form-control"
-                                        min="0"
-                                        value="<?= (int)($produit['product_available'] ?? 0) ?>"
-                                        required>
+                                    <label class="form-label fw-bold">Stock</label>
+                                    <select name="product_available" class="form-select rounded-3 shadow-sm" required>
+                                        <option value="1" <?= ($produit['product_available'] ?? 0) == 1 ? 'selected' : '' ?>>En stock</option>
+                                        <option value="0" <?= ($produit['product_available'] ?? 0) == 0 ? 'selected' : '' ?>>Rupture</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold">Catégorie</label>
-                                    <select name="category_id" class="form-select">
+                                    <label class="form-label fw-bold">Catégorie</label>
+                                    <select name="category_id" class="form-select rounded-3 shadow-sm">
                                         <?php foreach ($categories as $cat): ?>
                                             <option value="<?= $cat['category_id'] ?>"
                                                 <?= ($cat['category_id'] == ($produit['category_id'] ?? 0)) ? 'selected' : '' ?>>
@@ -235,43 +223,66 @@
                                     </select>
                                 </div>
                             </div>
-
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">
                                 Annuler
                             </button>
-                            <button type="submit" name="edit_product" class="btn btn-success px-4">
-                                Enregistrer
+                            <button type="submit" name="edit_product" class="btn btn-success rounded-3 px-4 shadow-sm">
+                                <i class="btn-edit bi bi-check-circle me-2"></i> Enregistrer
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-
         <script>
-            document.getElementById("productImageInput<?= $produit['product_id'] ?>").addEventListener("change", function(event) {
-                const preview = document.getElementById("previewImage<?= $produit['product_id'] ?>");
-                const current = document.getElementById("currentImage<?= $produit['product_id'] ?>");
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        preview.src = e.target.result;
-                        preview.style.display = "block";
-                        if (current) current.style.display = "none";
-                    }
-                    reader.readAsDataURL(file);
-                } else {
-                    preview.src = "";
-                    preview.style.display = "none";
-                    if (current) current.style.display = "block";
-                }
-            });
+            <?php foreach ($produits as $produit): ?>
+                document.getElementById("productImageInput<?= $produit['product_id'] ?>")
+                    .addEventListener("change", function(event) {
+
+                        const preview = document.getElementById("previewImage<?= $produit['product_id'] ?>");
+                        const current = document.getElementById("currentImage<?= $produit['product_id'] ?>");
+                        const placeholder = document.getElementById("placeholder<?= $produit['product_id'] ?>");
+                        const file = event.target.files[0];
+
+                        if (!file) {
+                            preview.style.display = "none";
+                            if (current) current.style.display = "block";
+                            if (placeholder) placeholder.style.display = "block";
+                            return;
+                        }
+
+                        const img = new Image();
+                        img.src = URL.createObjectURL(file);
+
+                        img.onload = function() {
+                            if (img.height > img.width) {
+                                alert("❌ Image verticale interdite.\nMerci d’utiliser une image horizontale.");
+                                event.target.value = "";
+                                preview.style.display = "none";
+                                if (current) current.style.display = "block";
+                                if (placeholder) placeholder.style.display = "block";
+                                return;
+                            }
+
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                preview.src = e.target.result;
+                                preview.style.display = "block";
+                                if (current) current.style.display = "none";
+                                if (placeholder) placeholder.style.display = "none";
+                            };
+                            reader.readAsDataURL(file);
+                        };
+                    });
+            <?php endforeach; ?>
         </script>
+
     <?php endforeach; ?>
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // On sélectionne TOUS les éléments qui ont la classe "stock-toggle"

@@ -72,4 +72,13 @@ class AdminCommande
             return [];
         }
     }
+
+    public function updateStatus(int $orderId, string $status)
+    {
+        $stmt = $this->db->prepare("UPDATE orders SET order_status = :status WHERE order_id = :id");
+        $stmt->execute([
+            ':status' => $status,
+            ':id' => $orderId
+        ]);
+    }
 }

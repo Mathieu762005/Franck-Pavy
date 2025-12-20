@@ -1,5 +1,6 @@
 <?php
 
+// Namespace du contrôleur (organisation du projet)
 namespace App\Controllers;
 
 // Import des modèles utilisés par le contrôleur admin
@@ -13,141 +14,175 @@ use App\Models\User;
 use App\Models\Category;
 use PDO;
 
+// Déclaration du contrôleur Admin
 class AdminController
 {
-    // On stocke la connexion PDO pour la base de données
+    // Variable qui va contenir la connexion à la base de données
     private PDO $db;
 
-    // Constructeur : on passe la connexion PDO
+    // Constructeur appelé automatiquement quand on crée le contrôleur
     public function __construct(PDO $db)
     {
+        // On stocke la connexion PDO dans la propriété $db
         $this->db = $db;
     }
 
-    // ---------- USERS ----------
+    // ===================== USERS =====================
     public function users()
     {
+        // On crée une instance du modèle AdminUser
         $userModel = new AdminUser();
 
-        // Suppression si POST
+        // ----- SUPPRESSION UTILISATEUR -----
+        // Si le formulaire est envoyé en POST et qu'un ID utilisateur est présent
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_id'])) {
+            // On force l'ID en entier pour la sécurité
             $userId = (int) $_POST['delete_user_id'];
+
+            // On supprime l'utilisateur
             $userModel->deleteUser($userId);
+
+            // Redirection pour éviter une double suppression
             header('Location: ?url=adminUsers');
             exit;
         }
 
-        // Recherche
+        // ----- RECHERCHE UTILISATEUR -----
+        // On récupère le texte de recherche (ou vide si absent)
         $search = trim($_GET['search'] ?? '');
 
+        // Si une recherche est saisie
         if ($search !== '') {
+            // Recherche par nom ou prénom
             $users = $userModel->searchByNameOrFirstname($search);
         } else {
+            // Sinon on récupère tous les utilisateurs
             $users = $userModel->findAll();
         }
 
-        // Trier les utilisateurs de façon à afficher les admins en premier
+        // ----- TRI DES UTILISATEURS -----
+        // On affiche les admins en premier
         usort($users, function ($a, $b) {
-            // Vérifie si $a est un admin et $b n'est pas admin
-            // Si c'est le cas, on renvoie -1 pour placer $a avant $b dans le tableau
+
+            // Si A est admin et B ne l'est pas → A avant
             if ($a['user_role'] === 'admin' && $b['user_role'] !== 'admin') return -1;
 
-            // Vérifie si $b est un admin et $a n'est pas admin
-            // Si c'est le cas, on renvoie 1 pour placer $b avant $a dans le tableau
+            // Si B est admin et A ne l'est pas → B avant
             if ($a['user_role'] !== 'admin' && $b['user_role'] === 'admin') return 1;
 
-            // Si les deux sont admins ou les deux ne le sont pas, on garde l’ordre original
+            // Sinon on ne change rien
             return 0;
         });
 
+        // Chargement de la vue admin users
         require __DIR__ . '/../Views/admin/adminUsers.php';
     }
 
+    // ===================== SEARCH USERS (AJAX) =====================
     public function searchUsers()
     {
+        // Récupération de la recherche
         $query = trim($_GET['query'] ?? '');
 
+        // Si la recherche est trop courte, on retourne un tableau vide
         if (strlen($query) < 1) {
             echo json_encode([]);
             exit;
         }
 
+        // Recherche utilisateur
         $userModel = new AdminUser();
         $users = $userModel->searchByNameOrFirstname($query);
 
+        // Réponse JSON
         header('Content-Type: application/json');
         echo json_encode($users);
         exit;
     }
 
+    // ===================== MESSAGES =====================
     public function messages()
     {
+        // Modèle des messages
         $messageModel = new AdminMessage();
 
-        // Vérifie si un message doit être supprimé
+        // ----- SUPPRESSION MESSAGE -----
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_message_id'])) {
             $messageId = (int) $_POST['delete_message_id'];
             $messageModel->deleteMessage($messageId);
 
-            // Redirection pour éviter la suppression multiple si l'utilisateur rafraîchit
+            // Redirection après suppression
             header('Location: ?url=adminMessages');
             exit;
         }
 
-        // Sinon, affiche tous les messages
+        // Récupération de tous les messages
         $messages = $messageModel->findAll();
 
-        // Trier les messages dans l'ordre croissante
+        // Tri des messages par date d'envoi
         usort($messages, function ($a, $b) {
             return strtotime($a['message_sent_at']) <=> strtotime($b['message_sent_at']);
         });
+
+        // Chargement de la vue
         require __DIR__ . '/../Views/admin/adminMessages.php';
     }
 
-    // ---------- PRODUITS ----------
+    // ===================== PRODUITS =====================
     public function produits($db)
     {
+        // Modèles produits et catégories
         $produitModel = new AdminProduct();
         $categoryModel = new Category($db);
 
-        // ====== ACTIONS POST ======
+        // ----- ACTIONS POST -----
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            // --- SUPPRESSION ---
+            // ----- SUPPRESSION PRODUIT -----
             if (isset($_POST['delete_product_id'])) {
                 $produitModel->deleteProduit((int)$_POST['delete_product_id']);
                 header('Location: ?url=adminProducts');
                 exit;
             }
 
-            // --- MODIFICATION ---
+            // ----- MODIFICATION PRODUIT -----
             if (isset($_POST['edit_product'])) {
 
-                // 1️⃣ On garde l'image actuelle par défaut
+                // Image actuelle conservée par défaut
                 $imagePath = $_POST['current_image'] ?? '';
 
-                // 2️⃣ Upload d'une nouvelle image si présente
+                // Si une nouvelle image est envoyée
                 if (!empty($_FILES['product_image']['name'])) {
+
+                    // Dossier de stockage
                     $targetDir = __DIR__ . '/../../public/assets/image/';
+
+                    // Nom original sans extension
                     $originalName = pathinfo($_FILES['product_image']['name'], PATHINFO_FILENAME);
+
+                    // Extension du fichier
                     $extension = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
 
-                    // sécurisation du nom
+                    // Nom sécurisé et unique
                     $filename = uniqid() . '_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $originalName) . '.' . $extension;
+
+                    // Chemin final
                     $targetFile = $targetDir . $filename;
 
+                    // Déplacement du fichier
                     if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
-                        // Supprime l'ancienne image si elle existe et n'est pas vide
+
+                        // Suppression de l'ancienne image
                         if (!empty($_POST['current_image']) && file_exists($targetDir . $_POST['current_image'])) {
                             unlink($targetDir . $_POST['current_image']);
                         }
 
-                        // Stocke le nouveau nom
+                        // Nouvelle image enregistrée
                         $imagePath = $filename;
                     }
                 }
 
-                // 3️⃣ Mise à jour
+                // Mise à jour du produit en base
                 $produitModel->updateProduit(
                     (int)$_POST['product_id'],
                     trim($_POST['product_name']),
@@ -159,164 +194,114 @@ class AdminController
                     (int)$_POST['product_available']
                 );
 
+                // Redirection après modification
                 header('Location: ?url=adminProducts');
                 exit;
             }
         }
 
-        // ====== AFFICHAGE ======
-        $produits = $produitModel->findAll(); // Récupère tous les produits
-        $categories = $categoryModel->getAll(); // Récupère toutes les catégories
+        // ----- AFFICHAGE -----
+        $produits = $produitModel->findAll();
+        $categories = $categoryModel->getAll();
 
-        // Tableau unique pour éviter doublons de catégories
+        // Création d'un tableau de catégories sans doublons
         $uniqueCategories = [];
         foreach ($categories as $cat) {
             $uniqueCategories[$cat['category_id']] = $cat['category_name'];
         }
 
+        // Chargement de la vue
         require __DIR__ . '/../Views/admin/adminProducts.php';
     }
 
+    // ===================== STOCK PRODUIT (AJAX) =====================
     public function toggleProductStock()
     {
-        // On lit les données JSON envoyées par fetch()
+        // Lecture du JSON envoyé par fetch
         $data = json_decode(file_get_contents('php://input'), true);
 
-        // Vérifie que les infos nécessaires sont présentes
+        // Vérification des données
         if (!isset($data['product_id'], $data['product_available'])) {
             http_response_code(400);
             return;
         }
 
+        // Mise à jour du stock
         $produitModel = new AdminProduct();
         $produitModel->updateStock(
             (int)$data['product_id'],
             (int)$data['product_available']
         );
 
-        http_response_code(200); // OK
+        http_response_code(200);
     }
 
-    // ---------- COMMANDES ----------
-    // Affiche toutes les commandes dans le panneau admin
+    // ===================== COMMANDES =====================
+    // ---------- HANDLE COMMANDES ----------
+    // Combine affichage et mise à jour des commandes dans un seul appel
     public function commandes()
     {
-        $commandeModel = new AdminCommande(); // Instancie le modèle AdminCommande
-        $commandes = $commandeModel->findAll(); // Récupère toutes les commandes
-        require __DIR__ . '/../Views/admin/adminCommandes.php'; // Inclut la vue
+        $commandeModel = new AdminCommande();
+
+        // ----- GESTION DU POST -----
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['order_id'], $_POST['status'])) {
+                $orderId = (int)$_POST['order_id'];
+                $status = $_POST['status'];
+
+                // Mettre à jour le statut en base
+                $commandeModel->updateStatus($orderId, $status);
+
+                // Redirection pour éviter le double envoi
+                header('Location: ?url=adminCommandes');
+                exit;
+            }
+        }
+
+        // ----- AFFICHAGE -----
+        $commandes = $commandeModel->findAll();
+        require __DIR__ . '/../Views/admin/adminCommandes.php';
     }
 
-    // ---------- COMMANDES ----------
-    // Affiche toutes les commandes dans le panneau admin
-    public function details()
-    {
-        $commandeModel = new AdminCommande(); // Instancie le modèle AdminCommande
-        $detail = $commandeModel->detailModel(); // Récupère toutes les commandes
-        require __DIR__ . '/../Views/admin/adminCommandes.php'; // Inclut la vue
-    }
-
-    // ---------- UPDATE STATUS ----------
-    // Met à jour le statut d'une commande et applique les effets si terminée
+    // ===================== UPDATE STATUS =====================
     public function updateOrderStatus(int $orderId, string $status): bool
     {
         $orderModel = new Order($this->db);
         $orderItemModel = new OrderItem($this->db);
 
-        // Récupère la commande
+        // Récupération de la commande
         $order = $orderModel->getById($orderId);
         if (!$order) {
             return false;
         }
 
-        // Met à jour le statut
+        // Mise à jour du statut
         $orderModel->updateStatus($orderId, $status);
 
+        // Si la commande est terminée
         if ($status === 'terminée') {
 
             $userId = $order['user_id'] ?? null;
-            if ($userId) {
 
-                // Récupère les articles
+            if ($userId) {
                 $items = $orderItemModel->getByOrder($orderId);
-                $totalSpent = 0.0;
+                $totalSpent = 0;
 
                 foreach ($items as $item) {
-                    $totalSpent += (float) $item['total_price'];
+                    $totalSpent += (float)$item['total_price'];
                 }
 
-                // 👉 LOGIQUE CORRECTE
                 $user = new User($this->db);
-                if ($user->loadById((int) $userId)) {
+                if ($user->loadById($userId)) {
                     $user->incrementStats($totalSpent);
                 }
             }
 
-            // Nettoyage
-            $orderItemModel->deleteByOrder($orderId);
-            $orderModel->delete($orderId);
-        }
-
-        if ($status === 'annulée') {
-
-            $userId = $order['user_id'] ?? null;
-            if ($userId) {
-
-                // Récupère les articles
-                $items = $orderItemModel->getByOrder($orderId);
-                $totalSpent = 0.0;
-            }
-
-            // Nettoyage
+            // Suppression commande + items
             $orderItemModel->deleteByOrder($orderId);
             $orderModel->delete($orderId);
         }
 
         return true;
-    }
-
-    // ---------- HANDLE STATUS UPDATE ----------
-    // Traite le POST du formulaire pour changer le statut d'une commande
-    public function handleStatusUpdate()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $orderId = (int) ($_POST['order_id'] ?? 0); // Récupère l'ID de la commande
-            $status = $_POST['status'] ?? '';           // Récupère le nouveau statut
-
-            // Vérifie que le statut est valide
-            if ($orderId && in_array($status, ['brouillon', 'confirmée', 'en préparation', 'prête', 'terminée', 'annulée'])) {
-                $this->updateOrderStatus($orderId, $status); // Met à jour la commande
-            }
-        }
-
-        // Redirection après POST pour éviter le double envoi
-        header('Location: ?url=adminCommandes');
-        exit;
-    }
-
-    // ---------- HANDLE COMMANDES ----------
-    // Combine affichage et mise à jour des commandes dans un seul appel
-    public function handleCommandes(): void
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->handleStatusUpdate();
-            return;
-        }
-
-        $commandeModel = new AdminCommande();
-        $commandes = $commandeModel->findAll();
-
-        // Récupérer les détails pour chaque commande
-        foreach ($commandes as &$commande) {
-            $commande['details'] = $commandeModel->findDetailsByOrder($commande['order_id']);
-        }
-        unset($commande); // bonne pratique après avoir utilisé une référence
-
-        // Trier les commandes par order_pickup_time décroissante
-        usort($commandes, function ($a, $b) {
-            return strtotime($a['order_pickup_time']) <=> strtotime($b['order_pickup_time']);
-        });
-
-
-        require __DIR__ . '/../Views/admin/adminCommandes.php';
     }
 }

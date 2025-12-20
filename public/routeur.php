@@ -143,7 +143,7 @@ switch ($page) {
     // ---------- ADMIN ----------
     case 'adminCommandes':
         $adminController = new AdminController($db);
-        $adminController->handleCommandes(); // gestion commandes admin
+        $adminController->commandes(); // gestion commandes admin
         break;
 
     case 'adminUsers':
