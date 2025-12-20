@@ -110,26 +110,44 @@ class AdminController
         $produitModel = new AdminProduct();
         $categoryModel = new Category($db);
 
+        // ====== ACTIONS POST ======
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            // SUPPRESSION
+            // --- SUPPRESSION ---
             if (isset($_POST['delete_product_id'])) {
                 $produitModel->deleteProduit((int)$_POST['delete_product_id']);
                 header('Location: ?url=adminProducts');
                 exit;
             }
 
-            // MODIFICATION
+            // --- MODIFICATION ---
             if (isset($_POST['edit_product'])) {
-                // Si tu gères l'upload d'image
+
+                // 1️⃣ On garde l'image actuelle par défaut
                 $imagePath = $_POST['current_image'] ?? '';
+
+                // 2️⃣ Upload d'une nouvelle image si présente
                 if (!empty($_FILES['product_image']['name'])) {
-                    $targetDir = '../uploads/';
-                    $targetFile = $targetDir . basename($_FILES['product_image']['name']);
-                    move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile);
-                    $imagePath = $targetFile;
+                    $targetDir = __DIR__ . '/../../public/assets/image/';
+                    $originalName = pathinfo($_FILES['product_image']['name'], PATHINFO_FILENAME);
+                    $extension = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
+
+                    // sécurisation du nom
+                    $filename = uniqid() . '_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $originalName) . '.' . $extension;
+                    $targetFile = $targetDir . $filename;
+
+                    if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
+                        // Supprime l'ancienne image si elle existe et n'est pas vide
+                        if (!empty($_POST['current_image']) && file_exists($targetDir . $_POST['current_image'])) {
+                            unlink($targetDir . $_POST['current_image']);
+                        }
+
+                        // Stocke le nouveau nom
+                        $imagePath = $filename;
+                    }
                 }
 
+                // 3️⃣ Mise à jour
                 $produitModel->updateProduit(
                     (int)$_POST['product_id'],
                     trim($_POST['product_name']),
@@ -146,10 +164,11 @@ class AdminController
             }
         }
 
-        $produits = $produitModel->findAll();
-        $categories = $categoryModel->getAll();
+        // ====== AFFICHAGE ======
+        $produits = $produitModel->findAll(); // Récupère tous les produits
+        $categories = $categoryModel->getAll(); // Récupère toutes les catégories
 
-        // Tableau unique pour éviter doublons
+        // Tableau unique pour éviter doublons de catégories
         $uniqueCategories = [];
         foreach ($categories as $cat) {
             $uniqueCategories[$cat['category_id']] = $cat['category_name'];

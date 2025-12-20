@@ -20,7 +20,7 @@ class CategoryProductController
         $db = Database::createInstancePDO();
 
         // Instancie les modèles
-        $this->categoryModel = new Category();
+        $this->categoryModel = new Category($db);
         $this->productModel = new Product($db); // Product a besoin de la connexion
     }
 

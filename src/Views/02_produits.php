@@ -42,9 +42,10 @@
             <?php foreach ($categories[0]['products'] as $index => $product): ?>
                 <div class="produit-partie2__produit <?= $index % 2 !== 0 ? 'reverse' : '' ?>">
                     <div class="produit-partie2__image">
-                        <img src="/assets/image/<?= htmlspecialchars($product['product_image'] ?? 'default.png') ?>"
+                        <img src="/assets/image/<?= rawurlencode($product['product_image'] ?? 'default.png') ?>"
                             alt="<?= htmlspecialchars($product['product_name'] ?? '') ?>" class="rounded-4">
                     </div>
+                    <?php var_dump($product['product_image']) ?>
                     <div class="produit-partie2__description">
                         <h3><?= htmlspecialchars($product['product_name'] ?? '') ?></h3>
                         <h4><?= htmlspecialchars($product['product_subtitle'] ?? '') ?></h4>

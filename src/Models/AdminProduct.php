@@ -16,39 +16,6 @@ class AdminProduct
         $this->db = DataBase::createInstancePDO();
     }
 
-    /**
-     * Récupère tous les produits avec leur catégorie
-     * @return array Tableau associatif des produits ou vide en cas d'erreur
-     */
-    public function findAll(): array
-    {
-        try {
-            // Requête SQL pour récupérer les produits avec le nom de la catégorie
-            $sql = "
-                SELECT products.product_id, products.product_name, products.product_available, categories.category_name
-                FROM products
-                JOIN categories ON products.category_id = categories.category_id;
-            ";
-            $stmt = $this->db->query($sql); // Exécute la requête
-            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retourne un tableau associatif
-        } catch (PDOException $e) {
-            // En cas d'erreur SQL, retourne un tableau vide
-            return [];
-        }
-    }
-
-    public function deleteProduit($produitId)
-    {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM products WHERE product_id = :id");
-            $stmt->bindValue(':id', $produitId, PDO::PARAM_INT);
-            return $stmt->execute(); // Retourne true si la suppression a réussi
-        } catch (PDOException $e) {
-            // Tu peux logger l'erreur ici si besoin
-            return false;
-        }
-    }
-
     // Modifier un produit complet
     public function updateProduit(
         int $productId,
@@ -72,17 +39,43 @@ class AdminProduct
             product_available = :stock
         WHERE product_id = :id
     ";
+
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
-            'name'     => $name,
+            'name' => $name,
             'subtitle' => $subtitle,
             'description' => $description,
-            'price'    => $price,
-            'image'    => $image,
+            'price' => $price,
+            'image' => $image,
             'category' => $categoryId,
-            'stock'    => $stock,
-            'id'       => $productId
+            'stock' => $stock,
+            'id' => $productId
         ]);
+    }
+
+    public function findAll(): array
+    {
+        try {
+            $sql = "
+            SELECT
+                p.product_id,
+                p.product_name,
+                p.product_subtitle,
+                p.product_description,
+                p.product_price,
+                p.product_image,
+                p.product_available,
+                p.category_id,
+                c.category_name
+            FROM products p
+            JOIN categories c ON p.category_id = c.category_id
+        ";
+
+            $stmt = $this->db->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
     }
 
     public function updateStock(int $productId, int $stock): bool
@@ -93,5 +86,17 @@ class AdminProduct
             'stock' => $stock,
             'id' => $productId
         ]);
+    }
+
+    public function deleteProduit($produitId)
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM products WHERE product_id = :id");
+            $stmt->bindValue(':id', $produitId, PDO::PARAM_INT);
+            return $stmt->execute(); // Retourne true si la suppression a réussi
+        } catch (PDOException $e) {
+            // Tu peux logger l'erreur ici si besoin
+            return false;
+        }
     }
 }
