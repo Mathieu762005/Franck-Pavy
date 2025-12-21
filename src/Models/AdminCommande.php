@@ -127,4 +127,36 @@ class AdminCommande
 
         return $orders;
     }
+
+    /**
+     * Insère un nouveau produit en base
+     */
+    public function insertProduit(
+        string $name,
+        string $subtitle,
+        string $description,
+        float $price,
+        string $image,
+        int $categoryId,
+        int $stock
+    ): bool {
+        $sql = "
+        INSERT INTO products
+            (product_name, product_subtitle, product_description, product_price, product_image, category_id, product_available)
+        VALUES
+            (:name, :subtitle, :description, :price, :image, :category, :stock)
+    ";
+
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            'name' => $name,
+            'subtitle' => $subtitle,
+            'description' => $description,
+            'price' => $price,
+            'image' => $image,
+            'category' => $categoryId,
+            'stock' => $stock
+        ]);
+    }
 }

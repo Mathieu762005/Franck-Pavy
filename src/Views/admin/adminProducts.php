@@ -7,7 +7,7 @@
     <title>Admin/Produits</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdminec.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdmineccc.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -51,8 +51,11 @@
 
         <!-- MAIN CONTENT -->
         <div class="A-commande-partie1__centrale">
-            <div class="A-commande-partie1__titre-marge">
+            <div class="A-commande-partie1__titre-marge d-flex justify-content-between align-items-center">
                 <h1 class="A-commande-partie1__titre text-white p-3 ms-4 mb-0">Gestion des produits</h1>
+                <button class="btn-ajout-produit btn me-5" data-bs-toggle="modal" data-bs-target="#createProductModal">
+                    <i class="btn-produit bi bi-plus-circle me-1"></i> Nouveau produit
+                </button>
             </div>
 
             <div class="A-commande-partie1__contour">
@@ -135,6 +138,150 @@
             </div>
         </div>
     <?php endforeach; ?>
+
+    <!-- Modal Création Produit -->
+    <div class="modal fade" id="createProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                <form method="POST" action="?url=adminCreateProduct" enctype="multipart/form-data">
+                    <div class="modal-header bg-dark text-white rounded-top-4">
+                        <h5 class="modal-title">
+                            <i class="bi bi-plus-circle me-2"></i> Créer un produit
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <!-- NOM / SOUS-TITRE -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-primary fw-bold">Nom</label>
+                                <input type="text" name="product_name" class="form-control rounded-3 shadow-sm" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-primary fw-bold">Sous-titre</label>
+                                <input type="text" name="product_subtitle" class="form-control rounded-3 shadow-sm">
+                            </div>
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <div class="mb-3">
+                            <label class="form-label text-primary fw-bold">Description complète</label>
+                            <textarea name="product_description" class="form-control rounded-3 shadow-sm"
+                                style="min-height:120px; resize: vertical;"
+                                placeholder="Décris le produit en détail..."></textarea>
+                        </div>
+
+                        <!-- IMAGE (cadre cliquable + preview) -->
+                        <div class="mb-4">
+                            <label class="form-label text-primary fw-bold">Image du produit</label>
+
+                            <!-- Input invisible -->
+                            <input type="file"
+                                name="product_image"
+                                id="createProductImageInput"
+                                accept="image/*"
+                                hidden>
+
+                            <!-- Cadre cliquable -->
+                            <label for="createProductImageInput"
+                                class="create-cadre-image d-flex align-items-center justify-content-center rounded-3 border border-2 border-secondary"
+                                style="cursor:pointer; min-height:180px; position:relative; overflow:hidden;">
+
+                                <!-- Preview image -->
+                                <img id="createImagePreview" class="rounded-circle-preview" src=""
+                                    alt="Preview"
+                                    style="max-height:180px; object-fit:cover; display:none;">
+
+                                <!-- Placeholder texte -->
+                                <span id="createImagePlaceholder" class="text-muted text-center">
+                                    <i class="bi bi-image me-2"></i> Cliquez pour ajouter une image
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- PRIX / STOCK / CATÉGORIE -->
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label text-primary fw-bold">Prix (€)</label>
+                                <input type="number" name="product_price" class="form-control rounded-3 shadow-sm"
+                                    step="0.01" required>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label text-primary fw-bold">Stock</label>
+                                <select name="product_available"
+                                    class="form-select rounded-3 shadow-sm"
+                                    required>
+                                    <option value="1">En stock</option>
+                                    <option value="0">Rupture</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label text-primary fw-bold">Catégorie</label>
+                                <select name="category_id"
+                                    class="form-select rounded-3 shadow-sm">
+                                    <?php foreach ($categories as $cat): ?>
+                                        <option value="<?= $cat['category_id'] ?>">
+                                            <?= htmlspecialchars($cat['category_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button"
+                            class="btn btn-outline-secondary rounded-3 px-4"
+                            data-bs-dismiss="modal">
+                            Annuler
+                        </button>
+                        <button type="submit"
+                            name="create_product"
+                            class="btn btn-success rounded-3 px-4 shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i> Créer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById("createProductImageInput").addEventListener("change", function(event) {
+            const preview = document.getElementById("createImagePreview");
+            const placeholder = document.getElementById("createImagePlaceholder");
+            const file = event.target.files[0];
+
+            if (!file) {
+                preview.style.display = "none";
+                placeholder.style.display = "block";
+                return;
+            }
+
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+
+            img.onload = function() {
+                // Bloquer les images verticales
+                if (img.height > img.width) {
+                    alert("❌ Image verticale interdite.\nMerci d’utiliser une image horizontale.");
+                    event.target.value = "";
+                    preview.style.display = "none";
+                    placeholder.style.display = "block";
+                    return;
+                }
+
+                // Afficher la preview
+                preview.src = img.src;
+                preview.style.display = "block";
+                placeholder.style.display = "none";
+            };
+        });
+    </script>
 
     <?php foreach ($produits as $produit): ?>
         <div class="modal fade" id="editProduit<?= $produit['product_id'] ?>" tabindex="-1">

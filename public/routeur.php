@@ -146,6 +146,11 @@ switch ($page) {
         $adminController->commandes(); // gestion commandes admin
         break;
 
+    case 'adminCreateProduct':
+        $adminController = new AdminController($db);
+        $adminController->createProduct();
+        break;
+
     case 'adminUsers':
         $adminController = new AdminController($db);
         $adminController->users(); // gestion utilisateurs
