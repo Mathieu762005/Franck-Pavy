@@ -7,7 +7,7 @@
     <title>Admin/Produits</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdmineccc.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdmin.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -108,7 +108,7 @@
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <p>Aucun produit.</p>
+                    <p class="mt-3 ms-3">Aucun produit.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -128,10 +128,10 @@
                         Veux tu vraiment supprimé : <?= htmlspecialchars($produit['product_name']) ?> ? qui appartient a la categorie : <?= htmlspecialchars($produit['category_name']) ?> ?
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
                         <form method="POST" style="display:inline;">
                             <input type="hidden" name="delete_product_id" value="<?= $produit['product_id'] ?>">
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                         </form>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                 <form method="POST" action="?url=adminCreateProduct" enctype="multipart/form-data">
                     <div class="modal-header bg-dark text-white rounded-top-4">
                         <h5 class="modal-title">
-                            <i class="bi bi-plus-circle me-2"></i> Créer un produit
+                            <i class="btn-blanc bi bi-plus-circle me-2 text-white"></i> Créer un produit
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
@@ -156,18 +156,18 @@
                         <!-- NOM / SOUS-TITRE -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label text-primary fw-bold">Nom</label>
+                                <label class="form-label fw-bold">Nom</label>
                                 <input type="text" name="product_name" class="form-control rounded-3 shadow-sm" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-primary fw-bold">Sous-titre</label>
+                                <label class="form-label fw-bold">Sous-titre</label>
                                 <input type="text" name="product_subtitle" class="form-control rounded-3 shadow-sm">
                             </div>
                         </div>
 
                         <!-- DESCRIPTION -->
                         <div class="mb-3">
-                            <label class="form-label text-primary fw-bold">Description complète</label>
+                            <label class="form-label fw-bold">Description complète</label>
                             <textarea name="product_description" class="form-control rounded-3 shadow-sm"
                                 style="min-height:120px; resize: vertical;"
                                 placeholder="Décris le produit en détail..."></textarea>
@@ -175,7 +175,7 @@
 
                         <!-- IMAGE (cadre cliquable + preview) -->
                         <div class="mb-4">
-                            <label class="form-label text-primary fw-bold">Image du produit</label>
+                            <label class="form-label fw-bold">Image du produit</label>
 
                             <!-- Input invisible -->
                             <input type="file"
@@ -196,7 +196,7 @@
 
                                 <!-- Placeholder texte -->
                                 <span id="createImagePlaceholder" class="text-muted text-center">
-                                    <i class="bi bi-image me-2"></i> Cliquez pour ajouter une image
+                                    <i class="bi bi-image me-2 text-black"></i> Cliquez pour ajouter une image
                                 </span>
                             </label>
                         </div>
@@ -204,13 +204,13 @@
                         <!-- PRIX / STOCK / CATÉGORIE -->
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label class="form-label text-primary fw-bold">Prix (€)</label>
+                                <label class="form-label fw-bold">Prix (€)</label>
                                 <input type="number" name="product_price" class="form-control rounded-3 shadow-sm"
                                     step="0.01" required>
                             </div>
 
                             <div class="col-md-3">
-                                <label class="form-label text-primary fw-bold">Stock</label>
+                                <label class="form-label fw-bold">Stock</label>
                                 <select name="product_available"
                                     class="form-select rounded-3 shadow-sm"
                                     required>
@@ -220,7 +220,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label text-primary fw-bold">Catégorie</label>
+                                <label class="form-label fw-bold">Catégorie</label>
                                 <select name="category_id"
                                     class="form-select rounded-3 shadow-sm">
                                     <?php foreach ($categories as $cat): ?>
@@ -242,8 +242,8 @@
                         </button>
                         <button type="submit"
                             name="create_product"
-                            class="btn btn-success rounded-3 px-4 shadow-sm">
-                            <i class="bi bi-check-circle me-2"></i> Créer
+                            class="btn btn-success btn-sm rounded-3 px-4 shadow-sm d-flex align-items-center">
+                            <i class="btn-edit  bi bi-check-circle me-2"></i> Créer
                         </button>
                     </div>
                 </form>
@@ -290,7 +290,7 @@
                     <form method="POST" enctype="multipart/form-data" class="p-">
                         <div class="modal-header bg-dark text-white rounded-top-4">
                             <h5 class="modal-title">
-                                <i class="bi bi-pencil-square me-2"></i> Modifier le produit
+                                <i class="bi bi-pencil-square me-2 text-white"></i> Modifier le produit
                             </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
@@ -376,7 +376,7 @@
                             <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">
                                 Annuler
                             </button>
-                            <button type="submit" name="edit_product" class="btn btn-success rounded-3 px-4 shadow-sm">
+                            <button type="submit" name="edit_product" class="btn btn-success rounded-3 px-4 shadow-sm d-flex align-items-center">
                                 <i class="btn-edit bi bi-check-circle me-2"></i> Enregistrer
                             </button>
                         </div>

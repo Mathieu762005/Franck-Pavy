@@ -44,11 +44,7 @@ $showLoginModal = !$connected;
         </nav>
 
         <!-- Offcanvas Panier -->
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasRightLabel">Panier de commande</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
+        <div class="offcanvas offcanvas-end panier-offcanvas" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
             <div class="offcanvas-body">
                 <h2>Mon Panier</h2>
                 <?php if (!empty($cartItems)): ?>
@@ -58,7 +54,6 @@ $showLoginModal = !$connected;
                                 <tr>
                                     <th>Produit</th>
                                     <th>Quantité</th>
-                                    <th>Prix Unitaire</th>
                                     <th>Total</th>
                                     <th>Actions</th>
                                 </tr>
@@ -66,8 +61,7 @@ $showLoginModal = !$connected;
                             <tbody>
                                 <?php $total = 0; ?>
                                 <?php foreach ($cartItems as $item):
-                                    $total += $item['cart_items_total_price'];
-                                    ?>
+                                    $total += $item['cart_items_total_price']; ?>
                                     <tr>
                                         <td><?= htmlspecialchars($item['product_name']) ?></td>
                                         <td>
@@ -77,7 +71,6 @@ $showLoginModal = !$connected;
                                             <input type="hidden" name="unit_prices[<?= $item['cart_item_id'] ?>]"
                                                 value="<?= $item['cart_items_unit_price'] ?>">
                                         </td>
-                                        <td><?= number_format($item['cart_items_unit_price'], 2) ?> €</td>
                                         <td class="cart-total"><?= number_format($item['cart_items_total_price'], 2) ?> €</td>
                                         <td>
                                             <button type="button" class="btn btn-danger btn-sm btn-remove"
@@ -88,12 +81,23 @@ $showLoginModal = !$connected;
                             </tbody>
                         </table>
 
-                        <h3>Total : <span id="cart-grand-total"><?= number_format($total, 2) ?> €</span></h3>
-                        <button type="submit" class="btn btn-primary">Modifier le panier</button>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                            data-bs-target="#pickupTimeModal">
-                            Passer à la commande
-                        </button>
+                        <!-- FOOTER FIXE -->
+                        <div class="panier-footer">
+
+                            <div class="panier-total">
+                                <h3>Total : <span id="cart-grand-total"><?= number_format($total, 2) ?> €</span></h3>
+                            </div>
+
+                            <form method="POST" action="?url=cart_update_all">
+                                <button type="submit" class="btn btn-outline-light w-100 mb-2">Modifier le panier</button>
+                            </form>
+
+                            <button type="button" class="btn btn-light w-100" data-bs-toggle="modal"
+                                data-bs-target="#pickupTimeModal">
+                                Passer à la commande
+                            </button>
+
+                        </div>
                     </form>
                 <?php else: ?>
                     <p>Votre panier est vide.</p>
@@ -225,7 +229,7 @@ $showLoginModal = !$connected;
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
 
             var offcanvasEl = document.getElementById('offcanvasRight');
             var pickupBtns = document.querySelectorAll('[data-bs-target="#pickupTimeModal"]');
@@ -241,7 +245,7 @@ $showLoginModal = !$connected;
 
             // --- Gestion Pickup Time Modal ---
             pickupBtns.forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     // Fermer le panier si ouvert
                     var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
                     if (offcanvas) offcanvas.hide();
@@ -256,7 +260,7 @@ $showLoginModal = !$connected;
 
             // --- Calcul total dynamique du panier ---
             document.querySelectorAll('.cart-quantity').forEach(input => {
-                input.addEventListener('input', function () {
+                input.addEventListener('input', function() {
                     const quantity = parseInt(this.value) || 0;
                     const price = parseFloat(this.dataset.price);
                     const rowTotalCell = this.closest('tr').querySelector('.cart-total');
@@ -272,11 +276,13 @@ $showLoginModal = !$connected;
 
             // --- Supprimer un produit du panier ---
             document.querySelectorAll('.btn-remove').forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     const cartItemId = this.dataset.id;
                     fetch('?url=cart_remove', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
                         body: 'cart_item_id=' + cartItemId
                     }).then(() => {
                         this.closest('tr').remove();

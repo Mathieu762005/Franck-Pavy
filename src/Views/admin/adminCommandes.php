@@ -7,7 +7,7 @@
     <title>Admin/Commandes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdminec.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdmin.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -103,7 +103,7 @@
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <p>Aucune commande.</p>
+                    <p class="mt-3 ms-3">Aucune commande.</p>
                 <?php endif; ?>
             </div>
         </div>

@@ -7,7 +7,7 @@
     <title>Admin/Users</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdminec.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdmin.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -104,7 +104,7 @@
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <p>Aucun utilisateur.</p>
+                    <p class="mt-3 ms-3">Aucun utilisateur.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -124,7 +124,7 @@
                         Veux-tu vraiment supprimer <?= htmlspecialchars($user['user_first_name']) ?> <?= htmlspecialchars($user['user_name']) ?> ?
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
                         <form method="POST" style="display:inline;">
                             <input type="hidden" name="delete_user_id" value="<?= $user['user_id'] ?>">
                             <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>

@@ -7,7 +7,7 @@
     <title>Admin/Messages</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdminec.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdmin.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -91,7 +91,7 @@
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <p>Aucun message.</p>
+                    <p class="mt-3 ms-3">Aucun message.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -110,10 +110,10 @@
                     Veut tu vraiment suprimée ce produit
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                     <form method="POST" style="display:inline;">
                         <input type="hidden" name="delete_message_id" value="<?= $message['message_id'] ?>">
-                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                     </form>
                 </div>
             </div>
