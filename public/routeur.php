@@ -163,7 +163,7 @@ switch ($page) {
 
     case 'adminProducts':
         $adminController = new AdminController($db);
-        $adminController->produits($db); // gestion produits
+        $adminController->updateProduits($db); // gestion produits
         break;
 
     case 'toggleProductStock':

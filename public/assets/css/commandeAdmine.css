@@ -160,3 +160,7 @@ td {
 #createImagePreview {
     border-radius: 12px;
 }
+
+.erreur{
+    color: red;
+}

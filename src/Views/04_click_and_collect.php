@@ -11,7 +11,7 @@ $showLoginModal = !$connected;
     <title>Click & Collect</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/navbar.css">
-    <link rel="stylesheet" href="../assets/css/clicketcollects.css">
+    <link rel="stylesheet" href="../assets/css/clicketcollectss.css">
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         const stripe = Stripe("pk_test_51SeEPH0So1rm7kaS8HWEgNEEiF2rlknkLqzFLzfMu0HgYZRdXpkYPpXuwNSoCfEkEd31Qi8wbBaaxw2lI1iRv25w00jdQ2tMNq"); // <-- ta clé publique ici
@@ -45,62 +45,68 @@ $showLoginModal = !$connected;
 
         <!-- Offcanvas Panier -->
         <div class="offcanvas offcanvas-end panier-offcanvas" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-            <div class="offcanvas-body">
-                <h2>Mon Panier</h2>
+            <div class="offcanvas-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center border-bottom border-3 border-white pb-3">
+                    <h2 class="m-0 text-white">Votre Commande</h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+
                 <?php if (!empty($cartItems)): ?>
-                    <form method="POST" action="?url=cart_update_all">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Produit</th>
-                                    <th>Quantité</th>
-                                    <th>Total</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $total = 0; ?>
-                                <?php foreach ($cartItems as $item):
-                                    $total += $item['cart_items_total_price']; ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($item['product_name']) ?></td>
-                                        <td>
-                                            <input type="number" name="quantities[<?= $item['cart_item_id'] ?>]"
-                                                class="cart-quantity" data-price="<?= $item['cart_items_unit_price'] ?>"
-                                                value="<?= $item['cart_items_quantity'] ?>" min="1" style="width:50px;">
-                                            <input type="hidden" name="unit_prices[<?= $item['cart_item_id'] ?>]"
-                                                value="<?= $item['cart_items_unit_price'] ?>">
-                                        </td>
-                                        <td class="cart-total"><?= number_format($item['cart_items_total_price'], 2) ?> €</td>
-                                        <td>
-                                            <button type="button" class="btn btn-danger btn-sm btn-remove"
-                                                data-id="<?= $item['cart_item_id'] ?>">Supprimer</button>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                    <form method="POST" action="?url=cart_update_all" class="d-flex flex-column flex-grow-1 text-white">
 
-                        <!-- FOOTER FIXE -->
-                        <div class="panier-footer">
+                        <!-- Liste des produits -->
+                        <div class="cart-items flex-grow-1 overflow-auto mb-3">
+                            <?php $total = 0; ?>
+                            <?php foreach ($cartItems as $item):
+                                $total += $item['cart_items_total_price']; ?>
+                                <div class="cart-item d-flex align-items-center justify-content-between pt-3 pb-3 border-bottom border-white border-2">
 
-                            <div class="panier-total">
-                                <h3>Total : <span id="cart-grand-total"><?= number_format($total, 2) ?> €</span></h3>
+                                    <!-- Quantité -->
+                                    <div class="cart-item-qty me-3 d-flex justify-content-start">
+                                        <input type="number" name="quantities[<?= $item['cart_item_id'] ?>]"
+                                            class="cart-quantity form-control form-control-sm"
+                                            data-price="<?= $item['cart_items_unit_price'] ?>"
+                                            value="<?= $item['cart_items_quantity'] ?>" min="1" style="width:60px;">
+                                        <input type="hidden" name="unit_prices[<?= $item['cart_item_id'] ?>]"
+                                            value="<?= $item['cart_items_unit_price'] ?>">
+                                    </div>
+
+                                    <!-- Nom produit -->
+                                    <div class="cart-item-name flex-fill d-flex justify-content-start">
+                                        <?= htmlspecialchars($item['product_name']) ?>
+                                    </div>
+
+                                    <!-- Total -->
+                                    <div class="cart-item-total fw-semibold d-flex justify-content-start">
+                                        <?= number_format($item['cart_items_total_price'], 2) ?> €
+                                    </div>
+
+                                    <!-- Supprimer -->
+                                    <div class="cart-item-actions d-flex justify-content-end">
+                                        <button type="button" class="btn btn-danger btn-sm btn-remove" data-id="<?= $item['cart_item_id'] ?>">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </div>
+
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <!-- Footer collé en bas -->
+                        <div class="panier-footer text-white">
+                            <div class="panier-total d-flex justify-content-between">
+                                <span>Total :</span>
+                                <span id="cart-grand-total"><?= number_format($total, 2) ?> €</span>
                             </div>
-
-                            <form method="POST" action="?url=cart_update_all">
-                                <button type="submit" class="btn btn-outline-light w-100 mb-2">Modifier le panier</button>
-                            </form>
-
-                            <button type="button" class="btn btn-light w-100" data-bs-toggle="modal"
-                                data-bs-target="#pickupTimeModal">
+                            <button type="submit" class="btn btn-outline-light w-100 mb-2">Modifier le panier</button>
+                            <button type="button" class="btn btn-light w-100" data-bs-toggle="modal" data-bs-target="#pickupTimeModal">
                                 Passer à la commande
                             </button>
-
                         </div>
+
                     </form>
                 <?php else: ?>
-                    <p>Votre panier est vide.</p>
+                    <p class="text-white pt-3 ps-3">Votre panier est vide.</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -285,9 +291,12 @@ $showLoginModal = !$connected;
                         },
                         body: 'cart_item_id=' + cartItemId
                     }).then(() => {
-                        this.closest('tr').remove();
+                        // Changer tr par .cart-item
+                        this.closest('.cart-item').remove();
+
+                        // Recalcul du total
                         let totalGlobal = 0;
-                        document.querySelectorAll('.cart-total').forEach(cell => {
+                        document.querySelectorAll('.cart-item-total').forEach(cell => {
                             totalGlobal += parseFloat(cell.textContent.replace(' €', ''));
                         });
                         document.querySelector('#cart-grand-total').textContent = totalGlobal.toFixed(2) + ' €';

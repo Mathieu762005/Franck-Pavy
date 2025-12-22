@@ -7,7 +7,7 @@
     <title>Admin/Produits</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/commandeAdmin.css">
+    <link rel="stylesheet" href="../assets/css/commandeAdmine.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -82,7 +82,7 @@
                                             <?= ((int)$produit['product_available'] > 0) ? 'checked' : '' ?>
                                             autocomplete="off">
                                         <label
-                                            class="stock-btn btn <?= ((int)$produit['product_available'] > 0) ? 'btn-success' : 'btn-danger' ?>"
+                                            class="stock-btn btn-sm btn <?= ((int)$produit['product_available'] > 0) ? 'btn-success' : 'btn-danger' ?>"
                                             for="stock<?= $produit['product_id'] ?>">
                                             <?= ((int)$produit['product_available'] > 0) ? 'En stock' : 'Rupture' ?>
                                         </label>
@@ -161,7 +161,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Sous-titre</label>
-                                <input type="text" name="product_subtitle" class="form-control rounded-3 shadow-sm">
+                                <input type="text" name="product_subtitle" class="form-control rounded-3 shadow-sm" required>
                             </div>
                         </div>
 
@@ -170,7 +170,7 @@
                             <label class="form-label fw-bold">Description complète</label>
                             <textarea name="product_description" class="form-control rounded-3 shadow-sm"
                                 style="min-height:120px; resize: vertical;"
-                                placeholder="Décris le produit en détail..."></textarea>
+                                placeholder="Décris le produit en détail..." required></textarea>
                         </div>
 
                         <!-- IMAGE (cadre cliquable + preview) -->
@@ -178,7 +178,7 @@
                             <label class="form-label fw-bold">Image du produit</label>
 
                             <!-- Input invisible -->
-                            <input type="file"
+                            <input type="file" required
                                 name="product_image"
                                 id="createProductImageInput"
                                 accept="image/*"
@@ -242,7 +242,7 @@
                         </button>
                         <button type="submit"
                             name="create_product"
-                            class="btn btn-success btn-sm rounded-3 px-4 shadow-sm d-flex align-items-center">
+                            class="btn btn-success rounded-3 px-4 d-flex align-items-center">
                             <i class="btn-edit  bi bi-check-circle me-2"></i> Créer
                         </button>
                     </div>
@@ -283,6 +283,7 @@
         });
     </script>
 
+    <!-- Modal Update Produit -->
     <?php foreach ($produits as $produit): ?>
         <div class="modal fade" id="editProduit<?= $produit['product_id'] ?>" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -310,7 +311,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Sous-titre</label>
                                     <input type="text" name="product_subtitle" class="form-control rounded-3 shadow-sm"
-                                        value="<?= htmlspecialchars($produit['product_subtitle'] ?? '') ?>">
+                                        value="<?= htmlspecialchars($produit['product_subtitle'] ?? '') ?>" required>
                                 </div>
                             </div>
 
@@ -319,7 +320,7 @@
                                 <label class="form-label fw-bold">Description complète</label>
                                 <textarea name="product_description" class="form-control rounded-3 shadow-sm"
                                     style="min-height: 150px; resize: vertical;"
-                                    placeholder="Décris le produit en détail..."><?= htmlspecialchars($produit['product_description'] ?? '') ?></textarea>
+                                    placeholder="Décris le produit en détail..." required><?= htmlspecialchars($produit['product_description'] ?? '') ?></textarea>
                             </div>
 
                             <!-- IMAGE -->

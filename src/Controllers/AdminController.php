@@ -128,8 +128,170 @@ class AdminController
         require __DIR__ . '/../Views/admin/adminMessages.php';
     }
 
-    // ===================== PRODUITS =====================
-    public function produits($db)
+    // ===================== COMMANDES =====================
+    public function commandes()
+    {
+        $commandeModel = new AdminCommande();
+
+        // ----- GESTION DU POST -----
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            if (isset($_POST['order_id'], $_POST['status'])) {
+
+                $orderId = (int) $_POST['order_id'];
+                $status  = $_POST['status'];
+
+                // ✅ UTILISER LA LOGIQUE MÉTIER
+                $this->updateOrderStatus($orderId, $status);
+
+                // Redirection POST/REDIRECT/GET
+                header('Location: ?url=adminCommandes');
+                exit;
+            }
+        }
+
+        // ----- AFFICHAGE -----
+        $commandes = $commandeModel->findAllWithDetails();
+        require __DIR__ . '/../Views/admin/adminCommandes.php';
+    }
+
+    // ===================== UPDATE STATUS =====================
+    public function updateOrderStatus(int $orderId, string $status): bool
+    {
+        $orderModel = new Order($this->db);
+        $orderItemModel = new OrderItem($this->db);
+
+        // Récupération commande
+        $order = $orderModel->getById($orderId);
+        if (!$order) {
+            return false;
+        }
+
+        // Mise à jour du statut
+        $orderModel->updateStatus($orderId, $status);
+
+        /*
+    |--------------------------------------------------------------------------
+    | STATUT : TERMINÉE
+    |--------------------------------------------------------------------------
+    */
+        if ($status === 'terminée') {
+
+            $userId = $order['user_id'] ?? null;
+
+            if ($userId) {
+                $items = $orderItemModel->getByOrder($orderId);
+                $totalSpent = 0;
+
+                foreach ($items as $item) {
+                    $totalSpent += (float) $item['total_price'];
+                }
+
+                $user = new User($this->db);
+                if ($user->loadById($userId)) {
+                    $user->incrementStats($totalSpent);
+                }
+            }
+
+            // Suppression items + commande
+            $orderItemModel->deleteByOrder($orderId);
+            $orderModel->delete($orderId);
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | STATUT : ANNULÉE
+    |--------------------------------------------------------------------------
+    */
+        if ($status === 'annulée') {
+
+            // ❌ PAS de stats
+            // ❌ PAS de calcul
+
+            // Suppression items + commande
+            $orderItemModel->deleteByOrder($orderId);
+            $orderModel->delete($orderId);
+        }
+
+        return true;
+    }
+
+
+    // ===================== CREATE LE PRODUITS =====================
+    public function createProduct()
+    {
+        $produitModel = new AdminCommande();
+        $categoryModel = new Category($this->db);
+
+        // Si on reçoit une requête POST, on enregistre le produit
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            // Récupération des champs
+            $name        = trim($_POST['product_name'] ?? '');
+            $subtitle    = trim($_POST['product_subtitle'] ?? '');
+            $description = trim($_POST['product_description'] ?? '');
+            $price       = (float) ($_POST['product_price'] ?? 0);
+            $categoryId  = (int) ($_POST['category_id'] ?? 0);
+            $stock       = (int) ($_POST['product_available'] ?? 0);
+
+            // Validation simple
+            $errors = [];
+
+            if ($name === '') {
+                $errors[] = "Le nom du produit est requis.";
+            }
+            if ($price <= 0) {
+                $errors[] = "Le prix doit être supérieur à 0.";
+            }
+
+            // Gestion de l'image
+            $imagePath = '';
+            if (!empty($_FILES['product_image']['name'])) {
+                $targetDir = __DIR__ . '/../../public/assets/image/';
+
+                $originalName = pathinfo($_FILES['product_image']['name'], PATHINFO_FILENAME);
+                $extension    = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
+
+                // sécurisation du nom
+                $filename = uniqid() . '_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $originalName) . '.' . $extension;
+                $targetFile = $targetDir . $filename;
+
+                if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
+                    $imagePath = $filename;
+                } else {
+                    $errors[] = "Échec de l'upload de l'image.";
+                }
+            } else {
+                $errors[] = "L'image du produit est requise."; // facultatif
+            }
+
+            // Si pas d'erreurs, on enregistre
+            if (empty($errors)) {
+
+                $produitModel->insertProduit(
+                    $name,
+                    $subtitle,
+                    $description,
+                    $price,
+                    $imagePath,
+                    $categoryId,
+                    $stock
+                );
+
+                header('Location: ?url=adminProducts');
+                exit;
+            }
+        }
+
+        // Récupère toutes les catégories pour affichage dans le select
+        $categories = $categoryModel->getAll();
+
+        require __DIR__ . '/../Views/admin/adminCreateProduct.php';
+    }
+
+
+    // ===================== UPDATE LE PRODUITS =====================
+    public function updateProduits($db)
     {
         // Modèles produits et catégories
         $produitModel = new AdminProduct();
@@ -234,166 +396,5 @@ class AdminController
         );
 
         http_response_code(200);
-    }
-
-    // ===================== COMMANDES =====================
-    // ---------- HANDLE COMMANDES ----------
-    // Combine affichage et mise à jour des commandes dans un seul appel
-    public function commandes()
-    {
-        $commandeModel = new AdminCommande();
-
-        // ----- GESTION DU POST -----
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            if (isset($_POST['order_id'], $_POST['status'])) {
-
-                $orderId = (int) $_POST['order_id'];
-                $status  = $_POST['status'];
-
-                // ✅ UTILISER LA LOGIQUE MÉTIER
-                $this->updateOrderStatus($orderId, $status);
-
-                // Redirection POST/REDIRECT/GET
-                header('Location: ?url=adminCommandes');
-                exit;
-            }
-        }
-
-        // ----- AFFICHAGE -----
-        $commandes = $commandeModel->findAllWithDetails();
-        require __DIR__ . '/../Views/admin/adminCommandes.php';
-    }
-
-    // ===================== UPDATE STATUS =====================
-    public function updateOrderStatus(int $orderId, string $status): bool
-    {
-        $orderModel = new Order($this->db);
-        $orderItemModel = new OrderItem($this->db);
-
-        // Récupération commande
-        $order = $orderModel->getById($orderId);
-        if (!$order) {
-            return false;
-        }
-
-        // Mise à jour du statut
-        $orderModel->updateStatus($orderId, $status);
-
-        /*
-    |--------------------------------------------------------------------------
-    | STATUT : TERMINÉE
-    |--------------------------------------------------------------------------
-    */
-        if ($status === 'terminée') {
-
-            $userId = $order['user_id'] ?? null;
-
-            if ($userId) {
-                $items = $orderItemModel->getByOrder($orderId);
-                $totalSpent = 0;
-
-                foreach ($items as $item) {
-                    $totalSpent += (float) $item['total_price'];
-                }
-
-                $user = new User($this->db);
-                if ($user->loadById($userId)) {
-                    $user->incrementStats($totalSpent);
-                }
-            }
-
-            // Suppression items + commande
-            $orderItemModel->deleteByOrder($orderId);
-            $orderModel->delete($orderId);
-        }
-
-        /*
-    |--------------------------------------------------------------------------
-    | STATUT : ANNULÉE
-    |--------------------------------------------------------------------------
-    */
-        if ($status === 'annulée') {
-
-            // ❌ PAS de stats
-            // ❌ PAS de calcul
-
-            // Suppression items + commande
-            $orderItemModel->deleteByOrder($orderId);
-            $orderModel->delete($orderId);
-        }
-
-        return true;
-    }
-
-    public function createProduct()
-    {
-        $produitModel = new AdminCommande();
-        $categoryModel = new Category($this->db);
-
-        // Si on reçoit une requête POST, on enregistre le produit
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            // Récupération des champs
-            $name        = trim($_POST['product_name'] ?? '');
-            $subtitle    = trim($_POST['product_subtitle'] ?? '');
-            $description = trim($_POST['product_description'] ?? '');
-            $price       = (float) ($_POST['product_price'] ?? 0);
-            $categoryId  = (int) ($_POST['category_id'] ?? 0);
-            $stock       = (int) ($_POST['product_available'] ?? 0);
-
-            // Validation simple
-            $errors = [];
-
-            if ($name === '') {
-                $errors[] = "Le nom du produit est requis.";
-            }
-            if ($price <= 0) {
-                $errors[] = "Le prix doit être supérieur à 0.";
-            }
-
-            // Gestion de l'image
-            $imagePath = '';
-            if (!empty($_FILES['product_image']['name'])) {
-                $targetDir = __DIR__ . '/../../public/assets/image/';
-
-                $originalName = pathinfo($_FILES['product_image']['name'], PATHINFO_FILENAME);
-                $extension    = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
-
-                // sécurisation du nom
-                $filename = uniqid() . '_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $originalName) . '.' . $extension;
-                $targetFile = $targetDir . $filename;
-
-                if (move_uploaded_file($_FILES['product_image']['tmp_name'], $targetFile)) {
-                    $imagePath = $filename;
-                } else {
-                    $errors[] = "Échec de l'upload de l'image.";
-                }
-            } else {
-                $errors[] = "L'image du produit est requise."; // facultatif
-            }
-
-            // Si pas d'erreurs, on enregistre
-            if (empty($errors)) {
-
-                $produitModel->insertProduit(
-                    $name,
-                    $subtitle,
-                    $description,
-                    $price,
-                    $imagePath,
-                    $categoryId,
-                    $stock
-                );
-
-                header('Location: ?url=adminProducts');
-                exit;
-            }
-        }
-
-        // Récupère toutes les catégories pour affichage dans le select
-        $categories = $categoryModel->getAll();
-
-        require __DIR__ . '/../Views/admin/adminCreateProduct.php';
     }
 }
