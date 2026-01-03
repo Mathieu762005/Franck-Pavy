@@ -78,13 +78,13 @@ class CartController
         $existingItem = $this->cart->getItemByProductId($userId, $productId);
 
         if ($existingItem) {
-            $newQty = $existingItem['cart_items_quantity'] + $quantity;
+            $newQty = $existingItem['cart_item_quantity'] + $quantity;
             if (!$this->checkStock($product, $newQty))
                 return false;
             return $this->updateItem(
                 $existingItem['cart_item_id'],
                 $newQty,
-                $existingItem['cart_items_unit_price']
+                $existingItem['cart_item_unit_price']
             );
         }
 
@@ -119,10 +119,10 @@ class CartController
         if (!$item)
             return false;
 
-        $newQty = $item['cart_items_quantity'] - 1;
+        $newQty = $item['cart_item_quantity'] - 1;
 
         return $newQty > 0
-            ? $this->updateItem($cartItemId, $newQty, $item['cart_items_unit_price'])
+            ? $this->updateItem($cartItemId, $newQty, $item['cart_item_unit_price'])
             : $this->removeItem($cartItemId);
     }
 

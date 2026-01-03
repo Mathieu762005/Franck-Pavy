@@ -58,17 +58,17 @@ $showLoginModal = !$connected;
                         <div class="cart-items flex-grow-1 overflow-auto mb-3">
                             <?php $total = 0; ?>
                             <?php foreach ($cartItems as $item):
-                                $total += $item['cart_items_total_price']; ?>
+                                $total += $item['cart_item_total_price']; ?>
                                 <div class="cart-item d-flex align-items-center justify-content-between pt-3 pb-3 border-bottom border-white border-2">
 
                                     <!-- Quantité -->
                                     <div class="cart-item-qty me-3 d-flex justify-content-start">
                                         <input type="number" name="quantities[<?= $item['cart_item_id'] ?>]"
                                             class="cart-quantity form-control form-control-sm"
-                                            data-price="<?= $item['cart_items_unit_price'] ?>"
-                                            value="<?= $item['cart_items_quantity'] ?>" min="1" style="width:60px;">
+                                            data-price="<?= $item['cart_item_unit_price'] ?>"
+                                            value="<?= $item['cart_item_quantity'] ?>" min="1" style="width:60px;">
                                         <input type="hidden" name="unit_prices[<?= $item['cart_item_id'] ?>]"
-                                            value="<?= $item['cart_items_unit_price'] ?>">
+                                            value="<?= $item['cart_item_unit_price'] ?>">
                                     </div>
 
                                     <!-- Nom produit -->
@@ -78,7 +78,7 @@ $showLoginModal = !$connected;
 
                                     <!-- Total -->
                                     <div class="cart-item-total fw-semibold d-flex justify-content-start">
-                                        <?= number_format($item['cart_items_total_price'], 2) ?> €
+                                        <?= number_format($item['cart_item_total_price'], 2) ?> €
                                     </div>
 
                                     <!-- Supprimer -->

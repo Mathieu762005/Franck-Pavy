@@ -61,7 +61,7 @@ class Cart
         try {
             $stmt = $this->db->prepare("
                 INSERT INTO cart_items 
-                (user_id, order_id, product_id, product_name, cart_items_quantity, cart_items_unit_price, cart_items_total_price)
+                (user_id, order_id, product_id, cart_item_product_name, cart_item_quantity, cart_item_unit_price, cart_item_total_price)
                 VALUES (?, NULL, ?, ?, ?, ?, ?)
             ");
             return $stmt->execute([$userId, $productId, $productName, $quantity, $unitPrice, $totalPrice]);
@@ -80,8 +80,8 @@ class Cart
 
         $stmt = $this->db->prepare("
             UPDATE cart_items
-            SET cart_items_quantity = :quantity,
-                cart_items_total_price = :total
+            SET cart_item_quantity = :quantity,
+                cart_item_total_price = :total
             WHERE cart_item_id = :id
         ");
         return $stmt->execute([

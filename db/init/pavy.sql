@@ -32,10 +32,10 @@ CREATE TABLE `cart_items` (
     `user_id` INT NOT NULL,
     `order_id` INT DEFAULT NULL,
     `product_id` INT NOT NULL,
-    `product_name` VARCHAR(255) NOT NULL,
-    `cart_items_quantity` INT NOT NULL,
-    `cart_items_unit_price` DECIMAL(10,2) NOT NULL,
-    `cart_items_total_price` DECIMAL(10,2) NOT NULL
+    `cart_item_product_name` VARCHAR(25) NOT NULL,
+    `cart_item_quantity` INT NOT NULL,
+    `cart_item_unit_price` DECIMAL(10,2) NOT NULL,
+    `cart_item_total_price` DECIMAL(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -46,19 +46,9 @@ CREATE TABLE `cart_items` (
 
 CREATE TABLE `categories` (
   `category_id` int NOT NULL,
-  `category_name` varchar(50) NOT NULL,
+  `category_name` varchar(20) NOT NULL,
   `category_description` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Déchargement des données de la table `categories`
---
-
-INSERT INTO `categories` (`category_id`, `category_name`) VALUES
-(1, 'Les Pains'),
-(4, 'Les Pâtisseries'),
-(2, 'LesViennoiseries'),
-(3, 'Pause Déjeuner');
 
 -- --------------------------------------------------------
 
@@ -68,7 +58,7 @@ INSERT INTO `categories` (`category_id`, `category_name`) VALUES
 
 CREATE TABLE `messages` (
   `message_id` int NOT NULL,
-  `message_subject` varchar(150) NOT NULL,
+  `message_subject` varchar(100) NOT NULL,
   `message_body` text NOT NULL,
   `message_sent_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `user_id` int DEFAULT NULL
@@ -82,7 +72,7 @@ CREATE TABLE `messages` (
 
 CREATE TABLE `orders` (
   `order_id` int NOT NULL,
-  `order_number` varchar(25) NOT NULL,
+  `order_number` varchar(10) NOT NULL,
   `order_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `order_total_price` decimal(10,2) NOT NULL DEFAULT '0.00',
   `order_pickup_time` time NOT NULL,
@@ -100,10 +90,10 @@ CREATE TABLE `order_items` (
   `order_item_id` int NOT NULL,
   `order_id` int NOT NULL,
   `product_id` int NOT NULL,
-  `product_name` varchar(100) NOT NULL,
-  `quantity` int NOT NULL,
-  `unit_price` decimal(10,2) NOT NULL,
-  `total_price` decimal(10,2) NOT NULL
+  `order_item_product_name` varchar(25) NOT NULL,
+  `order_item_quantity` int NOT NULL,
+  `order_item_unit_price` decimal(10,2) NOT NULL,
+  `order_item_total_price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -112,12 +102,12 @@ CREATE TABLE `order_items` (
 
 CREATE TABLE `products` (
   `product_id` int NOT NULL,
-  `product_name` varchar(50) NOT NULL,
+  `product_name` varchar(25) NOT NULL,
   `product_subtitle` varchar(100) NOT NULL,
   `product_description` text NOT NULL,
   `product_price` decimal(10,2) NOT NULL,
   `product_available` tinyint(1) NOT NULL,
-  `product_image` varchar(250) NOT NULL,
+  `product_image` varchar(100) NOT NULL,
   `category_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -143,10 +133,10 @@ CREATE TABLE `reviews` (
 
 CREATE TABLE `users` (
   `user_id` int NOT NULL,
-  `user_role` varchar(20) NOT NULL,
-  `user_name` varchar(50) NOT NULL,
-  `user_first_name` varchar(50) NOT NULL,
-  `user_email` varchar(50) NOT NULL,
+  `user_role` varchar(5) NOT NULL,
+  `user_name` varchar(15) NOT NULL,
+  `user_first_name` varchar(15) NOT NULL,
+  `user_email` varchar(25) NOT NULL,
   `user_password` varchar(250) NOT NULL,
   `user_total_spent` decimal(10,2) NOT NULL DEFAULT '0.00',
   `user_orders_count` int NOT NULL DEFAULT '0'

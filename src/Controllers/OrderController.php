@@ -42,7 +42,7 @@ class OrderController
             return null;
 
         // Calcul du prix total du panier
-        $total = array_sum(array_column($items, 'cart_items_total_price'));
+        $total = array_sum(array_column($items, 'cart_item_total_price'));
 
         // Crée la commande dans la base et récupère son ID
         $orderId = $this->order->create($userId, $total, $pickupTime);

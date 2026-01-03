@@ -27,8 +27,8 @@ class OrderItem
             // On sélectionne tous les produits du panier de l'utilisateur qui ne sont pas encore associés à une commande
             // et on les insère dans order_items avec l'ID de la commande
             $stmt = $this->db->prepare("
-                INSERT INTO order_items (order_id, product_id, product_name, quantity, unit_price, total_price)
-                SELECT ?, product_id, product_name, cart_items_quantity, cart_items_unit_price, cart_items_total_price
+                INSERT INTO order_items (order_id, product_id, cart_item_product_name, cart_item_quantity, cart_item_unit_price, cart_item_total_price)
+                SELECT ?, product_id, cart_item_product_name, cart_item_quantity, cart_item_unit_price, cart_item_total_price
                 FROM cart_items
                 WHERE order_id IS NULL AND user_id = ?
             ");
