@@ -41,30 +41,36 @@
                     <input type="email" name="email" value="<?= $_POST['email'] ?? '' ?>"
                         class="form-control form-control-sm py-1" id="email">
                 </div>
+                <div class="row g-2 mb-2">
+                    <div class="col">
+                        <label for="password" class="form-label small mb-1">Mot de passe</label>
+                        <small class="text-danger fst-italic"><?= $errors['password'] ?? '' ?></small>
+                        <input type="password" name="password" class="form-control form-control-sm py-1" id="password">
+                    </div>
 
-                <div class="mb-2">
-                    <label for="password" class="form-label small mb-1">Mot de passe</label>
-                    <small class="text-danger fst-italic"><?= $errors['password'] ?? '' ?></small>
-                    <input type="password" name="password" class="form-control form-control-sm py-1" id="password">
+                    <div class="col">
+                        <label for="confirmPassword" class="form-label small mb-1">Confirmer le mot de passe</label>
+                        <small class="text-danger fst-italic"><?= $errors['confirmPassword'] ?? '' ?></small>
+                        <input type="password" name="confirmPassword" class="form-control form-control-sm py-1"
+                            id="confirmPassword">
+                    </div>
                 </div>
+                <div class="d-flex justify-content-between">
+                    <div class="form-check mb-2">
+                        <label class="form-check-label small" for="cgu">CGU</label>
+                        <small class="text-danger fst-italic"><?= $errors['cgu'] ?? '' ?></small>
+                        <input type="checkbox" name="cgu" class="form-check-input" id="cgu">
+                    </div>
 
-                <div class="mb-2">
-                    <label for="confirmPassword" class="form-label small mb-1">Confirmer le mot de passe</label>
-                    <small class="text-danger fst-italic"><?= $errors['confirmPassword'] ?? '' ?></small>
-                    <input type="password" name="confirmPassword" class="form-control form-control-sm py-1"
-                        id="confirmPassword">
+                    <!-- Widget reCAPTCHA ajouté ici -->
+                    <div class="mb-3">
+                        <div class="g-recaptcha" data-sitekey="6LdDRD8sAAAAAA7qGR_v7ZFx9qqoqCPIAYqwd2in"></div>
+                        <small class="text-danger fst-italic"><?= $errors['captcha'] ?? '' ?></small>
+                    </div>
                 </div>
-
-                <div class="form-check mb-2">
-                    <label class="form-check-label small" for="cgu">CGU</label>
-                    <small class="text-danger fst-italic"><?= $errors['cgu'] ?? '' ?></small>
-                    <input type="checkbox" name="cgu" class="form-check-input" id="cgu">
-                </div>
-
                 <div class="md-3 text-center mt-3">
                     <button type="submit" class="btn px-5 rounded-4 border">Continuer</button>
                 </div>
-            </form>
             </form>
         </div>
         <div class="formulaire mx-auto mt-4 border py-2 rounded-5 text-center">
@@ -77,6 +83,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <!-- Script reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
 </html>

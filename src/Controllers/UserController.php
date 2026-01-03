@@ -31,6 +31,18 @@ class UserController
 
             $errors = []; // Tableau pour stocker les erreurs
 
+            // Vérification du reCAPTCHA
+            $recaptcha_secret = "6LdDRD8sAAAAAJ75tbPjiTqdK_mvocvNw1cdRjji";
+            $response = $_POST['g-recaptcha-response'] ?? '';
+            $remoteip = $_SERVER['REMOTE_ADDR'];
+
+            $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret}&response={$response}&remoteip={$remoteip}");
+            $captcha_success = json_decode($verify);
+
+            if (!$captcha_success->success) {
+                $errors['captcha'] = 'Erreur : vérification reCAPTCHA échouée.';
+            }
+
             // Vérification du champ "username"
             if (isset($_POST["username"]) && empty($_POST["username"])) {
                 $errors['username'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Nom obligatoire';
@@ -98,6 +110,18 @@ class UserController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $errors = []; // Tableau pour stocker les erreurs
+
+            // Vérification du reCAPTCHA
+            $recaptcha_secret = "6LdDRD8sAAAAAJ75tbPjiTqdK_mvocvNw1cdRjji";
+            $response = $_POST['g-recaptcha-response'] ?? '';
+            $remoteip = $_SERVER['REMOTE_ADDR'];
+
+            $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret}&response={$response}&remoteip={$remoteip}");
+            $captcha_success = json_decode($verify);
+
+            if (!$captcha_success->success) {
+                $errors['captcha'] = 'Erreur : vérification reCAPTCHA échouée.';
+            }
 
             // Vérification du champ email
             if (isset($_POST["email"]) && empty($_POST["email"])) {

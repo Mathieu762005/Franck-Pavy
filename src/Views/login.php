@@ -36,6 +36,12 @@
                         class="form-control form-control-sm py-1" id="password">
                 </div>
 
+                <!-- Widget reCAPTCHA ajouté ici -->
+                <div class="mb-3">
+                    <div class="g-recaptcha" data-sitekey="6LdDRD8sAAAAAA7qGR_v7ZFx9qqoqCPIAYqwd2in"></div>
+                    <small class="text-danger fst-italic"><?= $errors['captcha'] ?? '' ?></small>
+                </div>
+
                 <!-- Bouton -->
                 <div class="text-center mt-3">
                     <button type="submit" class="btn px-5 rounded-4 border">Continuer</button>
@@ -55,6 +61,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <!-- Script reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
 </html>
