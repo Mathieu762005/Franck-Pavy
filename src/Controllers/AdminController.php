@@ -121,7 +121,7 @@ class AdminController
 
         // Tri des messages par date d'envoi
         usort($messages, function ($a, $b) {
-            return strtotime($a['message_sent_at']) <=> strtotime($b['message_sent_at']);
+            return strtotime($b['message_sent_at']) <=> strtotime($a['message_sent_at']);
         });
 
         // Chargement de la vue
