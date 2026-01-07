@@ -35,11 +35,12 @@
                     <input type="password" name="password" value="<?= $_POST['password'] ?? '' ?>"
                         class="form-control form-control-sm py-1" id="password">
                 </div>
-
-                <!-- Widget reCAPTCHA ajouté ici -->
+                <!-- reCAPTCHA -->
                 <div class="mb-3">
                     <div class="g-recaptcha" data-sitekey="6LdDRD8sAAAAAA7qGR_v7ZFx9qqoqCPIAYqwd2in"></div>
-                    <small class="text-danger fst-italic"><?= $errors['captcha'] ?? '' ?></small>
+                    <?php if (isset($errors['captcha'])): ?>
+                        <div class="text-danger mt-1"><?= $errors['captcha'] ?></div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Bouton -->

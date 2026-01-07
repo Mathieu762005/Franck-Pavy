@@ -21,3 +21,11 @@
 img {
     width: 15rem;
 }
+
+/* Si l'écran > 700px */
+@media (max-width: 701px) {
+    .navbar {
+        display: flex;
+        align-items: flex-start; /* alignement en haut */
+    }
+}

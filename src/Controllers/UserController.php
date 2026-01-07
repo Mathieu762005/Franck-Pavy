@@ -87,7 +87,9 @@ class UserController
                 $errors['cgu'] = '<i class="bi bi-exclamation-circle-fill fs-6"></i> Vous devez accepter les CGU';
             }
 
-            // Si aucune erreur, on crée l'utilisateur
+            // -------------------------------
+            // 3️⃣ Création de l'utilisateur
+            // -------------------------------
             if (empty($errors)) {
                 $objetUser = new User($this->db);
                 if ($objetUser->createUser($_POST["username"], $_POST["firstname"], $_POST["email"], $_POST["password"])) {

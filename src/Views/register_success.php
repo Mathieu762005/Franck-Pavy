@@ -15,7 +15,6 @@
         <div class="s-register-partie1 mx-auto text-center rounded-4">
             <div class="s-register-partie1__centrale alert border border-2 rounded-4 border-black rounded-0 py-5 m-0">
                 <h2 class="s-register-partie1__titre">Félicitations,
-                    <?= htmlspecialchars($_SESSION['user']['username']) ?> !
                 </h2>
                 <p class="s-register-partie1__description">Votre compte a été créé avec succès.</p>
                 <div>
